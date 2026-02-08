@@ -1,31 +1,63 @@
+﻿# 
+#  AI Store Builder  .gitignore
+# 
+
+#  Python 
 __pycache__/
 *.py[cod]
 *$py.class
 *.egg-info/
+*.egg
 dist/
 build/
 .eggs/
-*.egg
-.env
-.env.local
-.env.*.local
+
+#  Virtual Environments 
 .venv/
 venv/
 env/
+.uv/
+
+#  Environment / Secrets 
+.env
+.env.local
+.env.*.local
+!.env.example
+
+#  Database 
 *.db
 *.sqlite3
+
+#  Cache & Tools 
 .mypy_cache/
 .pytest_cache/
 .ruff_cache/
 .coverage
 htmlcov/
+.hypothesis/
+
+#  Logs 
 *.log
+logs/
+
+#  OS 
 .DS_Store
 Thumbs.db
+Desktop.ini
+
+#  IDE 
 .idea/
 .vscode/settings.json
+.vscode/launch.json
 *.swp
 *.swo
+*~
+
+#  Node / Frontend 
 node_modules/
 frontend/dist/
 *.tsbuildinfo
+.eslintcache
+
+#  Docker 
+docker-compose.override.yml
