@@ -1,0 +1,96 @@
+[project]
+name = "ai-store-builder"
+version = "1.0.0"
+description = "AI-powered multi-tenant store builder — بناء المتاجر بالذكاء الاصطناعي"
+requires-python = ">=3.12"
+dependencies = [
+    # ── Core Framework ──
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "pydantic>=2.10.0",
+    "pydantic-settings>=2.7.0",
+
+    # ── Database ──
+    "sqlalchemy[asyncio]>=2.0.36",
+    "asyncpg>=0.30.0",
+    "aiosqlite>=0.20.0",
+    "alembic>=1.14.0",
+    "greenlet>=3.1.0",
+
+    # ── Auth ──
+    "python-jose[cryptography]>=3.3.0",
+    "passlib[bcrypt]>=1.7.4",
+    "python-multipart>=0.0.18",
+    "email-validator>=2.0.0",
+
+    # ── Redis + Jobs ──
+    "redis>=5.2.0",
+    "arq>=0.26.1",
+
+    # ── Utilities ──
+    "httpx>=0.28.0",
+    "python-slugify>=8.0.4",
+    "uuid7>=0.1.0",
+
+    # ── Testing ──
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "httpx>=0.28.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+# ══════════════════════════════════════
+#  Ruff — Linter & Formatter
+# ══════════════════════════════════════
+[tool.ruff]
+target-version = "py312"
+line-length = 99
+fix = true
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "RUF",  # ruff-specific rules
+]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+# ══════════════════════════════════════
+#  Mypy — Type Checker
+# ══════════════════════════════════════
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+check_untyped_defs = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["arq.*", "uuid7.*", "slugify.*", "jose.*", "passlib.*"]
+ignore_missing_imports = true
+
+# ══════════════════════════════════════
+#  Pytest
+# ══════════════════════════════════════
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"

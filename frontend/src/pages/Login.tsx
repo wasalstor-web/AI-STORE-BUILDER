@@ -1,0 +1,121 @@
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { motion } from 'framer-motion';
+import { Sparkles, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import toast from 'react-hot-toast';
+
+export default function Login() {
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await login(email, password);
+      toast.success('تم تسجيل الدخول بنجاح! 🎉');
+      navigate('/dashboard');
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail || 'فشل تسجيل الدخول';
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4 bg-dark-bg relative overflow-hidden">
+      {/* Background effects */}
+      <div className="absolute inset-0 bg-mesh" />
+      <div className="absolute top-1/4 right-1/3 w-96 h-96 bg-primary/8 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-1/4 left-1/3 w-80 h-80 bg-accent/8 rounded-full blur-[100px] pointer-events-none" />
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md relative z-10"
+      >
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <Link to="/" className="inline-flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-xl shadow-primary/15">
+              <Sparkles className="w-6 h-6 text-white" />
+            </div>
+          </Link>
+          <h1 className="text-2xl font-bold">تسجيل الدخول</h1>
+          <p className="text-text-secondary mt-2">أهلاً بعودتك! ادخل بياناتك</p>
+        </div>
+
+        {/* Form */}
+        <div className="glass-card-glow p-8">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="text-sm text-text-secondary mb-2 block">البريد الإلكتروني</label>
+              <div className="relative">
+                <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="example@email.com"
+                  required
+                  className="input-field pr-12"
+                  dir="ltr"
+                  style={{ textAlign: 'left' }}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-sm text-text-secondary mb-2 block">كلمة المرور</label>
+              <div className="relative">
+                <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  className="input-field pr-12 pl-12"
+                  dir="ltr"
+                  style={{ textAlign: 'left' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary w-full py-3 text-center flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {loading ? (
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                'تسجيل الدخول'
+              )}
+            </button>
+          </form>
+
+          <p className="text-center text-sm text-text-secondary mt-6">
+            ما عندك حساب؟{' '}
+            <Link to="/register" className="text-primary-light hover:text-primary font-semibold">
+              سجّل الآن
+            </Link>
+          </p>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
