@@ -91,6 +91,11 @@ from app.api.stores import router as stores_router  # noqa: E402
 from app.api.jobs import router as jobs_router  # noqa: E402
 from app.api.ai_chat import router as ai_chat_router  # noqa: E402
 from app.api.preview import router as preview_router  # noqa: E402
+from app.api.products import router as products_router  # noqa: E402
+from app.api.categories import router as categories_router  # noqa: E402
+from app.api.orders import router as orders_router  # noqa: E402
+from app.api.payments import router as payments_router  # noqa: E402
+from app.api.uploads import router as uploads_router  # noqa: E402
 
 app.include_router(health_router)
 app.include_router(auth_router, prefix=f"{settings.API_V1_PREFIX}/auth", tags=["🔐 Auth"])
@@ -99,6 +104,11 @@ app.include_router(stores_router, prefix=f"{settings.API_V1_PREFIX}/stores", tag
 app.include_router(jobs_router, prefix=f"{settings.API_V1_PREFIX}/jobs", tags=["📊 Jobs"])
 app.include_router(ai_chat_router, prefix=f"{settings.API_V1_PREFIX}/ai", tags=["🤖 AI Chat"])
 app.include_router(preview_router, prefix=f"{settings.API_V1_PREFIX}/preview", tags=["👁️ Preview"])
+app.include_router(products_router, prefix=f"{settings.API_V1_PREFIX}", tags=["📦 Products"])
+app.include_router(categories_router, prefix=f"{settings.API_V1_PREFIX}", tags=["📂 Categories"])
+app.include_router(orders_router, prefix=f"{settings.API_V1_PREFIX}", tags=["🛒 Orders"])
+app.include_router(payments_router, prefix=f"{settings.API_V1_PREFIX}", tags=["💳 Payments"])
+app.include_router(uploads_router, prefix=f"{settings.API_V1_PREFIX}", tags=["📤 Uploads"])
 
 
 @app.exception_handler(Exception)

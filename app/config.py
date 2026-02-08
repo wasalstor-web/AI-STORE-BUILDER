@@ -50,6 +50,17 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = ""
     ANTHROPIC_API_KEY: str = ""
 
+    # ── Payment (Phase 3) ──
+    MOYASAR_API_KEY: str = ""
+    TAP_SECRET_KEY: str = ""
+
+    # ── Cloudflare R2 Storage ──
+    CLOUDFLARE_ACCOUNT_ID: str = ""
+    R2_ACCESS_KEY_ID: str = ""
+    R2_SECRET_ACCESS_KEY: str = ""
+    R2_BUCKET_NAME: str = "store-images"
+    R2_PUBLIC_URL: str = ""
+
     @property
     def is_production(self) -> bool:
         return self.APP_ENV == "production"
