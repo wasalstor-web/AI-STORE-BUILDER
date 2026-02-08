@@ -29,6 +29,23 @@ async def generate_store(
     ctx: TenantCtx,
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
+    # ── Enforce store limit per plan ──
+    from app.config import get_settings
+    from app.models.tenant import Tenant
+    _settings = get_settings()
+    count_stmt = select(func.count()).select_from(Store).where(Store.tenant_id == ctx.tenant_id)
+    store_count = (await db.execute(count_stmt)).scalar() or 0
+    tenant_result = await db.execute(select(Tenant).where(Tenant.id == ctx.tenant_id))
+    tenant = tenant_result.scalar_one_or_none()
+    plan = tenant.plan if tenant else "free"
+    plan_limits = {"free": _settings.MAX_STORES_FREE, "pro": _settings.MAX_STORES_PRO, "enterprise": _settings.MAX_STORES_ENTERPRISE}
+    max_stores = plan_limits.get(plan, _settings.MAX_STORES_FREE)
+    if store_count >= max_stores:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"وصلت الحد الأقصى للمتاجر في خطة {plan} ({max_stores} متاجر). يرجى الترقية.",
+        )
+
     request_data = body.model_dump()
     # Convert nested Pydantic models to dicts
     for key in ["branding", "payment", "shipping"]:

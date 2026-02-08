@@ -38,6 +38,11 @@ class Settings(BaseSettings):
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     JWT_REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
+    # ── Security ──
+    MAX_STORES_FREE: int = 3
+    MAX_STORES_PRO: int = 20
+    MAX_STORES_ENTERPRISE: int = 1000
+
     # ── CORS ──
     CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8000"]
 

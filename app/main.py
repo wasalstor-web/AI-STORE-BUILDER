@@ -22,6 +22,12 @@ settings = get_settings()
 async def lifespan(app: FastAPI):
     """Startup & shutdown events."""
     # Startup
+    import secrets
+    if "CHANGE-ME" in settings.JWT_SECRET_KEY:
+        if settings.is_production:
+            raise RuntimeError("❌ JWT_SECRET_KEY must be set in production! Run: openssl rand -hex 64")
+        else:
+            print("⚠️  WARNING: Using default JWT secret. Set JWT_SECRET_KEY in .env for production!")
     print(f"🚀 {settings.APP_NAME} v{settings.APP_VERSION} starting...")
     print(f"📦 Environment: {settings.APP_ENV}")
 
