@@ -3,61 +3,61 @@
 import uuid
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional, List
 
-from pydantic import BaseModel, Field, EmailStr
-
+from pydantic import BaseModel, EmailStr, Field
 
 # ── Cart / Checkout ──
+
 
 class CartItem(BaseModel):
     product_id: uuid.UUID
     quantity: int = Field(..., gt=0, le=100)
-    attributes: Optional[dict] = Field(default={})
+    attributes: dict | None = Field(default={})
 
 
 class CheckoutRequest(BaseModel):
     """POST /stores/{store_id}/checkout"""
-    items: List[CartItem] = Field(..., min_length=1)
+
+    items: list[CartItem] = Field(..., min_length=1)
     customer_name: str = Field(..., min_length=2, max_length=255)
     customer_email: EmailStr
-    customer_phone: Optional[str] = Field(None, pattern=r"^\+?\d{8,15}$")
+    customer_phone: str | None = Field(None, pattern=r"^\+?\d{8,15}$")
     shipping_address: dict = Field(
         ..., description="{ street, city, state, postal_code, country }"
     )
-    payment_method: str = Field(
-        default="cod", pattern="^(cod|mada|visa|apple_pay|stc_pay)$"
-    )
-    customer_notes: Optional[str] = Field(None, max_length=1000)
+    payment_method: str = Field(default="cod", pattern="^(cod|mada|visa|apple_pay|stc_pay)$")
+    customer_notes: str | None = Field(None, max_length=1000)
 
 
 class OrderUpdateRequest(BaseModel):
     """PATCH /orders/{id} — admin updates"""
-    status: Optional[str] = Field(
+
+    status: str | None = Field(
         None,
         pattern="^(pending|paid|processing|shipped|delivered|completed|cancelled|refunded)$",
     )
-    payment_status: Optional[str] = Field(
+    payment_status: str | None = Field(
         None,
         pattern="^(unpaid|paid|refunded|partially_refunded)$",
     )
-    tracking_number: Optional[str] = Field(None, max_length=255)
-    shipping_method: Optional[str] = Field(None, max_length=100)
-    admin_notes: Optional[str] = Field(None, max_length=2000)
+    tracking_number: str | None = Field(None, max_length=255)
+    shipping_method: str | None = Field(None, max_length=100)
+    admin_notes: str | None = Field(None, max_length=2000)
 
 
 # ── Responses ──
 
+
 class OrderItemResponse(BaseModel):
     id: uuid.UUID
-    product_id: Optional[uuid.UUID] = None
+    product_id: uuid.UUID | None = None
     product_name: str
-    product_sku: Optional[str] = None
-    product_image: Optional[str] = None
+    product_sku: str | None = None
+    product_image: str | None = None
     quantity: int
     unit_price: Decimal
     total_price: Decimal
-    attributes: Optional[dict] = None
+    attributes: dict | None = None
 
     model_config = {"from_attributes": True}
 
@@ -68,8 +68,8 @@ class OrderResponse(BaseModel):
     order_number: str
     customer_name: str
     customer_email: str
-    customer_phone: Optional[str] = None
-    shipping_address: Optional[dict] = None
+    customer_phone: str | None = None
+    shipping_address: dict | None = None
     subtotal: Decimal
     shipping_cost: Decimal
     tax_amount: Decimal
@@ -77,13 +77,13 @@ class OrderResponse(BaseModel):
     total: Decimal
     currency: str
     status: str
-    payment_method: Optional[str] = None
+    payment_method: str | None = None
     payment_status: str
-    tracking_number: Optional[str] = None
-    shipping_method: Optional[str] = None
-    customer_notes: Optional[str] = None
-    admin_notes: Optional[str] = None
-    items: List[OrderItemResponse] = []
+    tracking_number: str | None = None
+    shipping_method: str | None = None
+    customer_notes: str | None = None
+    admin_notes: str | None = None
+    items: list[OrderItemResponse] = []
     created_at: datetime
     updated_at: datetime
 
@@ -91,7 +91,7 @@ class OrderResponse(BaseModel):
 
 
 class OrderListResponse(BaseModel):
-    items: List[OrderResponse]
+    items: list[OrderResponse]
     total: int
     page: int
     page_size: int
@@ -99,6 +99,7 @@ class OrderListResponse(BaseModel):
 
 class OrderSummary(BaseModel):
     """Quick stats for dashboard"""
+
     total_orders: int
     total_revenue: Decimal
     pending_orders: int

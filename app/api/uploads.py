@@ -1,11 +1,7 @@
 """Upload endpoint — image upload for products & categories."""
 
-import uuid
-from typing import Annotated
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, status
-
-from app.middleware.auth import CurrentUser
 from app.middleware.tenant import TenantCtx
 from app.services.upload_service import upload_service
 
@@ -22,7 +18,7 @@ MAX_SIZE = 5 * 1024 * 1024  # 5MB
 )
 async def upload_image(
     ctx: TenantCtx,
-    file: UploadFile = File(...),
+    file: UploadFile = File(),
     folder: str = Form(default="products"),
 ):
     """Upload an image to Cloudflare R2 or local storage."""
@@ -37,7 +33,7 @@ async def upload_image(
     if len(contents) > MAX_SIZE:
         raise HTTPException(
             status_code=400,
-            detail=f"حجم الملف يتجاوز الحد المسموح ({MAX_SIZE // (1024*1024)}MB)",
+            detail=f"حجم الملف يتجاوز الحد المسموح ({MAX_SIZE // (1024 * 1024)}MB)",
         )
 
     url = await upload_service.upload_image(

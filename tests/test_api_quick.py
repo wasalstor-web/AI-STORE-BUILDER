@@ -1,6 +1,8 @@
 """Quick API smoke test — run while server is up on port 8000."""
-import httpx
+
 import sys
+
+import httpx
 
 BASE = "http://127.0.0.1:8000"
 API = f"{BASE}/api/v1"

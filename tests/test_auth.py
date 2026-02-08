@@ -2,7 +2,6 @@
 
 import pytest
 
-
 TEST_USER = {
     "email": "test@example.com",
     "password": "TestPass123!",
@@ -26,14 +25,18 @@ async def test_register(client):
 
 @pytest.mark.asyncio
 async def test_login(client):
-    # Register first
-    await client.post("/api/v1/auth/register", json=TEST_USER)
+    # Register first (ensure user exists in this test's DB state)
+    reg = await client.post("/api/v1/auth/register", json=TEST_USER)
+    assert reg.status_code in [201, 409]
 
     # Login
-    response = await client.post("/api/v1/auth/login", json={
-        "email": TEST_USER["email"],
-        "password": TEST_USER["password"],
-    })
+    response = await client.post(
+        "/api/v1/auth/login",
+        json={
+            "email": TEST_USER["email"],
+            "password": TEST_USER["password"],
+        },
+    )
     assert response.status_code == 200
     data = response.json()
     assert "access_token" in data
@@ -41,29 +44,38 @@ async def test_login(client):
 
 @pytest.mark.asyncio
 async def test_login_wrong_password(client):
-    response = await client.post("/api/v1/auth/login", json={
-        "email": TEST_USER["email"],
-        "password": "WrongPassword!",
-    })
+    response = await client.post(
+        "/api/v1/auth/login",
+        json={
+            "email": TEST_USER["email"],
+            "password": "WrongPassword!",
+        },
+    )
     assert response.status_code == 401
 
 
 @pytest.mark.asyncio
 async def test_me(client):
     # Register & get token
-    reg = await client.post("/api/v1/auth/register", json={
-        **TEST_USER,
-        "email": "me_test@example.com",
-        "tenant_name": "شركة Me Test",
-    })
+    reg = await client.post(
+        "/api/v1/auth/register",
+        json={
+            **TEST_USER,
+            "email": "me_test@example.com",
+            "tenant_name": "شركة Me Test",
+        },
+    )
     if reg.status_code == 201:
         token = reg.json()["access_token"]
     else:
         # Login instead
-        login = await client.post("/api/v1/auth/login", json={
-            "email": "me_test@example.com",
-            "password": TEST_USER["password"],
-        })
+        login = await client.post(
+            "/api/v1/auth/login",
+            json={
+                "email": "me_test@example.com",
+                "password": TEST_USER["password"],
+            },
+        )
         token = login.json()["access_token"]
 
     response = await client.get(

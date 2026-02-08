@@ -1,6 +1,7 @@
 """Health & Version endpoints — public, no auth."""
 
 from fastapi import APIRouter
+
 from app.config import get_settings
 
 router = APIRouter(tags=["🏥 Health"])

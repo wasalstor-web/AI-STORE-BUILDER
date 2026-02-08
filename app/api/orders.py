@@ -1,26 +1,28 @@
 """Order endpoints — checkout, list, update, stats."""
 
-import uuid
 import random
 import string
+import uuid
 from decimal import Decimal
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.database import get_db
-from app.middleware.auth import CurrentUser
-from app.middleware.tenant import TenantCtx
 from app.middleware.rate_limit import limiter
+from app.middleware.tenant import TenantCtx
 from app.models.order import Order, OrderItem
 from app.models.product import Product
 from app.models.store import Store
 from app.schemas.order import (
-    CheckoutRequest, OrderUpdateRequest, OrderResponse,
-    OrderListResponse, OrderSummary,
+    CheckoutRequest,
+    OrderListResponse,
+    OrderResponse,
+    OrderSummary,
+    OrderUpdateRequest,
 )
 
 router = APIRouter()
@@ -35,9 +37,7 @@ def _generate_order_number() -> str:
     return f"ORD-{code}"
 
 
-async def _get_store_or_404(
-    db: AsyncSession, store_id: uuid.UUID, tenant_id: uuid.UUID
-) -> Store:
+async def _get_store_or_404(db: AsyncSession, store_id: uuid.UUID, tenant_id: uuid.UUID) -> Store:
     result = await db.execute(
         select(Store).where(Store.id == store_id, Store.tenant_id == tenant_id)
     )
@@ -61,7 +61,7 @@ async def checkout(
     ctx: TenantCtx,
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    store = await _get_store_or_404(db, store_id, ctx.tenant_id)
+    await _get_store_or_404(db, store_id, ctx.tenant_id)
 
     # Validate products & calculate totals
     order_items: list[OrderItem] = []
@@ -72,7 +72,7 @@ async def checkout(
             select(Product).where(
                 Product.id == cart_item.product_id,
                 Product.store_id == store_id,
-                Product.is_active == True,
+                Product.is_active.is_(True),
             )
         )
         product = result.scalar_one_or_none()
@@ -83,26 +83,31 @@ async def checkout(
             )
 
         # Check stock
-        if product.track_inventory and product.stock_quantity < cart_item.quantity:
-            if not product.allow_backorder:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"الكمية المطلوبة من '{product.name}' غير متوفرة (المتبقي: {product.stock_quantity})",
-                )
+        if (
+            product.track_inventory
+            and product.stock_quantity < cart_item.quantity
+            and not product.allow_backorder
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail=f"الكمية المطلوبة من '{product.name}' غير متوفرة (المتبقي: {product.stock_quantity})",
+            )
 
         item_total = product.price * cart_item.quantity
         subtotal += item_total
 
-        order_items.append(OrderItem(
-            product_id=product.id,
-            product_name=product.name,
-            product_sku=product.sku,
-            product_image=product.image_url,
-            quantity=cart_item.quantity,
-            unit_price=product.price,
-            total_price=item_total,
-            attributes=cart_item.attributes or {},
-        ))
+        order_items.append(
+            OrderItem(
+                product_id=product.id,
+                product_name=product.name,
+                product_sku=product.sku,
+                product_image=product.image_url,
+                quantity=cart_item.quantity,
+                unit_price=product.price,
+                total_price=item_total,
+                attributes=cart_item.attributes or {},
+            )
+        )
 
         # Deduct inventory
         if product.track_inventory:
@@ -116,9 +121,7 @@ async def checkout(
     # Generate unique order number
     order_number = _generate_order_number()
     while True:
-        exists = await db.execute(
-            select(Order.id).where(Order.order_number == order_number)
-        )
+        exists = await db.execute(select(Order.id).where(Order.order_number == order_number))
         if not exists.scalar_one_or_none():
             break
         order_number = _generate_order_number()
@@ -161,8 +164,8 @@ async def list_orders(
     db: Annotated[AsyncSession, Depends(get_db)],
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
-    status_filter: Optional[str] = Query(None, alias="status"),
-    payment_status: Optional[str] = None,
+    status_filter: str | None = Query(None, alias="status"),
+    payment_status: str | None = None,
 ):
     await _get_store_or_404(db, store_id, ctx.tenant_id)
 
@@ -182,8 +185,7 @@ async def list_orders(
 
     # Paginate with items eagerly loaded
     items_q = (
-        base_q
-        .options(selectinload(Order.items))
+        base_q.options(selectinload(Order.items))
         .order_by(Order.created_at.desc())
         .offset((page - 1) * page_size)
         .limit(page_size)
@@ -286,14 +288,16 @@ async def order_summary(
     total_revenue = (await db.execute(rev_q)).scalar() or Decimal("0.00")
 
     # Pending
-    pending_q = select(func.count()).select_from(Order).where(
-        *base_filter, Order.status == "pending"
+    pending_q = (
+        select(func.count()).select_from(Order).where(*base_filter, Order.status == "pending")
     )
     pending_orders = (await db.execute(pending_q)).scalar() or 0
 
     # Completed
-    completed_q = select(func.count()).select_from(Order).where(
-        *base_filter, Order.status.in_(["completed", "delivered"])
+    completed_q = (
+        select(func.count())
+        .select_from(Order)
+        .where(*base_filter, Order.status.in_(["completed", "delivered"]))
     )
     completed_orders = (await db.execute(completed_q)).scalar() or 0
 

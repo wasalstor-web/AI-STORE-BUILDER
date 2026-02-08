@@ -6,26 +6,26 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import get_settings
 from app.database import get_db
+from app.middleware.auth import CurrentUser
+from app.middleware.rate_limit import limiter
+from app.models.user import User
 from app.schemas.auth import (
-    RegisterRequest,
     LoginRequest,
     RefreshRequest,
+    RegisterRequest,
     TokenResponse,
     UserResponse,
 )
 from app.services.auth_service import (
-    register_user,
     authenticate_user,
     create_access_token,
     create_refresh_token,
     decode_token,
     get_user_by_id,
+    register_user,
 )
-from app.middleware.auth import CurrentUser
-from app.models.user import User
-from app.config import get_settings
-from app.middleware.rate_limit import limiter
 
 router = APIRouter()
 settings = get_settings()

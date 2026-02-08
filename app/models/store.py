@@ -1,9 +1,10 @@
 """Store model — AI-generated store config."""
 
-import uuid
-from typing import Optional
+from __future__ import annotations
 
-from sqlalchemy import String, ForeignKey, JSON, Uuid
+import uuid
+
+from sqlalchemy import JSON, ForeignKey, String, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin, generate_uuid7
@@ -12,9 +13,7 @@ from app.models.base import Base, TimestampMixin, generate_uuid7
 class Store(Base, TimestampMixin):
     __tablename__ = "stores"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, primary_key=True, default=generate_uuid7
-    )
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=generate_uuid7)
     tenant_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("tenants.id"), nullable=False, index=True
     )
@@ -22,15 +21,23 @@ class Store(Base, TimestampMixin):
     slug: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     store_type: Mapped[str] = mapped_column(String(100), nullable=False)
     language: Mapped[str] = mapped_column(String(10), default="ar", nullable=False)
-    config: Mapped[Optional[dict]] = mapped_column(JSON, default=dict)
+    config: Mapped[dict | None] = mapped_column(JSON, default=dict)
     status: Mapped[str] = mapped_column(String(50), default="pending", nullable=False)
 
     # Relationships
-    tenant: Mapped["Tenant"] = relationship("Tenant", back_populates="stores")
-    jobs: Mapped[list["Job"]] = relationship("Job", back_populates="store", cascade="all, delete-orphan")
-    categories: Mapped[list["Category"]] = relationship("Category", back_populates="store", cascade="all, delete-orphan")
-    products: Mapped[list["Product"]] = relationship("Product", back_populates="store", cascade="all, delete-orphan")
-    orders: Mapped[list["Order"]] = relationship("Order", back_populates="store", cascade="all, delete-orphan")
+    tenant: Mapped[Tenant] = relationship("Tenant", back_populates="stores")
+    jobs: Mapped[list[Job]] = relationship(
+        "Job", back_populates="store", cascade="all, delete-orphan"
+    )
+    categories: Mapped[list[Category]] = relationship(
+        "Category", back_populates="store", cascade="all, delete-orphan"
+    )
+    products: Mapped[list[Product]] = relationship(
+        "Product", back_populates="store", cascade="all, delete-orphan"
+    )
+    orders: Mapped[list[Order]] = relationship(
+        "Order", back_populates="store", cascade="all, delete-orphan"
+    )
 
     def __repr__(self) -> str:
         return f"<Store {self.slug}>"

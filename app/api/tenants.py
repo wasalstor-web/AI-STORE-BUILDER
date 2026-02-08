@@ -2,13 +2,13 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.schemas.tenant import TenantResponse, TenantUpdate
-from app.middleware.auth import CurrentUser, OwnerUser
+from app.middleware.auth import OwnerUser
 from app.middleware.tenant import TenantCtx
+from app.schemas.tenant import TenantResponse, TenantUpdate
 from app.services.tenant_service import get_tenant_by_id, update_tenant
 
 router = APIRouter()

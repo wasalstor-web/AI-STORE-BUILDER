@@ -4,18 +4,16 @@ Uses OpenAI GPT for generating store structure, content, and layout.
 Falls back to template-based generation when no API key is configured.
 """
 
-import asyncio
 import json
-from datetime import datetime, timezone
-from typing import Any
+from datetime import UTC, datetime
 
+from slugify import slugify
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.store import Store
-from app.models.job import Job
-from app.models.base import generate_uuid7
 from app.config import get_settings
-from slugify import slugify
+from app.models.base import generate_uuid7
+from app.models.job import Job
+from app.models.store import Store
 
 
 async def create_store_and_job(
@@ -30,6 +28,7 @@ async def create_store_and_job(
     counter = 1
     while True:
         from sqlalchemy import select as sa_select
+
         existing = await db.execute(
             sa_select(Store.id).where(Store.slug == slug, Store.tenant_id == tenant_id)
         )
@@ -87,12 +86,18 @@ SYSTEM_PROMPT = """أنت خبير في بناء المتاجر الإلكترو
 def _build_generation_prompt(config: dict, store_name: str, store_type: str, language: str) -> str:
     """Build the prompt for the AI model."""
     type_label = STORE_TYPE_LABELS.get(store_type, store_type)
-    lang_label = "العربية" if language == "ar" else "الإنجليزية" if language == "en" else "العربية والإنجليزية"
+    lang_label = (
+        "العربية"
+        if language == "ar"
+        else "الإنجليزية"
+        if language == "en"
+        else "العربية والإنجليزية"
+    )
     style = config.get("branding", {}).get("style", "modern")
 
     return f"""أنشئ محتوى متجر إلكتروني بالتفاصيل التالية:
 - اسم المتجر: {store_name}
-- نوع المتجر: {type_label}  
+- نوع المتجر: {type_label}
 - اللغة: {lang_label}
 - أسلوب التصميم: {style}
 
@@ -168,34 +173,134 @@ def _generate_template_content(store_name: str, store_type: str, language: str) 
 
     product_templates = {
         "fashion": [
-            {"name": "فستان سهرة أنيق", "description": "فستان سهرة فاخر بتصميم عصري", "price": 450, "currency": "SAR"},
-            {"name": "بدلة رسمية رجالية", "description": "بدلة كلاسيكية بقصة احترافية", "price": 890, "currency": "SAR"},
-            {"name": "حقيبة يد جلدية", "description": "حقيبة يد من الجلد الطبيعي", "price": 320, "currency": "SAR"},
-            {"name": "حذاء رياضي", "description": "حذاء مريح للاستخدام اليومي", "price": 280, "currency": "SAR"},
-            {"name": "شال حريري", "description": "شال من الحرير الطبيعي", "price": 180, "currency": "SAR"},
-            {"name": "ساعة يد كلاسيكية", "description": "ساعة أنيقة بتصميم عصري", "price": 650, "currency": "SAR"},
+            {
+                "name": "فستان سهرة أنيق",
+                "description": "فستان سهرة فاخر بتصميم عصري",
+                "price": 450,
+                "currency": "SAR",
+            },
+            {
+                "name": "بدلة رسمية رجالية",
+                "description": "بدلة كلاسيكية بقصة احترافية",
+                "price": 890,
+                "currency": "SAR",
+            },
+            {
+                "name": "حقيبة يد جلدية",
+                "description": "حقيبة يد من الجلد الطبيعي",
+                "price": 320,
+                "currency": "SAR",
+            },
+            {
+                "name": "حذاء رياضي",
+                "description": "حذاء مريح للاستخدام اليومي",
+                "price": 280,
+                "currency": "SAR",
+            },
+            {
+                "name": "شال حريري",
+                "description": "شال من الحرير الطبيعي",
+                "price": 180,
+                "currency": "SAR",
+            },
+            {
+                "name": "ساعة يد كلاسيكية",
+                "description": "ساعة أنيقة بتصميم عصري",
+                "price": 650,
+                "currency": "SAR",
+            },
         ],
         "electronics": [
-            {"name": "سماعات بلوتوث", "description": "سماعات لاسلكية بجودة صوت عالية", "price": 350, "currency": "SAR"},
-            {"name": "شاحن سريع", "description": "شاحن 65 واط يدعم الشحن السريع", "price": 120, "currency": "SAR"},
-            {"name": "ماوس لاسلكي", "description": "ماوس مريح للاستخدام المكتبي", "price": 95, "currency": "SAR"},
-            {"name": "حامل لابتوب", "description": "حامل ألمنيوم قابل للتعديل", "price": 180, "currency": "SAR"},
-            {"name": "كاميرا ويب HD", "description": "كاميرا 1080p للاجتماعات", "price": 230, "currency": "SAR"},
-            {"name": "لوحة مفاتيح ميكانيكية", "description": "كيبورد ميكانيكي RGB", "price": 420, "currency": "SAR"},
+            {
+                "name": "سماعات بلوتوث",
+                "description": "سماعات لاسلكية بجودة صوت عالية",
+                "price": 350,
+                "currency": "SAR",
+            },
+            {
+                "name": "شاحن سريع",
+                "description": "شاحن 65 واط يدعم الشحن السريع",
+                "price": 120,
+                "currency": "SAR",
+            },
+            {
+                "name": "ماوس لاسلكي",
+                "description": "ماوس مريح للاستخدام المكتبي",
+                "price": 95,
+                "currency": "SAR",
+            },
+            {
+                "name": "حامل لابتوب",
+                "description": "حامل ألمنيوم قابل للتعديل",
+                "price": 180,
+                "currency": "SAR",
+            },
+            {
+                "name": "كاميرا ويب HD",
+                "description": "كاميرا 1080p للاجتماعات",
+                "price": 230,
+                "currency": "SAR",
+            },
+            {
+                "name": "لوحة مفاتيح ميكانيكية",
+                "description": "كيبورد ميكانيكي RGB",
+                "price": 420,
+                "currency": "SAR",
+            },
         ],
         "beauty": [
-            {"name": "عطر فاخر", "description": "عطر شرقي بمكونات طبيعية", "price": 380, "currency": "SAR"},
-            {"name": "كريم ترطيب", "description": "كريم مرطب طبيعي للبشرة", "price": 120, "currency": "SAR"},
-            {"name": "مجموعة مكياج", "description": "طقم مكياج احترافي 12 قطعة", "price": 550, "currency": "SAR"},
-            {"name": "زيت أرغان أصلي", "description": "زيت أرغان مغربي طبيعي", "price": 95, "currency": "SAR"},
-            {"name": "عود معطر", "description": "بخور عود كمبودي فاخر", "price": 280, "currency": "SAR"},
-            {"name": "لوشن للجسم", "description": "لوشن معطر بالمسك الأبيض", "price": 85, "currency": "SAR"},
+            {
+                "name": "عطر فاخر",
+                "description": "عطر شرقي بمكونات طبيعية",
+                "price": 380,
+                "currency": "SAR",
+            },
+            {
+                "name": "كريم ترطيب",
+                "description": "كريم مرطب طبيعي للبشرة",
+                "price": 120,
+                "currency": "SAR",
+            },
+            {
+                "name": "مجموعة مكياج",
+                "description": "طقم مكياج احترافي 12 قطعة",
+                "price": 550,
+                "currency": "SAR",
+            },
+            {
+                "name": "زيت أرغان أصلي",
+                "description": "زيت أرغان مغربي طبيعي",
+                "price": 95,
+                "currency": "SAR",
+            },
+            {
+                "name": "عود معطر",
+                "description": "بخور عود كمبودي فاخر",
+                "price": 280,
+                "currency": "SAR",
+            },
+            {
+                "name": "لوشن للجسم",
+                "description": "لوشن معطر بالمسك الأبيض",
+                "price": 85,
+                "currency": "SAR",
+            },
         ],
     }
 
     default_products = [
-        {"name": "منتج مميز 1", "description": "منتج عالي الجودة", "price": 199, "currency": "SAR"},
-        {"name": "منتج مميز 2", "description": "أفضل قيمة مقابل السعر", "price": 149, "currency": "SAR"},
+        {
+            "name": "منتج مميز 1",
+            "description": "منتج عالي الجودة",
+            "price": 199,
+            "currency": "SAR",
+        },
+        {
+            "name": "منتج مميز 2",
+            "description": "أفضل قيمة مقابل السعر",
+            "price": 149,
+            "currency": "SAR",
+        },
         {"name": "منتج مميز 3", "description": "الأكثر مبيعاً", "price": 299, "currency": "SAR"},
         {"name": "منتج مميز 4", "description": "جديد في المتجر", "price": 179, "currency": "SAR"},
         {"name": "منتج مميز 5", "description": "عرض خاص محدود", "price": 249, "currency": "SAR"},
@@ -248,17 +353,33 @@ def _generate_template_content(store_name: str, store_type: str, language: str) 
             "keywords": [store_name, type_label, "تسوق أونلاين", "متجر إلكتروني"],
         },
         "features": [
-            {"icon": "🚚", "title": "شحن سريع", "description": "توصيل لجميع المناطق خلال 3-5 أيام"},
+            {
+                "icon": "🚚",
+                "title": "شحن سريع",
+                "description": "توصيل لجميع المناطق خلال 3-5 أيام",
+            },
             {"icon": "🔒", "title": "دفع آمن", "description": "جميع المعاملات مشفرة ومحمية"},
             {"icon": "↩️", "title": "استرجاع سهل", "description": "سياسة استرجاع مرنة خلال 14 يوم"},
             {"icon": "💬", "title": "دعم متواصل", "description": "فريق دعم متاح على مدار الساعة"},
         ],
         "faq": [
-            {"question": "كيف أقوم بالطلب؟", "answer": "اختر المنتج واضفه للسلة ثم أكمل عملية الدفع"},
-            {"question": "ما هي طرق الدفع المتاحة؟", "answer": "نقبل مدى، فيزا، ماستركارد، والدفع عند الاستلام"},
+            {
+                "question": "كيف أقوم بالطلب؟",
+                "answer": "اختر المنتج واضفه للسلة ثم أكمل عملية الدفع",
+            },
+            {
+                "question": "ما هي طرق الدفع المتاحة؟",
+                "answer": "نقبل مدى، فيزا، ماستركارد، والدفع عند الاستلام",
+            },
             {"question": "كم يستغرق التوصيل؟", "answer": "3-5 أيام عمل لجميع مناطق المملكة"},
-            {"question": "هل يمكنني استرجاع المنتج؟", "answer": "نعم، يمكنك الاسترجاع خلال 14 يوم من تاريخ الاستلام"},
-            {"question": "هل لديكم فروع؟", "answer": "نحن متجر إلكتروني بالكامل لضمان أفضل الأسعار"},
+            {
+                "question": "هل يمكنني استرجاع المنتج؟",
+                "answer": "نعم، يمكنك الاسترجاع خلال 14 يوم من تاريخ الاستلام",
+            },
+            {
+                "question": "هل لديكم فروع؟",
+                "answer": "نحن متجر إلكتروني بالكامل لضمان أفضل الأسعار",
+            },
         ],
     }
 
@@ -302,7 +423,7 @@ async def generate_store(job_id: str, store_id: str, config: dict) -> tuple[list
         "shipping_configured": config.get("shipping", {}).get("provider", "aramex"),
         "language": language,
         "features_enabled": config.get("features", []),
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "ai_content": ai_content,
     }
 

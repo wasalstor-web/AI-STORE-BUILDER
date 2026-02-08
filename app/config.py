@@ -4,7 +4,6 @@ Uses pydantic-settings for type-safe env var loading.
 """
 
 from functools import lru_cache
-from typing import List
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -44,7 +43,7 @@ class Settings(BaseSettings):
     MAX_STORES_ENTERPRISE: int = 1000
 
     # ── CORS ──
-    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:8000"]
+    CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:8000"]
 
     # ── AI (Phase 2) ──
     OPENAI_API_KEY: str = ""

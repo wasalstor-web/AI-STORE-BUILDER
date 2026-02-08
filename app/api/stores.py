@@ -4,17 +4,22 @@ import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.schemas.store import StoreGenerateRequest, StoreUpdateRequest, StoreResponse, StoreListResponse
-from app.schemas.job import JobCreateResponse
-from app.middleware.auth import CurrentUser, OwnerUser
+from app.middleware.auth import OwnerUser
+from app.middleware.rate_limit import limiter
 from app.middleware.tenant import TenantCtx
 from app.models.store import Store
+from app.schemas.job import JobCreateResponse
+from app.schemas.store import (
+    StoreGenerateRequest,
+    StoreListResponse,
+    StoreResponse,
+    StoreUpdateRequest,
+)
 from app.services.store_generator import create_store_and_job
-from app.middleware.rate_limit import limiter
 
 router = APIRouter()
 
@@ -35,13 +40,18 @@ async def generate_store(
     # ── Enforce store limit per plan ──
     from app.config import get_settings
     from app.models.tenant import Tenant
+
     _settings = get_settings()
     count_stmt = select(func.count()).select_from(Store).where(Store.tenant_id == ctx.tenant_id)
     store_count = (await db.execute(count_stmt)).scalar() or 0
     tenant_result = await db.execute(select(Tenant).where(Tenant.id == ctx.tenant_id))
     tenant = tenant_result.scalar_one_or_none()
     plan = tenant.plan if tenant else "free"
-    plan_limits = {"free": _settings.MAX_STORES_FREE, "pro": _settings.MAX_STORES_PRO, "enterprise": _settings.MAX_STORES_ENTERPRISE}
+    plan_limits = {
+        "free": _settings.MAX_STORES_FREE,
+        "pro": _settings.MAX_STORES_PRO,
+        "enterprise": _settings.MAX_STORES_ENTERPRISE,
+    }
     max_stores = plan_limits.get(plan, _settings.MAX_STORES_FREE)
     if store_count >= max_stores:
         raise HTTPException(
@@ -53,7 +63,11 @@ async def generate_store(
     # Convert nested Pydantic models to dicts
     for key in ["branding", "payment", "shipping"]:
         if request_data.get(key) and hasattr(request_data[key], "model_dump"):
-            request_data[key] = request_data[key].model_dump() if hasattr(request_data[key], "model_dump") else request_data[key]
+            request_data[key] = (
+                request_data[key].model_dump()
+                if hasattr(request_data[key], "model_dump")
+                else request_data[key]
+            )
 
     store, job = await create_store_and_job(db, ctx.tenant_id, request_data)
     await db.commit()
@@ -61,9 +75,12 @@ async def generate_store(
     # Enqueue ARQ job (fire & forget — worker picks it up)
     try:
         import asyncio
+
         from arq import create_pool
         from arq.connections import RedisSettings
+
         from app.config import get_settings
+
         settings = get_settings()
 
         # Parse redis URL
@@ -158,6 +175,7 @@ async def update_store(
     config = dict(store.config or {})
     if body.html_content is not None:
         from app.utils.sanitizer import sanitize_html
+
         config["preview_html"] = sanitize_html(body.html_content)
     if body.layout is not None:
         config["layout"] = body.layout

@@ -4,19 +4,17 @@ Runs as a separate container (docker-compose worker service).
 """
 
 import asyncio
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-from arq import cron, func
+from arq import func
 from arq.connections import RedisSettings
-from sqlalchemy import select, update
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import update
 
 from app.config import get_settings
 from app.database import async_session_factory
 from app.models.job import Job
 from app.models.store import Store
 from app.services.store_generator import generate_store
-
 
 settings = get_settings()
 
@@ -44,7 +42,7 @@ async def process_store_generation(ctx: dict, job_id: str, store_id: str, config
         await db.execute(
             update(Job)
             .where(Job.id == job_id)
-            .values(status="running", started_at=datetime.now(timezone.utc), progress=0)
+            .values(status="running", started_at=datetime.now(UTC), progress=0)
         )
         await db.commit()
 
@@ -56,18 +54,14 @@ async def process_store_generation(ctx: dict, job_id: str, store_id: str, config
             for step_msg, progress in steps:
                 print(f"  📦 [{progress}%] {step_msg}")
 
-                await db.execute(
-                    update(Job).where(Job.id == job_id).values(progress=progress)
-                )
+                await db.execute(update(Job).where(Job.id == job_id).values(progress=progress))
                 await db.commit()
 
                 # Simulate work (2 seconds per step)
                 await asyncio.sleep(2)
 
             # Mark store as active
-            await db.execute(
-                update(Store).where(Store.id == store_id).values(status="active")
-            )
+            await db.execute(update(Store).where(Store.id == store_id).values(status="active"))
 
             # Mark job as done
             await db.execute(
@@ -77,7 +71,7 @@ async def process_store_generation(ctx: dict, job_id: str, store_id: str, config
                     status="done",
                     progress=100,
                     result=result,
-                    completed_at=datetime.now(timezone.utc),
+                    completed_at=datetime.now(UTC),
                 )
             )
             await db.commit()
@@ -93,7 +87,7 @@ async def process_store_generation(ctx: dict, job_id: str, store_id: str, config
                 .values(
                     status="failed",
                     error=str(e),
-                    completed_at=datetime.now(timezone.utc),
+                    completed_at=datetime.now(UTC),
                 )
             )
             await db.commit()
@@ -113,7 +107,8 @@ async def shutdown(ctx: dict):
 
 class WorkerSettings:
     """ARQ Worker configuration."""
-    functions = [func(process_store_generation, name="process_store_generation")]
+
+    functions = [func(process_store_generation, name="process_store_generation")]  # noqa: RUF012
     on_startup = startup
     on_shutdown = shutdown
     redis_settings = parse_redis_url(settings.REDIS_URL)
@@ -125,4 +120,5 @@ class WorkerSettings:
 
 if __name__ == "__main__":
     import arq.worker
+
     arq.worker.run_worker(WorkerSettings)  # type: ignore

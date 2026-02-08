@@ -6,12 +6,10 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from app.database import get_db
-from app.middleware.auth import CurrentUser
-from app.middleware.tenant import TenantCtx
 from app.middleware.rate_limit import limiter
+from app.middleware.tenant import TenantCtx
 from app.models.order import Order
 from app.models.store import Store
 from app.services.payment_service import payment_service
@@ -33,9 +31,7 @@ async def create_payment(
 ):
     # Get order
     result = await db.execute(
-        select(Order).where(
-            Order.id == order_id, Order.tenant_id == ctx.tenant_id
-        )
+        select(Order).where(Order.id == order_id, Order.tenant_id == ctx.tenant_id)
     )
     order = result.scalar_one_or_none()
     if not order:
@@ -91,9 +87,7 @@ async def payment_callback(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """Handle payment gateway redirect callback."""
-    result = await db.execute(
-        select(Order).where(Order.order_number == order_number)
-    )
+    result = await db.execute(select(Order).where(Order.order_number == order_number))
     order = result.scalar_one_or_none()
     if not order:
         raise HTTPException(status_code=404, detail="الطلب غير موجود")
@@ -159,9 +153,7 @@ async def payment_webhook(
     if not order_number:
         return {"status": "ignored", "reason": "no order reference"}
 
-    result = await db.execute(
-        select(Order).where(Order.order_number == order_number)
-    )
+    result = await db.execute(select(Order).where(Order.order_number == order_number))
     order = result.scalar_one_or_none()
     if not order:
         return {"status": "ignored", "reason": f"order {order_number} not found"}

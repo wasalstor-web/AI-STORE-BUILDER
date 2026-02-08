@@ -1,9 +1,7 @@
 """Payment service — Moyasar + Tap gateway integration."""
 
-import uuid
 import logging
 from decimal import Decimal
-from typing import Optional
 
 import httpx
 from pydantic import BaseModel
@@ -16,9 +14,9 @@ settings = get_settings()
 
 class PaymentResult(BaseModel):
     success: bool
-    payment_id: Optional[str] = None
-    redirect_url: Optional[str] = None
-    error: Optional[str] = None
+    payment_id: str | None = None
+    redirect_url: str | None = None
+    error: str | None = None
     metadata: dict = {}
 
 
@@ -45,13 +43,24 @@ class PaymentService:
         """Create a payment session with the chosen gateway."""
         if gateway == "moyasar":
             return await self._create_moyasar_payment(
-                amount, currency, order_id, description,
-                callback_url, customer_name, payment_method,
+                amount,
+                currency,
+                order_id,
+                description,
+                callback_url,
+                customer_name,
+                payment_method,
             )
         elif gateway == "tap":
             return await self._create_tap_payment(
-                amount, currency, order_id, description,
-                callback_url, customer_name, customer_email, customer_phone,
+                amount,
+                currency,
+                order_id,
+                description,
+                callback_url,
+                customer_name,
+                customer_email,
+                customer_phone,
             )
         elif gateway == "cod":
             return PaymentResult(
@@ -87,7 +96,9 @@ class PaymentService:
                         "description": description,
                         "callback_url": callback_url,
                         "source": {
-                            "type": "creditcard" if payment_method in ("visa", "mastercard") else payment_method,
+                            "type": "creditcard"
+                            if payment_method in ("visa", "mastercard")
+                            else payment_method,
                         },
                         "metadata": {
                             "order_id": order_id,

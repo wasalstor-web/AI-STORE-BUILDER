@@ -26,6 +26,7 @@ export default function StoreDetail() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
 
   const { data: store, isLoading, error } = useQuery<Store>({
     queryKey: ['store', id],
@@ -62,7 +63,6 @@ export default function StoreDetail() {
   const StatusIcon = status.icon;
   const config = store.config || {};
   const subdomain = (store as unknown as Record<string, unknown>).subdomain as string || store.name.toLowerCase().replace(/\s+/g, '-');
-  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
 
   const copyDomain = () => {
     navigator.clipboard.writeText(`${subdomain}.aibuilder.app`);

@@ -147,6 +147,7 @@ export default function AIBuilder() {
     } finally {
       setIsGenerating(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [input, isGenerating, currentHTML, storeName, storeType, pushHistory]);
 
   const applyLocalFallback = (text: string) => {

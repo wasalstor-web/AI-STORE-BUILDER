@@ -2,7 +2,6 @@
 
 import uuid
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -12,9 +11,9 @@ class TenantCreate(BaseModel):
 
 
 class TenantUpdate(BaseModel):
-    name: Optional[str] = Field(None, min_length=2, max_length=255)
-    plan: Optional[str] = Field(None, pattern="^(free|pro|enterprise)$")
-    settings: Optional[dict] = None
+    name: str | None = Field(None, min_length=2, max_length=255)
+    plan: str | None = Field(None, pattern="^(free|pro|enterprise)$")
+    settings: dict | None = None
 
 
 class TenantResponse(BaseModel):
@@ -23,7 +22,7 @@ class TenantResponse(BaseModel):
     slug: str
     plan: str
     is_active: bool
-    settings: Optional[dict] = None
+    settings: dict | None = None
     created_at: datetime
     updated_at: datetime
 

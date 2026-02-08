@@ -2,7 +2,6 @@
 
 import uuid
 from datetime import datetime
-from typing import Optional, List
 
 from pydantic import BaseModel, Field
 
@@ -14,33 +13,37 @@ class BrandingConfig(BaseModel):
 
 class PaymentConfig(BaseModel):
     gateway: str = Field(default="moyasar", pattern="^(moyasar|tap|stripe)$")
-    methods: List[str] = Field(default=["mada", "visa"])
+    methods: list[str] = Field(default=["mada", "visa"])
 
 
 class ShippingConfig(BaseModel):
     provider: str = Field(default="aramex", pattern="^(aramex|smsa|dhl|custom)$")
-    zones: List[str] = Field(default=["SA"])
+    zones: list[str] = Field(default=["SA"])
 
 
 class StoreGenerateRequest(BaseModel):
     """Request body for POST /stores/generate"""
+
     name: str = Field(..., min_length=2, max_length=255, description="اسم المتجر")
-    store_type: str = Field(..., min_length=2, max_length=100, description="نوع المتجر (مثل: عطور، ملابس)")
+    store_type: str = Field(
+        ..., min_length=2, max_length=100, description="نوع المتجر (مثل: عطور، ملابس)"
+    )
     language: str = Field(default="ar", pattern="^(ar|en|both)$")
-    branding: Optional[BrandingConfig] = BrandingConfig()
-    payment: Optional[PaymentConfig] = PaymentConfig()
-    shipping: Optional[ShippingConfig] = ShippingConfig()
-    features: Optional[List[str]] = Field(default=[])
+    branding: BrandingConfig | None = BrandingConfig()
+    payment: PaymentConfig | None = PaymentConfig()
+    shipping: ShippingConfig | None = ShippingConfig()
+    features: list[str] | None = Field(default=[])
 
 
 class StoreUpdateRequest(BaseModel):
     """Request body for PATCH /stores/{id}"""
-    name: Optional[str] = Field(None, min_length=2, max_length=255)
-    language: Optional[str] = Field(None, pattern="^(ar|en|both)$")
-    status: Optional[str] = Field(None, pattern="^(pending|generating|active|paused|archived)$")
-    html_content: Optional[str] = Field(None, description="HTML content of the store")
-    config: Optional[dict] = Field(None, description="Store configuration")
-    layout: Optional[List[dict]] = Field(None, description="Editor layout sections")
+
+    name: str | None = Field(None, min_length=2, max_length=255)
+    language: str | None = Field(None, pattern="^(ar|en|both)$")
+    status: str | None = Field(None, pattern="^(pending|generating|active|paused|archived)$")
+    html_content: str | None = Field(None, description="HTML content of the store")
+    config: dict | None = Field(None, description="Store configuration")
+    layout: list[dict] | None = Field(None, description="Editor layout sections")
 
 
 class StoreResponse(BaseModel):
@@ -50,7 +53,7 @@ class StoreResponse(BaseModel):
     slug: str
     store_type: str
     language: str
-    config: Optional[dict] = None
+    config: dict | None = None
     status: str
     created_at: datetime
     updated_at: datetime
@@ -59,5 +62,5 @@ class StoreResponse(BaseModel):
 
 
 class StoreListResponse(BaseModel):
-    stores: List[StoreResponse]
+    stores: list[StoreResponse]
     total: int

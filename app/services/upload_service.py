@@ -1,10 +1,7 @@
 """Upload service — Cloudflare R2 (S3-compatible) image storage."""
 
-import uuid
 import logging
-from typing import Optional
-
-import httpx
+import uuid
 
 from app.config import get_settings
 
@@ -32,7 +29,7 @@ class UploadService:
         filename: str,
         content_type: str = "image/jpeg",
         folder: str = "products",
-    ) -> Optional[str]:
+    ) -> str | None:
         """Upload image and return public URL."""
         # Generate unique key
         ext = filename.rsplit(".", 1)[-1] if "." in filename else "jpg"
@@ -44,9 +41,7 @@ class UploadService:
             # Fallback: save locally
             return await self._save_local(file_bytes, key)
 
-    async def _upload_to_r2(
-        self, file_bytes: bytes, key: str, content_type: str
-    ) -> Optional[str]:
+    async def _upload_to_r2(self, file_bytes: bytes, key: str, content_type: str) -> str | None:
         """Upload to Cloudflare R2 via S3-compatible API."""
         try:
             # Using boto3-compatible approach with httpx for minimal deps
@@ -76,13 +71,14 @@ class UploadService:
         except ImportError:
             logger.warning("boto3 not installed, falling back to local storage")
             return await self._save_local(file_bytes, key)
-        except Exception as e:
+        except Exception:
             logger.exception("R2 upload failed")
             return None
 
-    async def _save_local(self, file_bytes: bytes, key: str) -> Optional[str]:
+    async def _save_local(self, file_bytes: bytes, key: str) -> str | None:
         """Save file locally as fallback."""
         import os
+
         import aiofiles
 
         upload_dir = os.path.join("uploads", os.path.dirname(key))
@@ -115,12 +111,13 @@ class UploadService:
                 )
                 s3.delete_object(Bucket=self.r2_bucket, Key=key)
                 return True
-            except Exception as e:
+            except Exception:
                 logger.exception("R2 delete failed")
                 return False
         else:
             # Local file
             import os
+
             filepath = url.replace("/static/", "")
             if os.path.exists(filepath):
                 os.remove(filepath)

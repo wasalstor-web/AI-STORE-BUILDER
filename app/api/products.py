@@ -1,21 +1,23 @@
 """Product endpoints — CRUD for store products."""
 
-import uuid
 import re
-from typing import Annotated, Optional
+import uuid
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
-from sqlalchemy import select, func, or_
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.middleware.auth import CurrentUser
-from app.middleware.tenant import TenantCtx
 from app.middleware.rate_limit import limiter
+from app.middleware.tenant import TenantCtx
 from app.models.product import Product
 from app.models.store import Store
 from app.schemas.product import (
-    ProductCreate, ProductUpdate, ProductResponse, ProductListResponse,
+    ProductCreate,
+    ProductListResponse,
+    ProductResponse,
+    ProductUpdate,
 )
 
 router = APIRouter()
@@ -28,9 +30,7 @@ def _slugify(text: str) -> str:
     return slug or "product"
 
 
-async def _get_store_or_404(
-    db: AsyncSession, store_id: uuid.UUID, tenant_id: uuid.UUID
-) -> Store:
+async def _get_store_or_404(db: AsyncSession, store_id: uuid.UUID, tenant_id: uuid.UUID) -> Store:
     result = await db.execute(
         select(Store).where(Store.id == store_id, Store.tenant_id == tenant_id)
     )
@@ -62,9 +62,7 @@ async def create_product(
     counter = 1
     while True:
         exists = await db.execute(
-            select(Product.id).where(
-                Product.store_id == store_id, Product.slug == slug
-            )
+            select(Product.id).where(Product.store_id == store_id, Product.slug == slug)
         )
         if not exists.scalar_one_or_none():
             break
@@ -94,10 +92,10 @@ async def list_products(
     db: Annotated[AsyncSession, Depends(get_db)],
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
-    category_id: Optional[uuid.UUID] = None,
-    search: Optional[str] = None,
-    is_active: Optional[bool] = None,
-    is_featured: Optional[bool] = None,
+    category_id: uuid.UUID | None = None,
+    search: str | None = None,
+    is_active: bool | None = None,
+    is_featured: bool | None = None,
 ):
     await _get_store_or_404(db, store_id, ctx.tenant_id)
 
@@ -149,9 +147,7 @@ async def get_product(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     result = await db.execute(
-        select(Product).where(
-            Product.id == product_id, Product.tenant_id == ctx.tenant_id
-        )
+        select(Product).where(Product.id == product_id, Product.tenant_id == ctx.tenant_id)
     )
     product = result.scalar_one_or_none()
     if not product:
@@ -171,9 +167,7 @@ async def update_product(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     result = await db.execute(
-        select(Product).where(
-            Product.id == product_id, Product.tenant_id == ctx.tenant_id
-        )
+        select(Product).where(Product.id == product_id, Product.tenant_id == ctx.tenant_id)
     )
     product = result.scalar_one_or_none()
     if not product:
@@ -204,9 +198,7 @@ async def delete_product(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     result = await db.execute(
-        select(Product).where(
-            Product.id == product_id, Product.tenant_id == ctx.tenant_id
-        )
+        select(Product).where(Product.id == product_id, Product.tenant_id == ctx.tenant_id)
     )
     product = result.scalar_one_or_none()
     if not product:

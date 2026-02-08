@@ -2,7 +2,6 @@
 
 import uuid
 from datetime import datetime
-from typing import Optional, List
 
 from pydantic import BaseModel
 
@@ -10,14 +9,14 @@ from pydantic import BaseModel
 class JobResponse(BaseModel):
     id: uuid.UUID
     tenant_id: uuid.UUID
-    store_id: Optional[uuid.UUID] = None
+    store_id: uuid.UUID | None = None
     type: str
     status: str
     progress: int
-    result: Optional[dict] = None
-    error: Optional[str] = None
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
+    result: dict | None = None
+    error: str | None = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
     created_at: datetime
 
     model_config = {"from_attributes": True}
@@ -31,5 +30,5 @@ class JobCreateResponse(BaseModel):
 
 
 class JobListResponse(BaseModel):
-    jobs: List[JobResponse]
+    jobs: list[JobResponse]
     total: int

@@ -1,9 +1,10 @@
 """User model — belongs to a tenant."""
 
-import uuid
-from typing import Optional
+from __future__ import annotations
 
-from sqlalchemy import String, Boolean, ForeignKey, Uuid
+import uuid
+
+from sqlalchemy import Boolean, ForeignKey, String, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin, generate_uuid7
@@ -12,9 +13,7 @@ from app.models.base import Base, TimestampMixin, generate_uuid7
 class User(Base, TimestampMixin):
     __tablename__ = "users"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        Uuid, primary_key=True, default=generate_uuid7
-    )
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=generate_uuid7)
     tenant_id: Mapped[uuid.UUID] = mapped_column(
         Uuid, ForeignKey("tenants.id"), nullable=False, index=True
     )
@@ -25,7 +24,7 @@ class User(Base, TimestampMixin):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
     # Relationships
-    tenant: Mapped["Tenant"] = relationship("Tenant", back_populates="users")
+    tenant: Mapped[Tenant] = relationship("Tenant", back_populates="users")
 
     def __repr__(self) -> str:
         return f"<User {self.email}>"

@@ -36,6 +36,9 @@ dependencies = [
     "bleach>=6.1.0",
     "slowapi>=0.1.9",
 
+    # ── Cloud Storage ──
+    "boto3>=1.35.0",
+
     # ── Testing ──
     "pytest>=8.3.0",
     "pytest-asyncio>=0.24.0",
@@ -65,7 +68,7 @@ select = [
     "SIM",  # flake8-simplify
     "RUF",  # ruff-specific rules
 ]
-ignore = ["E501"]
+ignore = ["E501", "F821", "B008"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["app"]

@@ -4,7 +4,7 @@ AI Chat API — Real-time AI-powered store building via chat.
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -62,7 +62,10 @@ async def _call_openai_chat(current_html: str, user_message: str, api_key: str) 
                 "model": "gpt-4o-mini",
                 "messages": [
                     {"role": "system", "content": CHAT_SYSTEM_PROMPT},
-                    {"role": "user", "content": f"الكود الحالي:\n{current_html}\n\nطلب المستخدم: {user_message}\n\nأرجع HTML الكامل المعدّل:"},
+                    {
+                        "role": "user",
+                        "content": f"الكود الحالي:\n{current_html}\n\nطلب المستخدم: {user_message}\n\nأرجع HTML الكامل المعدّل:",
+                    },
                 ],
                 "temperature": 0.5,
                 "max_tokens": 8000,
@@ -75,7 +78,7 @@ async def _call_openai_chat(current_html: str, user_message: str, api_key: str) 
         # Clean up — remove markdown wrapping if present
         if content.startswith("```"):
             lines = content.split("\n")
-            lines = [l for l in lines if not l.strip().startswith("```")]
+            lines = [line for line in lines if not line.strip().startswith("```")]
             content = "\n".join(lines)
 
         return content.strip()
@@ -127,8 +130,10 @@ def _apply_local_modifications(current_html: str, message: str) -> tuple[str, st
         extra_products = """
       <div class="product-card"><div class="product-img">🎁</div><div class="info"><div class="name">منتج حصري 5</div><div class="price">299 ر.س</div></div></div>
       <div class="product-card"><div class="product-img">🛍️</div><div class="info"><div class="name">منتج مميز 6</div><div class="price">349 ر.س</div></div></div>"""
-        html = html.replace("</div>\n  </div>\n  <div class=\"features\">",
-                           f"{extra_products}\n    </div>\n  </div>\n  <div class=\"features\">")
+        html = html.replace(
+            '</div>\n  </div>\n  <div class="features">',
+            f'{extra_products}\n    </div>\n  </div>\n  <div class="features">',
+        )
         changes.append("تم إضافة منتجات جديدة")
 
     if "عروض" in message or "تخفيضات" in message:
@@ -138,17 +143,18 @@ def _apply_local_modifications(current_html: str, message: str) -> tuple[str, st
     <p style="font-size: 1.1rem; opacity: 0.9; margin-bottom: 16px;">خصومات تصل إلى 50% على منتجات مختارة</p>
     <button style="background: white; color: #e74c3c; border: none; padding: 12px 28px; border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer; font-family: 'Tajawal', sans-serif;">تسوق العروض</button>
   </div>"""
-        html = html.replace('<div class="features">', f'{offers_section}\n  <div class="features">')
+        html = html.replace(
+            '<div class="features">', f'{offers_section}\n  <div class="features">'
+        )
         changes.append("تم إضافة قسم العروض")
 
     if "بانر" in message:
         html = html.replace(
-            'padding: 80px 24px',
-            'padding: 100px 24px; background-size: cover; background-position: center'
+            "padding: 80px 24px",
+            "padding: 100px 24px; background-size: cover; background-position: center",
         )
         html = html.replace(
-            'font-size: 2.5rem',
-            'font-size: 3rem; text-shadow: 2px 2px 8px rgba(0,0,0,0.3)'
+            "font-size: 2.5rem", "font-size: 3rem; text-shadow: 2px 2px 8px rgba(0,0,0,0.3)"
         )
         changes.append("تم تحسين البانر الرئيسي")
 

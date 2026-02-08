@@ -1,21 +1,23 @@
 """Category endpoints — CRUD for store categories."""
 
-import uuid
 import re
-from typing import Annotated, Optional
+import uuid
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.middleware.auth import CurrentUser
-from app.middleware.tenant import TenantCtx
 from app.middleware.rate_limit import limiter
+from app.middleware.tenant import TenantCtx
 from app.models.category import Category
 from app.models.store import Store
 from app.schemas.category import (
-    CategoryCreate, CategoryUpdate, CategoryResponse, CategoryListResponse,
+    CategoryCreate,
+    CategoryListResponse,
+    CategoryResponse,
+    CategoryUpdate,
 )
 
 router = APIRouter()
@@ -27,9 +29,7 @@ def _slugify(text: str) -> str:
     return slug or "category"
 
 
-async def _get_store_or_404(
-    db: AsyncSession, store_id: uuid.UUID, tenant_id: uuid.UUID
-) -> Store:
+async def _get_store_or_404(db: AsyncSession, store_id: uuid.UUID, tenant_id: uuid.UUID) -> Store:
     result = await db.execute(
         select(Store).where(Store.id == store_id, Store.tenant_id == tenant_id)
     )
@@ -61,9 +61,7 @@ async def create_category(
     counter = 1
     while True:
         exists = await db.execute(
-            select(Category.id).where(
-                Category.store_id == store_id, Category.slug == slug
-            )
+            select(Category.id).where(Category.store_id == store_id, Category.slug == slug)
         )
         if not exists.scalar_one_or_none():
             break
@@ -102,7 +100,7 @@ async def list_categories(
     store_id: uuid.UUID,
     ctx: TenantCtx,
     db: Annotated[AsyncSession, Depends(get_db)],
-    parent_id: Optional[uuid.UUID] = None,
+    parent_id: uuid.UUID | None = None,
 ):
     await _get_store_or_404(db, store_id, ctx.tenant_id)
 
@@ -122,8 +120,10 @@ async def list_categories(
     items = result.scalars().all()
 
     # Total including nested
-    count_q = select(func.count()).select_from(Category).where(
-        Category.store_id == store_id, Category.tenant_id == ctx.tenant_id
+    count_q = (
+        select(func.count())
+        .select_from(Category)
+        .where(Category.store_id == store_id, Category.tenant_id == ctx.tenant_id)
     )
     total = (await db.execute(count_q)).scalar() or 0
 
@@ -144,9 +144,7 @@ async def get_category(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     result = await db.execute(
-        select(Category).where(
-            Category.id == category_id, Category.tenant_id == ctx.tenant_id
-        )
+        select(Category).where(Category.id == category_id, Category.tenant_id == ctx.tenant_id)
     )
     category = result.scalar_one_or_none()
     if not category:
@@ -166,9 +164,7 @@ async def update_category(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     result = await db.execute(
-        select(Category).where(
-            Category.id == category_id, Category.tenant_id == ctx.tenant_id
-        )
+        select(Category).where(Category.id == category_id, Category.tenant_id == ctx.tenant_id)
     )
     category = result.scalar_one_or_none()
     if not category:
@@ -198,9 +194,7 @@ async def delete_category(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     result = await db.execute(
-        select(Category).where(
-            Category.id == category_id, Category.tenant_id == ctx.tenant_id
-        )
+        select(Category).where(Category.id == category_id, Category.tenant_id == ctx.tenant_id)
     )
     category = result.scalar_one_or_none()
     if not category:
