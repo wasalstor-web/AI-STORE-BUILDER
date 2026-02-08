@@ -1,0 +1,4 @@
+/* Cloudflare Pages — SPA redirect rule */
+/* All non-file routes should serve index.html */
+/assets/*  /assets/:splat  200
+/*  /index.html  200
