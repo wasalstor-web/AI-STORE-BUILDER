@@ -7,6 +7,8 @@ build/
 .eggs/
 *.egg
 .env
+.env.local
+.env.*.local
 .venv/
 venv/
 env/
@@ -21,7 +23,9 @@ htmlcov/
 .DS_Store
 Thumbs.db
 .idea/
-.vscode/
+.vscode/settings.json
 *.swp
 *.swo
 node_modules/
+frontend/dist/
+*.tsbuildinfo

@@ -3,7 +3,7 @@
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,6 +14,7 @@ from app.middleware.auth import CurrentUser, OwnerUser
 from app.middleware.tenant import TenantCtx
 from app.models.store import Store
 from app.services.store_generator import create_store_and_job
+from app.middleware.rate_limit import limiter
 
 router = APIRouter()
 
@@ -24,7 +25,9 @@ router = APIRouter()
     status_code=status.HTTP_202_ACCEPTED,
     summary="توليد متجر جديد بالذكاء الاصطناعي",
 )
+@limiter.limit("5/minute")
 async def generate_store(
+    request: Request,
     body: StoreGenerateRequest,
     ctx: TenantCtx,
     db: Annotated[AsyncSession, Depends(get_db)],
@@ -154,7 +157,8 @@ async def update_store(
     # Update config (merge with existing)
     config = dict(store.config or {})
     if body.html_content is not None:
-        config["preview_html"] = body.html_content
+        from app.utils.sanitizer import sanitize_html
+        config["preview_html"] = sanitize_html(body.html_content)
     if body.layout is not None:
         config["layout"] = body.layout
     if body.config is not None:

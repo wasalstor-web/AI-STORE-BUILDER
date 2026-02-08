@@ -91,8 +91,10 @@ async def save_store_html(
     if not store:
         raise HTTPException(status_code=404, detail="المتجر غير موجود")
 
+    from app.utils.sanitizer import sanitize_html
+
     config = store.config or {}
-    config["preview_html"] = body.html
+    config["preview_html"] = sanitize_html(body.html)
     store.config = config
 
     await db.commit()

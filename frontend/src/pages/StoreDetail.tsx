@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { storesApi } from '../lib/api';
@@ -8,10 +8,11 @@ import {
   ArrowRight, Globe, CreditCard, Truck, Palette, ExternalLink,
   Clock, CheckCircle, AlertCircle, Loader2, BarChart3, Package,
   Settings, Copy, Bot, Eye, Monitor, Smartphone, Tablet,
-  ShoppingCart, Star,
+  ShoppingCart, Star, Trash2,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useState, useRef, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 const statusConfig: Record<string, { label: string; color: string; icon: typeof CheckCircle }> = {
   active: { label: 'نشط', color: 'text-success', icon: CheckCircle },
@@ -22,6 +23,9 @@ const statusConfig: Record<string, { label: string; color: string; icon: typeof 
 
 export default function StoreDetail() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const { data: store, isLoading, error } = useQuery<Store>({
     queryKey: ['store', id],
@@ -107,6 +111,13 @@ export default function StoreDetail() {
               <ExternalLink className="w-4 h-4" />
               زيارة المتجر
             </a>
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="btn-danger flex items-center gap-2 text-sm"
+            >
+              <Trash2 className="w-4 h-4" />
+              حذف
+            </button>
           </div>
         )}
       </motion.div>
@@ -114,10 +125,10 @@ export default function StoreDetail() {
       {/* Quick Stats */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { icon: BarChart3, label: 'الزيارات', value: '0', color: 'text-primary-light', trend: '--' },
-          { icon: Package, label: 'المنتجات', value: '0', color: 'text-accent', trend: 'جديد' },
-          { icon: ShoppingCart, label: 'الطلبات', value: '0', color: 'text-success', trend: '--' },
-          { icon: Star, label: 'التقييم', value: '5.0 ⭐', color: 'text-warning', trend: '--' },
+          { icon: BarChart3, label: 'الزيارات', value: 'قريباً', color: 'text-primary-light', trend: '—' },
+          { icon: Package, label: 'المنتجات', value: '—', color: 'text-accent', trend: 'جديد' },
+          { icon: ShoppingCart, label: 'الطلبات', value: 'قريباً', color: 'text-success', trend: '—' },
+          { icon: Star, label: 'التقييم', value: '—', color: 'text-warning', trend: '—' },
         ].map((stat) => (
           <div key={stat.label} className="glass-card p-4 hover:border-primary/20 transition-all">
             <div className="flex items-center justify-between mb-2">
@@ -206,6 +217,80 @@ export default function StoreDetail() {
           </div>
         </motion.div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <DeleteConfirmModal
+          storeName={store.name}
+          onConfirm={async () => {
+            try {
+              await storesApi.delete(id!);
+              queryClient.invalidateQueries({ queryKey: ['stores'] });
+              toast.success('تم حذف المتجر بنجاح');
+              navigate('/dashboard');
+            } catch {
+              toast.error('فشل حذف المتجر');
+            }
+          }}
+          onCancel={() => setShowDeleteModal(false)}
+        />
+      )}
+    </div>
+  );
+}
+
+function DeleteConfirmModal({ storeName, onConfirm, onCancel }: { storeName: string; onConfirm: () => void; onCancel: () => void }) {
+  const [confirmText, setConfirmText] = useState('');
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    await onConfirm();
+    setDeleting(false);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onCancel}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="glass-card-glow p-6 max-w-md w-full mx-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-danger/15 flex items-center justify-center">
+            <Trash2 className="w-5 h-5 text-danger" />
+          </div>
+          <h3 className="text-lg font-bold">حذف المتجر</h3>
+        </div>
+        <p className="text-text-secondary text-sm mb-4">
+          هذا الإجراء <strong className="text-danger">لا يمكن التراجع عنه</strong>. سيتم حذف المتجر وجميع بياناته نهائياً.
+        </p>
+        <p className="text-text-muted text-xs mb-2">
+          اكتب <strong className="text-text-primary">"{storeName}"</strong> للتأكيد:
+        </p>
+        <input
+          type="text"
+          value={confirmText}
+          onChange={(e) => setConfirmText(e.target.value)}
+          className="input-field mb-4 text-sm"
+          placeholder={storeName}
+          dir="rtl"
+        />
+        <div className="flex gap-3">
+          <button
+            onClick={handleDelete}
+            disabled={confirmText !== storeName || deleting}
+            className="btn-danger flex-1 flex items-center justify-center gap-2 text-sm py-3"
+          >
+            {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+            {deleting ? 'جاري الحذف...' : 'حذف نهائياً'}
+          </button>
+          <button onClick={onCancel} className="btn-outline flex-1 text-sm py-3">
+            إلغاء
+          </button>
+        </div>
+      </motion.div>
     </div>
   );
 }

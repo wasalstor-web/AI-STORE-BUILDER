@@ -4,13 +4,14 @@ AI Chat API — Real-time AI-powered store building via chat.
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
 from app.database import get_db
 from app.middleware.auth import CurrentUser
+from app.middleware.rate_limit import limiter
 
 router = APIRouter()
 settings = get_settings()
@@ -158,8 +159,10 @@ def _apply_local_modifications(current_html: str, message: str) -> tuple[str, st
 
 
 @router.post("/chat", response_model=AIChatResponse)
+@limiter.limit("10/minute")
 async def ai_chat(
-    request: AIChatRequest,
+    request: Request,
+    body: AIChatRequest,
     current_user: CurrentUser,
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
@@ -169,13 +172,13 @@ async def ai_chat(
     if api_key:
         try:
             new_html = await _call_openai_chat(
-                request.current_html,
-                request.message,
+                body.current_html,
+                body.message,
                 api_key,
             )
             return AIChatResponse(
                 html=new_html,
-                message=f"تم تطبيق: {request.message} ✅",
+                message=f"تم تطبيق: {body.message} ✅",
             )
         except Exception as e:
             print(f"⚠️ OpenAI chat error: {e}")
@@ -183,8 +186,8 @@ async def ai_chat(
 
     # Fallback: local modifications
     new_html, description = _apply_local_modifications(
-        request.current_html,
-        request.message,
+        body.current_html,
+        body.message,
     )
     return AIChatResponse(
         html=new_html,

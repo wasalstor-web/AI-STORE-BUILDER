@@ -2,7 +2,7 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -25,6 +25,7 @@ from app.services.auth_service import (
 from app.middleware.auth import CurrentUser
 from app.models.user import User
 from app.config import get_settings
+from app.middleware.rate_limit import limiter
 
 router = APIRouter()
 settings = get_settings()
@@ -36,7 +37,9 @@ settings = get_settings()
     status_code=status.HTTP_201_CREATED,
     summary="تسجيل حساب جديد",
 )
+@limiter.limit("3/minute")
 async def register(
+    request: Request,
     body: RegisterRequest,
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
@@ -69,7 +72,9 @@ async def register(
 
 
 @router.post("/login", response_model=TokenResponse, summary="تسجيل الدخول")
+@limiter.limit("5/minute")
 async def login(
+    request: Request,
     body: LoginRequest,
     db: Annotated[AsyncSession, Depends(get_db)],
 ):

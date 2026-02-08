@@ -78,12 +78,12 @@ export default function Dashboard() {
   const emoji = hour < 12 ? '☀️' : hour < 18 ? '🌤️' : '🌙';
 
   const stats = [
-    { label: 'إجمالي المتاجر', value: totalStores, icon: Store, gradient: 'from-primary to-primary-dark', trend: '+100%', up: true },
+    { label: 'إجمالي المتاجر', value: totalStores, icon: Store, gradient: 'from-primary to-primary-dark', trend: totalStores > 0 ? '+100%' : 'جديد', up: true },
     { label: 'متاجر نشطة', value: activeStores, icon: Zap, gradient: 'from-success to-emerald-600', trend: `${activeStores}/${totalStores}`, up: true },
-    { label: 'المنتجات', value: 0, icon: Package, gradient: 'from-accent to-orange-600', trend: 'جديد', up: true },
-    { label: 'الزيارات', value: 0, icon: Eye, gradient: 'from-blue-400 to-blue-600', trend: '--', up: true },
-    { label: 'الطلبات', value: 0, icon: ShoppingCart, gradient: 'from-violet-500 to-purple-600', trend: '--', up: true },
-    { label: 'تقييم العملاء', value: '5.0', icon: Star, gradient: 'from-yellow-500 to-amber-600', trend: '⭐', up: true },
+    { label: 'المنتجات', value: activeStores * 6 || '—', icon: Package, gradient: 'from-accent to-orange-600', trend: 'تقديري', up: true },
+    { label: 'الزيارات', value: 'قريباً', icon: Eye, gradient: 'from-blue-400 to-blue-600', trend: '—', up: true },
+    { label: 'الطلبات', value: 'قريباً', icon: ShoppingCart, gradient: 'from-violet-500 to-purple-600', trend: '—', up: true },
+    { label: 'تقييم العملاء', value: '—', icon: Star, gradient: 'from-yellow-500 to-amber-600', trend: '—', up: true },
   ];
 
   return (

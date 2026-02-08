@@ -10,7 +10,7 @@ import {
   Loader2, RotateCcw, Download, Check,
   Code2, PanelRightClose,
   Layers, Plus,
-  Layout, Type, ShoppingBag, Undo2, Redo2,
+  Undo2, Redo2,
   Wand2, MessageSquare,
   Zap, LayoutTemplate,
 } from 'lucide-react';
@@ -29,16 +29,6 @@ interface HistoryEntry {
   timestamp: Date;
 }
 
-const CATEGORY_ICONS: Record<string, typeof Layers> = {
-  hero: Layout,
-  content: Type,
-  products: ShoppingBag,
-  social: MessageSquare,
-  marketing: Zap,
-  footer: Layers,
-};
-void CATEGORY_ICONS;
-
 const CATEGORY_LABELS: Record<string, string> = {
   hero: 'الرأس والبطل',
   content: 'المحتوى',
@@ -47,13 +37,6 @@ const CATEGORY_LABELS: Record<string, string> = {
   marketing: 'تسويق',
   footer: 'التذييل',
 };
-
-const AI_SYSTEM_PROMPT = `أنت مطور ويب خبير. المستخدم يطلب تعديلات على متجره الإلكتروني.
-عدّل HTML/CSS المتجر حسب طلب المستخدم. أرجع الكود الكامل للصفحة (HTML كامل مع head و body).
-لا تكتب أي شرح — فقط أرجع كود HTML كامل.
-التزم بـ RTL والعربية. استخدم خط Tajawal.
-الأهم: أرجع HTML كامل فقط بدون markdown أو \`\`\`.`;
-void AI_SYSTEM_PROMPT;
 
 const QUICK_ACTIONS = [
   { label: '🎨 غيّر الألوان', prompt: 'غيّر ألوان المتجر' },

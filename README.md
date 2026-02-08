@@ -64,6 +64,10 @@ Client → FastAPI (Auth + Tenant Isolation)
 | `GET` | `/api/v1/stores` | 🔑 | قائمة المتاجر |
 | `GET` | `/api/v1/stores/{id}` | 🔑 | تفاصيل المتجر |
 | `PATCH` | `/api/v1/stores/{id}` | 👑 | تعديل المتجر |
+| `DELETE` | `/api/v1/stores/{id}` | 👑 | حذف المتجر |
+| `POST` | `/api/v1/ai/chat` | 🔑 | تعديل المتجر بالذكاء الاصطناعي |
+| `GET` | `/api/v1/preview/{id}` | 🔑 | معاينة المتجر |
+| `POST` | `/api/v1/preview/{id}/save-html` | 🔑 | حفظ HTML المتجر |
 | `GET` | `/api/v1/jobs/{id}` | 🔑 | حالة المهمة |
 | `GET` | `/api/v1/jobs` | 🔑 | قائمة المهام |
 
@@ -192,3 +196,15 @@ docker compose up --build -d
 ## 📄 License
 
 MIT — Built with ❤️ by Wahed Ahmed
+
+---
+
+## 🚧 Roadmap | الميزات القادمة
+
+- [ ] **Products API** — CRUD للمنتجات مع رفع الصور
+- [ ] **Orders & Analytics API** — إحصائيات حقيقية للمتاجر
+- [ ] **Email Verification** — تأكيد البريد عند التسجيل
+- [ ] **Password Reset** — استعادة كلمة المرور عبر البريد
+- [ ] **Custom Domains** — ربط نطاقات مخصصة
+- [ ] **Payment Integration** — Moyasar / Tap للدفع الفعلي
+- [ ] **Template Marketplace** — سوق قوالب من المجتمع
