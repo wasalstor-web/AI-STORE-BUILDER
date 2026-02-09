@@ -44,13 +44,13 @@ async def lifespan(app: FastAPI):
     print(f"[START] {settings.APP_NAME} v{settings.APP_VERSION} starting...")
     print(f"[ENV] Environment: {settings.APP_ENV}")
 
-    # Auto-create tables for SQLite / local dev (skip if using Alembic in production)
-    if settings.DATABASE_URL.startswith("sqlite"):
-        from app.models.base import Base
+    # Auto-create tables
+    from app.models.base import Base
 
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-        print("[DB] SQLite tables created automatically.")
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    db_type = "SQLite" if settings.DATABASE_URL.startswith("sqlite") else "PostgreSQL"
+    print(f"[DB] {db_type} tables created/verified.")
 
     yield
     # Shutdown

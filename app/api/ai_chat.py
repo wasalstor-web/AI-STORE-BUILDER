@@ -47,8 +47,35 @@ CHAT_SYSTEM_PROMPT = """أنت مطور ويب محترف ومصمم متاجر 
 - حافظ على بنية الصفحة وحسّنها"""
 
 
+async def _call_anthropic_chat(current_html: str, user_message: str, api_key: str) -> str:
+    """Call Anthropic Claude to modify the store HTML based on the user's message."""
+    import anthropic
+
+    client = anthropic.AsyncAnthropic(api_key=api_key)
+    message = await client.messages.create(
+        model="claude-sonnet-4-20250514",
+        max_tokens=8000,
+        system=CHAT_SYSTEM_PROMPT,
+        messages=[
+            {
+                "role": "user",
+                "content": f"الكود الحالي:\n{current_html}\n\nطلب المستخدم: {user_message}\n\nأرجع HTML الكامل المعدّل:",
+            },
+        ],
+    )
+    content = message.content[0].text
+
+    # Clean up — remove markdown wrapping if present
+    if content.startswith("```"):
+        lines = content.split("\n")
+        lines = [line for line in lines if not line.strip().startswith("```")]
+        content = "\n".join(lines)
+
+    return content.strip()
+
+
 async def _call_openai_chat(current_html: str, user_message: str, api_key: str) -> str:
-    """Call OpenAI to modify the store HTML based on the user's message."""
+    """Call OpenAI to modify the store HTML based on the user's message (fallback)."""
     import httpx
 
     async with httpx.AsyncClient(timeout=90.0) as client:
@@ -173,24 +200,42 @@ async def ai_chat(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     """Process an AI chat message and return updated store HTML."""
-    api_key = settings.OPENAI_API_KEY
+    anthropic_key = settings.ANTHROPIC_API_KEY
+    openai_key = settings.OPENAI_API_KEY
 
-    if api_key:
+    # Priority 1: Anthropic Claude (primary)
+    if anthropic_key:
+        try:
+            new_html = await _call_anthropic_chat(
+                body.current_html,
+                body.message,
+                anthropic_key,
+            )
+            return AIChatResponse(
+                html=new_html,
+                message=f"✅ Claude: تم تطبيق '{body.message}'",
+            )
+        except Exception as e:
+            print(f"⚠️ Anthropic chat error: {e}")
+            # Fall through to OpenAI
+
+    # Priority 2: OpenAI (fallback)
+    if openai_key:
         try:
             new_html = await _call_openai_chat(
                 body.current_html,
                 body.message,
-                api_key,
+                openai_key,
             )
             return AIChatResponse(
                 html=new_html,
-                message=f"تم تطبيق: {body.message} ✅",
+                message=f"✅ تم تطبيق: {body.message}",
             )
         except Exception as e:
             print(f"⚠️ OpenAI chat error: {e}")
             # Fall through to local modifications
 
-    # Fallback: local modifications
+    # Priority 3: Local modifications (offline fallback)
     new_html, description = _apply_local_modifications(
         body.current_html,
         body.message,

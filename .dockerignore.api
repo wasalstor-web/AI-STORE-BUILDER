@@ -1,0 +1,12 @@
+frontend/
+.venv/
+.git/
+.docs/
+.figma/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+node_modules/
+*.db
+.env

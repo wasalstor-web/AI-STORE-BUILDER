@@ -135,8 +135,32 @@ def _build_generation_prompt(config: dict, store_name: str, store_type: str, lan
 تأكد أن المحتوى متناسب مع نوع المتجر ({type_label})."""
 
 
+async def _generate_with_anthropic(prompt: str, api_key: str) -> dict:
+    """Call Anthropic Claude to generate store content."""
+    try:
+        import anthropic
+
+        client = anthropic.AsyncAnthropic(api_key=api_key)
+        message = await client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=4000,
+            system=SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        content = message.content[0].text
+        # Clean markdown if present
+        if content.startswith("```"):
+            lines = content.split("\n")
+            lines = [l for l in lines if not l.strip().startswith("```")]
+            content = "\n".join(lines)
+        return json.loads(content.strip())
+    except Exception as e:
+        print(f"⚠️ Anthropic API error: {e}")
+        return {}
+
+
 async def _generate_with_openai(prompt: str, api_key: str) -> dict:
-    """Call OpenAI API to generate store content."""
+    """Call OpenAI API to generate store content (fallback)."""
     try:
         import httpx
 
@@ -405,10 +429,14 @@ async def generate_store(job_id: str, store_id: str, config: dict) -> tuple[list
         ("المتجر جاهز! 🎉", 100),
     ]
 
-    # Try AI generation first
+    # Try AI generation: Anthropic Claude first, then OpenAI, then template
     ai_content = {}
-    if settings.OPENAI_API_KEY:
-        prompt = _build_generation_prompt(config, store_name, store_type, language)
+    prompt = _build_generation_prompt(config, store_name, store_type, language)
+
+    if settings.ANTHROPIC_API_KEY:
+        ai_content = await _generate_with_anthropic(prompt, settings.ANTHROPIC_API_KEY)
+
+    if not ai_content and settings.OPENAI_API_KEY:
         ai_content = await _generate_with_openai(prompt, settings.OPENAI_API_KEY)
 
     # Fallback to template if AI returned nothing
