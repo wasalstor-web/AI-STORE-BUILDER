@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Store Builder - Design Showcase</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #06060A 0%, #0E0E16 100%);
+            color: #EAEAF4;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            padding: 40px 20px;
+            background: rgba(21, 21, 32, 0.7);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(124, 108, 240, 0.15);
+            border-radius: 24px;
+        }
+        
+        h1 {
+            font-size: 48px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #A89EFF 0%, #00D4C8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 16px;
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            color: #9A9AC0;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 60px;
+        }
+        
+        .stat-card {
+            background: rgba(21, 21, 32, 0.7);
+            backdrop-filter: blur(24px);
+            border: 1px solid #1E1E32;
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(124, 108, 240, 0.3);
+            box-shadow: 0 8px 32px rgba(124, 108, 240, 0.1);
+        }
+        
+        .stat-number {
+            font-size: 42px;
+            font-weight: 700;
+            color: #7C6CF0;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #9A9AC0;
+        }
+        
+        .section {
+            margin-bottom: 60px;
+        }
+        
+        .section-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .section-title span {
+            font-size: 36px;
+        }
+        
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 24px;
+        }
+        
+        .card {
+            background: rgba(21, 21, 32, 0.7);
+            backdrop-filter: blur(24px);
+            border: 1px solid #1E1E32;
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #7C6CF0, #00D4C8);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(124, 108, 240, 0.3);
+            box-shadow: 0 12px 48px rgba(124, 108, 240, 0.15);
+        }
+        
+        .card-number {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            width: 32px;
+            height: 32px;
+            background: rgba(124, 108, 240, 0.12);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #A89EFF;
+        }
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #EAEAF4;
+            padding-top: 28px;
+        }
+        
+        .card-description {
+            font-size: 14px;
+            color: #9A9AC0;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        
+        .card-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #7C6CF0, #5A4BD4);
+            border-radius: 12px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        
+        .card-link:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(124, 108, 240, 0.3);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .badge-system {
+            background: rgba(124, 108, 240, 0.12);
+            color: #A89EFF;
+            border: 1px solid rgba(124, 108, 240, 0.2);
+        }
+        
+        .badge-ui {
+            background: rgba(0, 212, 200, 0.12);
+            color: #4EEADF;
+            border: 1px solid rgba(0, 212, 200, 0.2);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 60px;
+            border-top: 1px solid #1E1E32;
+            color: #9A9AC0;
+        }
+        
+        .quick-links {
+            display: flex;
+            gap: 16px;
+            margin-top: 32px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .quick-link {
+            padding: 12px 24px;
+            background: rgba(21, 21, 32, 0.7);
+            border: 1px solid #1E1E32;
+            border-radius: 12px;
+            color: #EAEAF4;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .quick-link:hover {
+            border-color: #7C6CF0;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 AI Store Builder Design System</h1>
+            <p class="subtitle">معرض شامل للتصاميم والمخططات المعمارية والواجهات</p>
+        </header>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">19</div>
+                <div class="stat-label">Figma Diagrams</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">15</div>
+                <div class="stat-label">Components</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">9</div>
+                <div class="stat-label">UI Wireframes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">95%</div>
+                <div class="stat-label">Design Score</div>
+            </div>
+        </div>
+        
+        <!-- System Architecture Diagrams -->
+        <section class="section">
+            <h2 class="section-title">
+                <span>🏗️</span>
+                System Architecture Diagrams
+            </h2>
+            
+            <div class="cards-grid">
+                <div class="card" onclick="window.open('https://www.figma.com/online-whiteboard/create-diagram/8edf7f10-2dbb-45bc-a291-1d6c0766c2b4', '_blank')">
+                    <div class="card-number">1</div>
+                    <span class="badge badge-system">Architecture</span>
+                    <h3 class="card-title">Complete System Architecture</h3>
+                    <p class="card-description">معمارية النظام الكاملة: FastAPI + React + PostgreSQL + Redis + ARQ workers</p>
+                    <a class="card-link" href="https://www.figma.com/online-whiteboard/create-diagram/8edf7f10-2dbb-45bc-a291-1d6c0766c2b4" target="_blank">
+                        فتح في Figma →
+                    </a>
+                </div>
+                
+                <div class="card" onclick="window.open('https://www.figma.com/online-whiteboard/create-diagram/c2006acc-0567-4a48-8783-94d4b6e17350', '_blank')">
+                    <div class="card-number">2</div>
+                    <span class="badge badge-system">Database</span>
+                    <h3 class="card-title">Database Schema Structure</h3>
+                    <p class="card-description">Multi-tenant architecture مع 8 جداول + JSONB configs</p>
+                    <a class="card-link" href="https://www.figma.com/online-whiteboard/create-diagram/c2006acc-0567-4a48-8783-94d4b6e17350" target="_blank">
+                        فتح في Figma →
+                    </a>
+                </div>
+                
+                <div class="card" onclick="window.open('https://www.figma.com/online-whiteboard/create-diagram/f8270304-2dd0-4976-b5c4-df6a8f3dfb87', '_blank')">
+                    <div class="card-number">3</div>
+                    <span class="badge badge-system">User Flow</span>
+                    <h3 class="card-title">Complete User Flow</h3>
+                    <p class="card-description">رحلة المستخدم الكاملة من التسجيل إلى النشر</p>
+                    <a class="card-link" href="https://www.figma.com/online-whiteboard/create-diagram/f8270304-2dd0-4976-b5c4-df6a8f3dfb87" target="_blank">
+                        فتح في Figma →
+                    </a>
+                </div>
+                
+                <div class="card" onclick="window.open('https://www.figma.com/online-whiteboard/create-diagram/b4d4878e-6b70-48e5-805d-bb3fa9a66a4f', '_blank')">
+                    <div class="card-number">4</div>
+                    <span class="badge badge-system">Frontend</span>
+                    <h3 class="card-title">Frontend Pages Structure</h3>
+                    <p class="card-description">بنية الـ 9 صفحات + 12 قالب + 21 قسم</p>
+                    <a class="card-link" href="https://www.figma.com/online-whiteboard/create-diagram/b4d4878e-6b70-48e5-805d-bb3fa9a66a4f" target="_blank">
+                        فتح في Figma →
+                    </a>
+                </div>
+                
+                <div class="card" onclick="window.open('https://www.figma.com/online-whiteboard/create-diagram/75284a46-a719-4f44-a9df-ec1e602b416d', '_blank')">
+                    <div class="card-number">5</div>
+                    <span class="badge badge-system">AI Process</span>
+                    <h3 class="card-title">AI Generation Sequence</h3>
+                    <p class="card-description">سلسلة عملية توليد AI: User → FastAPI → ARQ → OpenAI</p>
+                    <a class="card-link" href="https://www.figma.com/online-whiteboard/create-diagram/75284a46-a719-4f44-a9df-ec1e602b416d" target="_blank">
+                        فتح في Figma →
+                    </a>
+                </div>
+                
+                <div class="card" onclick="window.open('https://www.figma.com/online-whiteboard/create-diagram/a088d031-c79c-41f9-a9b1-ebbc7d249b36', '_blank')">
+                    <div class="card-number">6</div>
+                    <span class="badge badge-system">Design Tokens</span>
+                    <h3 class="card-title">Design System Tokens</h3>
+                    <p class="card-description">الألوان، الخطوط، المكونات، الحركات، التأثيرات</p>
+                    <a class="card-link" href="https://www.figma.com/online-whiteboard/create-diagram/a088d031-c79c-41f9-a9b1-ebbc7d249b36" target="_blank">
+                        فتح في Figma →
+                    </a>
+                </div>
+                
+                <div class="card" onclick="window.open('https://www.figma.com/online-whiteboard/create-diagram/903baa9f-e5b6-421e-b431-3e52904e635b', '_blank')">
+                    <div class="card-number">7</div>
+                    <span class="badge badge-system">Deployment</span>
+                    <h3 class="card-title">Hostinger Deployment</h3>
+                    <p class="card-description">Docker Swarm + Supabase + Upstash Redis + Nginx</p>
+                    <a class="card-link" href="https://www.figma.com/online-whiteboard/create-diagram/903baa9f-e5b6-421e-b431-3e52904e635b" target="_blank">
+                        فتح في Figma →
+                    </a>
+                </div>
+                
+                <div class="card" onclick="window.open('https://www.figma.com/online-whiteboard/create-diagram/29f328b5-bcf1-4148-a25e-f741bb312a32', '_blank')">
+                    <div class="card-number">8</div>
+                    <span class="badge badge-system">Roadmap</span>
+                    <h3 class="card-title">Development Roadmap</h3>
+                    <p class="card-description">خطة التطوير: Feb 9 - Mar 20, 2026 (40 days)</p>
+                    <a class="card-link" href="https://www.figma.com/online-whiteboard/create-diagram/29f328b5-bcf1-4148-a25e-f741bb312a32" target="_blank">
+                        فتح في Figma →
+                    </a>
+                </div>
+                
+                <div class="card" onclick="window.open('https://www.figma.com/online-whiteboard/create-diagram/3811e5dc-10b4-4c38-87be-4756bf89ae57', '_blank')">
+                    <div class="card-number">9</div>
+                    <span class="badge badge-system">API</span>
+                    <h3 class="card-title">Complete API Endpoints</h3>
+                    <p class="card-description">جميع الـ APIs: Auth، Stores، AI Chat، Jobs، Preview</p>
+                    <a class="card-link" href="https://www.figma.com/online-whiteboard/create-diagram/3811e5dc-10b4-4c38-87be-4756bf89ae57" target="_blank">
+                        فتح في Figma →
+                    </a>
+                </div>
+                
+                <div class="card" onclick="window.open('https://www.figma.com/online-whiteboard/create-diagram/f21dc6ee-c949-40d1-9493-c5868df5a8ea', '_blank')">
+                    <div class="card-number">10</div>
+                    <span class="badge badge-system">Templates</span>
+                    <h3 class="card-title">Templates & Sections Library</h3>
+                    <p class="card-description">12 قالب + 21+ قسم + 8 إجراءات سريعة</p>
+                    <a class="card-link" href="https://www.figma.com/online-whiteboard/create-diagram/f21dc6ee-c949-40d1-9493-c5868df5a8ea" target="_blank">
+                        فتح في Figma →
+                    </a>
+                </div>
+            </div>
+        </section>
+        
+        <!-- UI Wireframes -->
+        <section class="section">
+            <h2 class="section-title">
+                <span>🎨</span>
+                UI Wireframes (9 Pages)
+            </h2>
+            
+            <div class="cards-grid">
+                <div class="card" onclick="window.open('https://www.figma.com/online-whiteboard/create-diagram/e589a522-0d0a-4ed4-81ad-42a2352e94a9', '_blank')">
+                    <div class="card-number">1</div>
+                    <span class="badge badge-ui">Landing</span>
+                    <h3 class="card-title">Landing Page</h3>
+                    <p class="card-description">Hero + Templates showcase + Features + Pricing + Footer</p>
+                    <a class="card-link" href="https://www.figma.com/online-whiteboard/create-diagram/e589a522-0d0a-4ed4-81ad-42a2352e94a9" target="_blank">
+                        فتح في Figma →
+                    </a>
+                </div>
+                
+                <div class="card" onclick="window.open('https://www.figma.com/online-whiteboard/create-diagram/1a4ea38d-441f-49f0-b870-2902f9b13e6e', '_blank')">
+                    <div class="card-number">2</div>
+                    <span class="badge badge-ui">Auth</span>
+                    <h3 class="card-title">Login Page</h3>
+                    <p class="card-description">Glass card + Social login + Inline validation</p>
+                    <a class="card-link" href="https://www.figma.com/online-whiteboard/create-diagram/1a4ea38d-441f-49f0-b870-2902f9b13e6e" target="_blank">
+                        فتح في Figma →
+                    </a>
+                </div>
+                
+                <div class="card" onclick="window.open('https://www.figma.com/online-whiteboard/create-diagram/a3c4f658-dd69-4bb8-9476-544d1423efb7', '_blank')">
+                    <div class="card-number">3</div>
+                    <span class="badge badge-ui">Auth</span>
+                    <h3 class="card-title">Register Page</h3>
+                    <p class="card-description">3-step wizard + Progress indicator + Real-time validation</p>
+                    <a class="card-link" href="https://www.figma.com/online-whiteboard/create-diagram/a3c4f658-dd69-4bb8-9476-544d1423efb7" target="_blank">
+                        فتح في Figma →
+                    </a>
+                </div>
+                
+                <div class="card" onclick="window.open('https://www.figma.com/online-whiteboard/create-diagram/09a45749-9e04-4c8c-921e-4b2188540ca7', '_blank')">
+                    <div class="card-number">4</div>
+                    <span class="badge badge-ui">Dashboard</span>
+                    <h3 class="card-title">Dashboard</h3>
+                    <p class="card-description">Sidebar 264px + Stats cards + Stores grid + Empty state</p>
+                    <a class="card-link" href="https://www.figma.com/online-whiteboard/create-diagram/09a45749-9e04-4c8c-921e-4b2188540ca7" target="_blank">
+                        فتح في Figma →
+                    </a>
+                </div>
+                
+                <div class="card" onclick="window.open('https://www.figma.com/online-whiteboard/create-diagram/1a4b96bc-6f5a-4b73-bf99-a24b21391f82', '_blank')">
+                    <div class="card-number">5</div>
+                    <span class="badge badge-ui">Wizard</span>
+                    <h3 class="card-title">Create Store Wizard</h3>
+                    <p class="card-description">2-step: Store info + Template selection + Preview modal</p>
+                    <a class="card-link" href="https://www.figma.com/online-whiteboard/create-diagram/1a4b96bc-6f5a-4b73-bf99-a24b21391f82" target="_blank">
+                        فتح في Figma →
+                    </a>
+                </div>
+                
+                <div class="card" onclick="window.open('https://www.figma.com/online-whiteboard/create-diagram/1ddbf032-0e13-49fa-871d-41c97581e8fe', '_blank')">
+                    <div class="card-number">6</div>
+                    <span class="badge badge-ui">Editor</span>
+                    <h3 class="card-title">AI Builder Interface ⭐</h3>
+                    <p class="card-description">3-col: Chat panel + Canvas + Sections library</p>
+                    <a class="card-link" href="https://www.figma.com/online-whiteboard/create-diagram/1ddbf032-0e13-49fa-871d-41c97581e8fe" target="_blank">
+                        فتح في Figma →
+                    </a>
+                </div>
+                
+                <div class="card" onclick="window.open('https://www.figma.com/online-whiteboard/create-diagram/226df446-6cf9-4ade-9c06-cea5866594ed', '_blank')">
+                    <div class="card-number">7</div>
+                    <span class="badge badge-ui">Detail</span>
+                    <h3 class="card-title">Store Detail</h3>
+                    <p class="card-description">5 tabs: Overview + Analytics + Settings + Products + Orders</p>
+                    <a class="card-link" href="https://www.figma.com/online-whiteboard/create-diagram/226df446-6cf9-4ade-9c06-cea5866594ed" target="_blank">
+                        فتح في Figma →
+                    </a>
+                </div>
+                
+                <div class="card" onclick="window.open('https://www.figma.com/online-whiteboard/create-diagram/bc5c5b1f-bb32-4e6f-9647-11e6c86bd1d5', '_blank')">
+                    <div class="card-number">8</div>
+                    <span class="badge badge-ui">Editor</span>
+                    <h3 class="card-title">Edit Store (Code Editor)</h3>
+                    <p class="card-description">Monaco editor + Live preview + File manager + Version history</p>
+                    <a class="card-link" href="https://www.figma.com/online-whiteboard/create-diagram/bc5c5b1f-bb32-4e6f-9647-11e6c86bd1d5" target="_blank">
+                        فتح في Figma →
+                    </a>
+                </div>
+                
+                <div class="card" onclick="window.open('https://www.figma.com/online-whiteboard/create-diagram/f33bc885-38a5-498d-b194-72813b177eb3', '_blank')">
+                    <div class="card-number">9</div>
+                    <span class="badge badge-ui">Error</span>
+                    <h3 class="card-title">404 Not Found</h3>
+                    <p class="card-description">Friendly error + Suggestions + Report link</p>
+                    <a class="card-link" href="https://www.figma.com/online-whiteboard/create-diagram/f33bc885-38a5-498d-b194-72813b177eb3" target="_blank">
+                        فتح في Figma →
+                    </a>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Quick Links -->
+        <div class="quick-links">
+            <a class="quick-link" href="design-system-rules.md">📖 Design System Rules</a>
+            <a class="quick-link" href="component-specifications.md">🧩 Component Specs</a>
+            <a class="quick-link" href="file:///C:/Users/wahed/Desktop/AI-STORE-BUILDER">📁 Open Project Folder</a>
+        </div>
+        
+        <footer>
+            <p>🎨 AI Store Builder Design System v1.0</p>
+            <p style="margin-top: 8px; font-size: 14px;">
+                10 System Diagrams + 9 UI Wireframes + 15 Components Specs
+            </p>
+            <p style="margin-top: 16px; opacity: 0.6; font-size: 12px;">
+                Built with ❤️ by APEX AGENT v13.0 | February 9, 2026
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

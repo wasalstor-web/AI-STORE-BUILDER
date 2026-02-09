@@ -43,7 +43,12 @@ class Settings(BaseSettings):
     MAX_STORES_ENTERPRISE: int = 1000
 
     # ── CORS ──
-    CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:8000"]
+    CORS_ORIGINS: list[str] = [
+        "http://localhost:3000",
+        "http://localhost:8000",
+        "https://ai-store-builder.pages.dev",
+        "https://*.ai-store-builder.pages.dev",
+    ]
 
     # ── AI (Phase 2) ──
     OPENAI_API_KEY: str = ""

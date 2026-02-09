@@ -59,5 +59,9 @@ frontend/dist/
 *.tsbuildinfo
 .eslintcache
 
-#  Docker 
+#  Cloudflare
+.wrangler/
+cf-deploy.log
+
+#  Docker
 docker-compose.override.yml

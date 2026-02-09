@@ -1,8 +1,10 @@
 """
-AI Store Builder — FastAPI Application Entry Point
+AI Store Builder -- FastAPI Application Entry Point
 """
 
 import logging
+import sys
+import io
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, Response
@@ -16,6 +18,11 @@ from app.config import get_settings
 from app.database import engine
 from app.middleware.rate_limit import limiter
 
+# Fix Windows console encoding for emoji/arabic
+if sys.platform == "win32":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+
 logger = logging.getLogger(__name__)
 
 settings = get_settings()
@@ -28,14 +35,14 @@ async def lifespan(app: FastAPI):
     if "CHANGE-ME" in settings.JWT_SECRET_KEY:
         if settings.is_production:
             raise RuntimeError(
-                "❌ JWT_SECRET_KEY must be set in production! Run: openssl rand -hex 64"
+                "JWT_SECRET_KEY must be set in production! Run: openssl rand -hex 64"
             )
         else:
             print(
-                "⚠️  WARNING: Using default JWT secret. Set JWT_SECRET_KEY in .env for production!"
+                "WARNING: Using default JWT secret. Set JWT_SECRET_KEY in .env for production!"
             )
-    print(f"🚀 {settings.APP_NAME} v{settings.APP_VERSION} starting...")
-    print(f"📦 Environment: {settings.APP_ENV}")
+    print(f"[START] {settings.APP_NAME} v{settings.APP_VERSION} starting...")
+    print(f"[ENV] Environment: {settings.APP_ENV}")
 
     # Auto-create tables for SQLite / local dev (skip if using Alembic in production)
     if settings.DATABASE_URL.startswith("sqlite"):
@@ -43,29 +50,29 @@ async def lifespan(app: FastAPI):
 
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
-        print("✅ SQLite tables created automatically.")
+        print("[DB] SQLite tables created automatically.")
 
     yield
     # Shutdown
     await engine.dispose()
-    print("👋 Server shutdown complete.")
+    print("[STOP] Server shutdown complete.")
 
 
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
-    description="🏗️ AI-Powered Multi-Tenant Store Builder — بناء المتاجر بالذكاء الاصطناعي",
+    description="AI-Powered Multi-Tenant Store Builder",
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan,
 )
 
-# ── Rate Limiter ──
+# -- Rate Limiter --
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 
-# ── Security Headers Middleware ──
+# -- Security Headers Middleware --
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         response: Response = await call_next(request)
@@ -80,7 +87,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 
 app.add_middleware(SecurityHeadersMiddleware)
 
-# ── CORS ──
+# -- CORS --
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
@@ -89,7 +96,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── Import & register routers ──
+# -- Import & register routers --
 from app.api.ai_chat import router as ai_chat_router  # noqa: E402
 from app.api.auth import router as auth_router  # noqa: E402
 from app.api.categories import router as categories_router  # noqa: E402
@@ -104,17 +111,17 @@ from app.api.tenants import router as tenants_router  # noqa: E402
 from app.api.uploads import router as uploads_router  # noqa: E402
 
 app.include_router(health_router)
-app.include_router(auth_router, prefix=f"{settings.API_V1_PREFIX}/auth", tags=["🔐 Auth"])
-app.include_router(tenants_router, prefix=f"{settings.API_V1_PREFIX}/tenants", tags=["🏢 Tenants"])
-app.include_router(stores_router, prefix=f"{settings.API_V1_PREFIX}/stores", tags=["🏪 Stores"])
-app.include_router(jobs_router, prefix=f"{settings.API_V1_PREFIX}/jobs", tags=["📊 Jobs"])
-app.include_router(ai_chat_router, prefix=f"{settings.API_V1_PREFIX}/ai", tags=["🤖 AI Chat"])
-app.include_router(preview_router, prefix=f"{settings.API_V1_PREFIX}/preview", tags=["👁️ Preview"])
-app.include_router(products_router, prefix=f"{settings.API_V1_PREFIX}", tags=["📦 Products"])
-app.include_router(categories_router, prefix=f"{settings.API_V1_PREFIX}", tags=["📂 Categories"])
-app.include_router(orders_router, prefix=f"{settings.API_V1_PREFIX}", tags=["🛒 Orders"])
-app.include_router(payments_router, prefix=f"{settings.API_V1_PREFIX}", tags=["💳 Payments"])
-app.include_router(uploads_router, prefix=f"{settings.API_V1_PREFIX}", tags=["📤 Uploads"])
+app.include_router(auth_router, prefix=f"{settings.API_V1_PREFIX}/auth", tags=["Auth"])
+app.include_router(tenants_router, prefix=f"{settings.API_V1_PREFIX}/tenants", tags=["Tenants"])
+app.include_router(stores_router, prefix=f"{settings.API_V1_PREFIX}/stores", tags=["Stores"])
+app.include_router(jobs_router, prefix=f"{settings.API_V1_PREFIX}/jobs", tags=["Jobs"])
+app.include_router(ai_chat_router, prefix=f"{settings.API_V1_PREFIX}/ai", tags=["AI Chat"])
+app.include_router(preview_router, prefix=f"{settings.API_V1_PREFIX}/preview", tags=["Preview"])
+app.include_router(products_router, prefix=f"{settings.API_V1_PREFIX}", tags=["Products"])
+app.include_router(categories_router, prefix=f"{settings.API_V1_PREFIX}", tags=["Categories"])
+app.include_router(orders_router, prefix=f"{settings.API_V1_PREFIX}", tags=["Orders"])
+app.include_router(payments_router, prefix=f"{settings.API_V1_PREFIX}", tags=["Payments"])
+app.include_router(uploads_router, prefix=f"{settings.API_V1_PREFIX}", tags=["Uploads"])
 
 
 @app.exception_handler(Exception)
@@ -126,6 +133,6 @@ async def global_exception_handler(request, exc):
         content={
             "success": False,
             "error": "internal_server_error",
-            "message": "حدث خطأ داخلي في الخادم" if not settings.DEBUG else str(exc),
+            "message": str(exc) if settings.DEBUG else "Internal server error",
         },
     )
