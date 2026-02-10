@@ -19,7 +19,7 @@ class Settings(BaseSettings):
 
     # ── App ──
     APP_NAME: str = "WebFlow-Builder"
-    APP_VERSION: str = "1.0.0"
+    APP_VERSION: str = "2.0.0"
     APP_ENV: str = "development"
     DEBUG: bool = True
 
@@ -66,7 +66,7 @@ class Settings(BaseSettings):
     GPT_MODEL: str = "gpt-4o-mini"
     GEMINI_MODEL: str = "gemini-2.0-flash"
     AI_TEMPERATURE: float = 0.7
-    AI_MAX_TOKENS: int = 8000
+    AI_MAX_TOKENS: int = 16000
     
     # ── Supabase (Real-time Database) ──
     SUPABASE_URL: str = ""
