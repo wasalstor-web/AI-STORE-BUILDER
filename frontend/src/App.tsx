@@ -12,7 +12,7 @@ const Register = lazy(() => import("./pages/Register"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const CreateStore = lazy(() => import("./pages/CreateStore"));
 const AIBuilder = lazy(() => import("./pages/AIBuilderOptimized")); // ✅ Optimized version
-const StoreDetail = lazy(() => import("./pages/StoreDetail"));
+const StoreControlPanel = lazy(() => import("./pages/StoreControlPanel"));
 const EditStore = lazy(() => import("./pages/EditStore"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -105,7 +105,7 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Layout>
-                  <StoreDetail />
+                  <StoreControlPanel />
                 </Layout>
               </ProtectedRoute>
             }
