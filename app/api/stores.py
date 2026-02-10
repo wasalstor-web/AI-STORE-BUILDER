@@ -26,6 +26,9 @@ from app.services.store_generator import create_store_and_job, generate_store
 
 router = APIRouter()
 
+# Track background tasks to prevent GC before completion
+_background_tasks: set[asyncio.Task[None]] = set()
+
 
 @router.post(
     "/generate",
@@ -164,8 +167,10 @@ async def generate_store(
                     await session.commit()
                     print(f"❌ Inline generation failed: {ex}")
 
-        # Fire as background task
-        asyncio.create_task(_run_inline_generation(str(job.id), str(store.id), store.config or {}))
+        # Fire as background task (tracked to prevent GC)
+        task = asyncio.create_task(_run_inline_generation(str(job.id), str(store.id), store.config or {}))
+        _background_tasks.add(task)
+        task.add_done_callback(_background_tasks.discard)
 
     return JobCreateResponse(
         job_id=job.id,

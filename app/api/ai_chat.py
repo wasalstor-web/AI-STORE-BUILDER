@@ -641,13 +641,15 @@ def _get_suggestions(last_message: str) -> list[str]:
     return [s for s in suggestions if not any(word in msg_lower for word in s.split()[:2])][:4]
 
 
-# ═══════ اختبار AI بدون مصادقة (للتطوير) ═══════
+# ═══════ اختبار AI (محمي — dev فقط) ═══════
 @router.post("/test", response_model=AIChatResponse)
 async def ai_chat_test_endpoint(
     request: Request,
     req: AIChatRequest,
 ) -> AIChatResponse:
-    """اختبار AI Chat بدون مصادقة — مفيد للتطوير والاختبار."""
+    """اختبار AI Chat — يعمل فقط في بيئة التطوير."""
+    if settings.is_production:
+        raise HTTPException(status_code=404, detail="Not found")
     start_time = time.time()
     
     api_key = settings.ANTHROPIC_API_KEY

@@ -418,7 +418,11 @@ export default function Landing() {
               className="md:hidden p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/5 transition-colors"
               aria-label="القائمة"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileMenuOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
             </button>
             <Link
               to="/login"
@@ -495,7 +499,7 @@ export default function Landing() {
               className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/4 border border-white/6 text-[13px] text-text-secondary mb-10 backdrop-blur-sm"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-              منصة بناء المواقع والمتاجر بالذكاء الاصطناعي — v2.4
+              منصة بناء المواقع والمتاجر بالذكاء الاصطناعي — v2.5
             </motion.div>
 
             {/* Main Title */}

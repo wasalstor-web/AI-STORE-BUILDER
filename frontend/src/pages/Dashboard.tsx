@@ -27,11 +27,7 @@ import {
   Code2,
   ChevronLeft,
 } from "lucide-react";
-import type {
-  Store as StoreType,
-  StoreListResponse,
-  Tenant,
-} from "../types";
+import type { Store as StoreType, StoreListResponse, Tenant } from "../types";
 
 const storeTypeLabels: Record<string, string> = {
   fashion: "أزياء",
@@ -167,7 +163,7 @@ export default function Dashboard() {
   ).length;
 
   // Single aggregate API call instead of N+1 per-store queries
-  const { data: dashStats } = useQuery<{
+  const { data: dashStats, isLoading: statsLoading } = useQuery<{
     total_stores: number;
     active_stores: number;
     total_products: number;
@@ -299,6 +295,20 @@ export default function Dashboard() {
       </motion.div>
 
       {/* ── Stats Grid ── */}
+      {statsLoading ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="glass-card p-4 animate-pulse">
+              <div className="flex items-center justify-between mb-3">
+                <div className="w-9 h-9 rounded-xl bg-dark-hover" />
+                <div className="h-4 w-10 bg-dark-hover rounded" />
+              </div>
+              <div className="h-6 w-12 bg-dark-hover rounded mb-1" />
+              <div className="h-3 w-16 bg-dark-hover rounded" />
+            </div>
+          ))}
+        </div>
+      ) : (
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         {stats.map((stat, i) => (
           <motion.div
@@ -325,6 +335,7 @@ export default function Dashboard() {
           </motion.div>
         ))}
       </div>
+      )}
 
       {/* ── Main Content Grid ── */}
       <div className="grid lg:grid-cols-[1fr_320px] gap-6">

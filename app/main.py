@@ -38,9 +38,10 @@ async def lifespan(app: FastAPI):
                 "JWT_SECRET_KEY must be set in production! Run: openssl rand -hex 64"
             )
         else:
-            print(
-                "WARNING: Using default JWT secret. Set JWT_SECRET_KEY in .env for production!"
-            )
+            import secrets as _secrets
+            _auto_key = _secrets.token_hex(64)
+            settings.__dict__["JWT_SECRET_KEY"] = _auto_key
+            print(f"⚠️ Auto-generated JWT secret for dev session (not persisted)")
     print(f"[START] {settings.APP_NAME} v{settings.APP_VERSION} starting...")
     print(f"[ENV] Environment: {settings.APP_ENV}")
 
@@ -91,6 +92,7 @@ app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
+    allow_origin_regex=settings.CORS_ORIGIN_REGEX,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -143,13 +145,13 @@ app.include_router(dashboard_router, prefix=f"{settings.API_V1_PREFIX}/dashboard
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request, exc):
-    """Catch-all error handler."""
+    """Catch-all error handler — never leak details to client."""
     logger.exception(f"Unhandled error: {exc}")
     return JSONResponse(
         status_code=500,
         content={
             "success": False,
             "error": "internal_server_error",
-            "message": str(exc) if settings.DEBUG else "Internal server error",
+            "message": "Internal server error",
         },
     )

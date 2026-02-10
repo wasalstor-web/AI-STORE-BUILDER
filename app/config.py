@@ -19,7 +19,7 @@ class Settings(BaseSettings):
 
     # ── App ──
     APP_NAME: str = "WebFlow-Builder"
-    APP_VERSION: str = "2.4.0"
+    APP_VERSION: str = "2.5.0"
     APP_ENV: str = "development"
     DEBUG: bool = True
 
@@ -54,8 +54,8 @@ class Settings(BaseSettings):
         "http://147.93.120.99",
         "http://147.93.120.99:8000",
         "https://ai-store-builder.pages.dev",
-        "https://*.ai-store-builder.pages.dev",
     ]
+    CORS_ORIGIN_REGEX: str = r"https://.*\.ai-store-builder\.pages\.dev"
 
     # ── AI (Multi-Provider) ──
     OPENAI_API_KEY: str = ""

@@ -323,7 +323,9 @@ function OverviewTab({ store, storeId }: { store: Store; storeId: string }) {
       <div className="glass-card p-5">
         <h3 className="font-semibold mb-4 flex items-center gap-2">
           <TrendingUp className="w-4 h-4 text-success" /> نشاط الأسبوع
-          <span className="mr-auto text-[10px] font-normal text-text-muted bg-dark-hover px-2 py-0.5 rounded-full">تقريبي</span>
+          <span className="mr-auto text-[10px] font-normal text-text-muted bg-dark-hover px-2 py-0.5 rounded-full">
+            تقريبي
+          </span>
         </h3>
         <MiniActivityChart
           totalOrders={orderSummary?.total_orders || 0}
@@ -1178,6 +1180,48 @@ function OrdersTab({ storeId }: { storeId: string }) {
         </div>
       ) : (
         <div className="glass-card overflow-hidden">
+          {/* ── Mobile: Card Layout ── */}
+          <div className="md:hidden divide-y divide-dark-border/50">
+            {orders.map((order) => {
+              const nextStatus = getNextStatus(order.status);
+              const nextLabel = getNextStatusLabel(order.status);
+              return (
+                <div key={order.id} className="p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-sm text-primary-light">{order.order_number}</span>
+                    <span className={`badge text-[10px] ${statusLabels[order.status]?.class || "badge-neutral"}`}>
+                      {statusLabels[order.status]?.label || order.status}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-text-secondary">{order.customer_name}</span>
+                    <span className="font-medium">{order.total} {order.currency}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-text-muted">
+                      {new Date(order.created_at).toLocaleDateString("ar-SA")}
+                    </span>
+                    {nextStatus && nextLabel ? (
+                      <button
+                        onClick={() => updateStatusMutation.mutate({ orderId: order.id, status: nextStatus })}
+                        disabled={updateStatusMutation.isPending}
+                        className="text-[11px] px-3 py-1.5 rounded-lg bg-primary/10 text-primary-light hover:bg-primary/20 transition-colors disabled:opacity-50"
+                      >
+                        {updateStatusMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin inline" /> : `← ${nextLabel}`}
+                      </button>
+                    ) : order.status === "cancelled" ? (
+                      <span className="text-[10px] text-text-muted">ملغي</span>
+                    ) : (
+                      <span className="text-[10px] text-success">✓ مكتمل</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* ── Desktop: Table Layout ── */}
+          <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-dark-border text-text-muted text-xs">
@@ -1438,6 +1482,7 @@ function OrdersTab({ storeId }: { storeId: string }) {
               })}
             </tbody>
           </table>
+          </div>
           <div className="p-3 flex items-center justify-between border-t border-dark-border">
             <span className="text-text-muted text-xs">
               {data?.total || 0} طلب
@@ -1564,10 +1609,18 @@ function SettingsTab({ store, storeId }: { store: Store; storeId: string }) {
   const [currency, setCurrency] = useState(storeConfig.currency || "SAR");
   const [metaTitle, setMetaTitle] = useState(storeConfig.meta_title || "");
   const [metaDesc, setMetaDesc] = useState(storeConfig.meta_description || "");
-  const [contactEmail, setContactEmail] = useState(storeConfig.contact_email || "");
-  const [contactPhone, setContactPhone] = useState(storeConfig.contact_phone || "");
-  const [socialTwitter, setSocialTwitter] = useState(storeConfig.social_twitter || "");
-  const [socialInstagram, setSocialInstagram] = useState(storeConfig.social_instagram || "");
+  const [contactEmail, setContactEmail] = useState(
+    storeConfig.contact_email || "",
+  );
+  const [contactPhone, setContactPhone] = useState(
+    storeConfig.contact_phone || "",
+  );
+  const [socialTwitter, setSocialTwitter] = useState(
+    storeConfig.social_twitter || "",
+  );
+  const [socialInstagram, setSocialInstagram] = useState(
+    storeConfig.social_instagram || "",
+  );
   const [showDelete, setShowDelete] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -1665,7 +1718,8 @@ function SettingsTab({ store, storeId }: { store: Store; storeId: string }) {
       {/* SEO */}
       <div className="glass-card p-6">
         <h3 className="font-semibold mb-4 flex items-center gap-2">
-          <Globe className="w-4 h-4 text-primary-light" /> تحسين محركات البحث (SEO)
+          <Globe className="w-4 h-4 text-primary-light" /> تحسين محركات البحث
+          (SEO)
         </h3>
         <div className="space-y-4">
           <div>
@@ -1680,7 +1734,9 @@ function SettingsTab({ store, storeId }: { store: Store; storeId: string }) {
               placeholder={store.name}
               maxLength={60}
             />
-            <p className="text-[11px] text-text-muted mt-1">{metaTitle.length}/60 حرف</p>
+            <p className="text-[11px] text-text-muted mt-1">
+              {metaTitle.length}/60 حرف
+            </p>
           </div>
           <div>
             <label className="text-sm font-medium text-text-secondary mb-1.5 block">
@@ -1693,7 +1749,9 @@ function SettingsTab({ store, storeId }: { store: Store; storeId: string }) {
               placeholder="وصف مختصر لمتجرك يظهر في نتائج البحث..."
               maxLength={160}
             />
-            <p className="text-[11px] text-text-muted mt-1">{metaDesc.length}/160 حرف</p>
+            <p className="text-[11px] text-text-muted mt-1">
+              {metaDesc.length}/160 حرف
+            </p>
           </div>
         </div>
       </div>
@@ -1736,7 +1794,8 @@ function SettingsTab({ store, storeId }: { store: Store; storeId: string }) {
       {/* Social Links */}
       <div className="glass-card p-6">
         <h3 className="font-semibold mb-4 flex items-center gap-2">
-          <Layers className="w-4 h-4 text-primary-light" /> روابط التواصل الاجتماعي
+          <Layers className="w-4 h-4 text-primary-light" /> روابط التواصل
+          الاجتماعي
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -1798,36 +1857,15 @@ function SettingsTab({ store, storeId }: { store: Store; storeId: string }) {
         </button>
       </div>
 
-      {showDelete && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-          onClick={() => setShowDelete(false)}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="glass-card p-6 max-w-md w-full mx-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-lg font-bold mb-3">تأكيد الحذف</h3>
-            <p className="text-text-secondary text-sm mb-5">
-              هل أنت متأكد من حذف "{store.name}"؟ لا يمكن التراجع عن هذا
-              الإجراء.
-            </p>
-            <div className="flex gap-3">
-              <button onClick={handleDelete} className="btn-danger flex-1">
-                حذف نهائياً
-              </button>
-              <button
-                onClick={() => setShowDelete(false)}
-                className="btn-outline flex-1"
-              >
-                إلغاء
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      )}
+      <ConfirmDialog
+        open={showDelete}
+        title="تأكيد حذف الموقع"
+        message={`هل أنت متأكد من حذف "${store.name}"؟ لا يمكن التراجع عن هذا الإجراء.`}
+        confirmLabel="حذف نهائياً"
+        variant="danger"
+        onConfirm={handleDelete}
+        onCancel={() => setShowDelete(false)}
+      />
     </div>
   );
 }

@@ -65,12 +65,33 @@ export default function AIBuilderOptimized() {
     ],
   );
 
-  // Auto-save conversation to localStorage
+  // Auto-save conversation to localStorage (limit to last 50 messages)
   useEffect(() => {
     if (messages.length > 1) {
-      localStorage.setItem(conversationKey, JSON.stringify(messages));
+      const toStore = messages.slice(-50);
+      localStorage.setItem(conversationKey, JSON.stringify(toStore));
     }
   }, [messages, conversationKey]);
+
+  // Cleanup old conversations (>7 days)
+  useEffect(() => {
+    try {
+      const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+      Object.keys(localStorage)
+        .filter((k) => k.startsWith("webflow_chat_"))
+        .forEach((k) => {
+          try {
+            const raw = localStorage.getItem(k);
+            if (!raw) return;
+            const msgs = JSON.parse(raw);
+            const last = msgs[msgs.length - 1];
+            if (last?.timestamp && Date.now() - new Date(last.timestamp).getTime() > MAX_AGE_MS) {
+              localStorage.removeItem(k);
+            }
+          } catch { /* skip corrupt entries */ }
+        });
+    } catch { /* ignore */ }
+  }, []);
   const [input, setInput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentHTML, setCurrentHTML] = useState(() => {
