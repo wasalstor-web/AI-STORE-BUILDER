@@ -65,6 +65,9 @@
   --color-error: #ef4444;
   --color-error-light: #f87171;
   --color-error-subtle: rgba(239, 68, 68, 0.1);
+  --color-danger: #ef4444;
+  --color-danger-light: #f87171;
+  --color-danger-subtle: rgba(239, 68, 68, 0.1);
   --color-warning: #f59e0b;
   --color-warning-light: #fbbf24;
   --color-warning-subtle: rgba(245, 158, 11, 0.1);
@@ -771,6 +774,12 @@
     background: var(--color-error-subtle);
     color: var(--color-error-light);
     border: 1px solid rgba(239, 68, 68, 0.15);
+  }
+
+  .badge-info {
+    background: var(--color-info-subtle);
+    color: var(--color-info-light);
+    border: 1px solid rgba(59, 130, 246, 0.15);
   }
 
   .badge-neutral {

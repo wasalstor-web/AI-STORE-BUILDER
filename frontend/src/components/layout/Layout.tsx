@@ -215,6 +215,27 @@ export default function Layout({ children }: { children: ReactNode }) {
                     })}
                   </nav>
                   <div className="p-3 border-t border-white/6">
+                    <div className="flex items-center gap-2.5 mb-2.5 px-1">
+                      <div className="w-7 h-7 rounded-full bg-violet-500/20 flex items-center justify-center text-[10px] font-bold text-violet-400">
+                        {user?.full_name?.charAt(0) || "U"}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[12px] font-medium text-white/80 truncate">
+                          {user?.full_name}
+                        </p>
+                        <p className="text-[9px] text-white/30 truncate">
+                          {user?.email}
+                        </p>
+                      </div>
+                    </div>
+                    <Link
+                      to="/profile"
+                      onClick={() => setSidebarOpen(false)}
+                      className="flex items-center gap-2 w-full px-3 py-2 text-[12px] text-white/50 rounded-lg hover:bg-white/4 hover:text-white/80 transition-all mb-1"
+                    >
+                      <UserCog className="w-3.5 h-3.5" />
+                      الملف الشخصي
+                    </Link>
                     <button
                       onClick={handleLogout}
                       className="flex items-center gap-2 w-full px-3 py-2 text-[12px] text-red-400/70 rounded-lg hover:bg-red-500/10 hover:text-red-400 transition-all"

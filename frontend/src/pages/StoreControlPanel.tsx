@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
@@ -43,6 +44,16 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useState, useRef, useEffect } from "react";
+
+/* ── Debounce Hook ── */
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+  return debouncedValue;
+}
 
 /* ── Tab Types ── */
 type TabId =
@@ -348,17 +359,25 @@ function OverviewTab({ store, storeId }: { store: Store; storeId: string }) {
 function ProductsTab({ storeId }: { storeId: string }) {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 300);
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 20;
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
+  // Reset page when search changes
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
+
   const { data, isLoading } = useQuery({
-    queryKey: ["products", storeId, search],
+    queryKey: ["products", storeId, debouncedSearch, page],
     queryFn: async () =>
       (
         await productsApi.list(storeId, {
-          page: 1,
-          page_size: 50,
-          search: search || undefined,
+          page,
+          page_size: PAGE_SIZE,
+          search: debouncedSearch || undefined,
         })
       ).data,
   });
@@ -499,8 +518,31 @@ function ProductsTab({ storeId }: { storeId: string }) {
               ))}
             </tbody>
           </table>
-          <div className="p-3 text-center text-text-muted text-xs border-t border-dark-border">
-            {data?.total || 0} منتج
+          <div className="p-3 flex items-center justify-between border-t border-dark-border">
+            <span className="text-text-muted text-xs">
+              {data?.total || 0} منتج
+            </span>
+            {(data?.total || 0) > PAGE_SIZE && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="px-3 py-1.5 rounded-lg text-xs bg-dark-surface border border-dark-border hover:border-dark-hover disabled:opacity-40 transition-all"
+                >
+                  السابق
+                </button>
+                <span className="text-xs text-text-secondary">
+                  {page} / {Math.ceil((data?.total || 0) / PAGE_SIZE)}
+                </span>
+                <button
+                  onClick={() => setPage((p) => p + 1)}
+                  disabled={page >= Math.ceil((data?.total || 0) / PAGE_SIZE)}
+                  className="px-3 py-1.5 rounded-lg text-xs bg-dark-surface border border-dark-border hover:border-dark-hover disabled:opacity-40 transition-all"
+                >
+                  التالي
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -543,11 +585,17 @@ function ProductFormModal({
   const [stock, setStock] = useState(
     product?.stock_quantity?.toString() || "10",
   );
+  const [categoryId, setCategoryId] = useState(product?.category_id || "");
   const [isActive, setIsActive] = useState(product?.is_active ?? true);
   const [imageUrl, setImageUrl] = useState(product?.image_url || "");
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { data: categoriesData } = useQuery({
+    queryKey: ["categories", storeId],
+    queryFn: async () => (await categoriesApi.list(storeId)).data,
+  });
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -582,6 +630,7 @@ function ProductFormModal({
         description,
         stock_quantity: parseInt(stock),
         is_active: isActive,
+        category_id: categoryId || null,
       };
       if (imageUrl) data.image_url = imageUrl;
       if (product) {
@@ -720,9 +769,29 @@ function ProductFormModal({
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="input-field min-h-[80px] resize-none"
+              className="input-field min-h-20 resize-none"
               placeholder="وصف مختصر للمنتج..."
             />
+          </div>
+          {/* Category Dropdown */}
+          <div>
+            <label className="text-sm font-medium text-text-secondary mb-1.5 block">
+              التصنيف
+            </label>
+            <select
+              value={categoryId}
+              onChange={(e) => setCategoryId(e.target.value)}
+              className="input-field"
+            >
+              <option value="">بدون تصنيف</option>
+              {(categoriesData?.items || categoriesData || []).map(
+                (cat: Category) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ),
+              )}
+            </select>
           </div>
           <label className="flex items-center gap-2 cursor-pointer">
             <input
@@ -766,6 +835,9 @@ function CategoriesTab({ storeId }: { storeId: string }) {
   const [showForm, setShowForm] = useState(false);
   const [newName, setNewName] = useState("");
   const [newDesc, setNewDesc] = useState("");
+  const [editingCat, setEditingCat] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editDesc, setEditDesc] = useState("");
 
   const { data, isLoading } = useQuery({
     queryKey: ["categories", storeId],
@@ -783,6 +855,17 @@ function CategoriesTab({ storeId }: { storeId: string }) {
       toast.success("تم إضافة التصنيف");
     },
     onError: () => toast.error("فشل الإضافة"),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ catId, data }: { catId: string; data: Record<string, unknown> }) =>
+      categoriesApi.update(catId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      setEditingCat(null);
+      toast.success("تم تحديث التصنيف");
+    },
+    onError: () => toast.error("فشل التحديث"),
   });
 
   const deleteMutation = useMutation({
@@ -866,25 +949,85 @@ function CategoriesTab({ storeId }: { storeId: string }) {
           {categories.map((cat) => (
             <div
               key={cat.id}
-              className="glass-card p-4 flex items-center justify-between group"
+              className="glass-card p-4 group"
             >
-              <div>
-                <p className="font-medium">{cat.name}</p>
-                {cat.description && (
-                  <p className="text-xs text-text-muted mt-1">
-                    {cat.description}
-                  </p>
-                )}
-              </div>
-              <button
-                onClick={() => {
-                  if (confirm("حذف هذا التصنيف؟"))
-                    deleteMutation.mutate(cat.id);
-                }}
-                className="p-1.5 opacity-0 group-hover:opacity-100 hover:bg-error/10 rounded-lg transition-all"
-              >
-                <Trash2 className="w-3.5 h-3.5 text-error/60" />
-              </button>
+              {editingCat === cat.id ? (
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="input-field text-sm"
+                    placeholder="اسم التصنيف"
+                    autoFocus
+                  />
+                  <input
+                    type="text"
+                    value={editDesc}
+                    onChange={(e) => setEditDesc(e.target.value)}
+                    className="input-field text-sm"
+                    placeholder="الوصف"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() =>
+                        editName &&
+                        updateMutation.mutate({
+                          catId: cat.id,
+                          data: { name: editName, description: editDesc || null },
+                        })
+                      }
+                      disabled={!editName || updateMutation.isPending}
+                      className="btn-primary text-xs flex-1 flex items-center justify-center gap-1.5"
+                    >
+                      {updateMutation.isPending ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <Save className="w-3 h-3" />
+                      )}{" "}
+                      حفظ
+                    </button>
+                    <button
+                      onClick={() => setEditingCat(null)}
+                      className="btn-outline text-xs px-3"
+                    >
+                      إلغاء
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">{cat.name}</p>
+                    {cat.description && (
+                      <p className="text-xs text-text-muted mt-1">
+                        {cat.description}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                    <button
+                      onClick={() => {
+                        setEditingCat(cat.id);
+                        setEditName(cat.name);
+                        setEditDesc(cat.description || "");
+                      }}
+                      className="p-1.5 hover:bg-primary/10 rounded-lg transition-all"
+                    >
+                      <Edit3 className="w-3.5 h-3.5 text-primary-light/60" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm("حذف هذا التصنيف؟"))
+                          deleteMutation.mutate(cat.id);
+                      }}
+                      className="p-1.5 hover:bg-error/10 rounded-lg transition-all"
+                    >
+                      <Trash2 className="w-3.5 h-3.5 text-error/60" />
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -928,14 +1071,21 @@ function OrdersTab({ storeId }: { storeId: string }) {
   const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState("");
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+  const [orderPage, setOrderPage] = useState(1);
+  const ORDER_PAGE_SIZE = 20;
+
+  // Reset page when filter changes
+  useEffect(() => {
+    setOrderPage(1);
+  }, [statusFilter]);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["orders", storeId, statusFilter],
+    queryKey: ["orders", storeId, statusFilter, orderPage],
     queryFn: async () =>
       (
         await ordersApi.list(storeId, {
-          page: 1,
-          page_size: 50,
+          page: orderPage,
+          page_size: ORDER_PAGE_SIZE,
           status: statusFilter || undefined,
         })
       ).data,
@@ -1019,9 +1169,8 @@ function OrdersTab({ storeId }: { storeId: string }) {
                 const nextStatus = getNextStatus(order.status);
                 const nextLabel = getNextStatusLabel(order.status);
                 return (
-                  <>
+                  <Fragment key={order.id}>
                     <tr
-                      key={order.id}
                       onClick={() =>
                         setExpandedOrder(isExpanded ? null : order.id)
                       }
@@ -1257,13 +1406,36 @@ function OrdersTab({ storeId }: { storeId: string }) {
                         </td>
                       </tr>
                     )}
-                  </>
+                  </Fragment>
                 );
               })}
             </tbody>
           </table>
-          <div className="p-3 text-center text-text-muted text-xs border-t border-dark-border">
-            {data?.total || 0} طلب
+          <div className="p-3 flex items-center justify-between border-t border-dark-border">
+            <span className="text-text-muted text-xs">
+              {data?.total || 0} طلب
+            </span>
+            {(data?.total || 0) > ORDER_PAGE_SIZE && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setOrderPage((p) => Math.max(1, p - 1))}
+                  disabled={orderPage === 1}
+                  className="px-3 py-1.5 rounded-lg text-xs bg-dark-surface border border-dark-border hover:border-dark-hover disabled:opacity-40 transition-all"
+                >
+                  السابق
+                </button>
+                <span className="text-xs text-text-secondary">
+                  {orderPage} / {Math.ceil((data?.total || 0) / ORDER_PAGE_SIZE)}
+                </span>
+                <button
+                  onClick={() => setOrderPage((p) => p + 1)}
+                  disabled={orderPage >= Math.ceil((data?.total || 0) / ORDER_PAGE_SIZE)}
+                  className="px-3 py-1.5 rounded-lg text-xs bg-dark-surface border border-dark-border hover:border-dark-hover disabled:opacity-40 transition-all"
+                >
+                  التالي
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -1527,7 +1699,7 @@ function MiniActivityChart({
           >
             <span className="text-[10px] text-text-muted">{bar.value}</span>
             <div
-              className="w-full rounded-t-md bg-gradient-to-t from-primary/60 to-primary transition-all duration-500"
+              className="w-full rounded-t-md bg-linear-to-t from-primary/60 to-primary transition-all duration-500"
               style={{
                 height: `${(bar.value / maxVal) * 100}%`,
                 minHeight: "4px",

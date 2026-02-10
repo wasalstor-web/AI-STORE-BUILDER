@@ -34,7 +34,7 @@ class OrderUpdateRequest(BaseModel):
 
     status: str | None = Field(
         None,
-        pattern="^(pending|paid|processing|shipped|delivered|completed|cancelled|refunded)$",
+        pattern="^(pending|confirmed|paid|processing|shipped|delivered|completed|cancelled|refunded)$",
     )
     payment_status: str | None = Field(
         None,
