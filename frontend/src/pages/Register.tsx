@@ -1,8 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { motion } from "framer-motion";
-import { Zap, Mail, Lock, User, Building2, Eye, EyeOff } from "lucide-react";
+import {
+  Zap,
+  Mail,
+  Lock,
+  User,
+  Building2,
+  Eye,
+  EyeOff,
+  Check,
+  X as XIcon,
+} from "lucide-react";
 import toast from "react-hot-toast";
 import AppBackdrop from "../components/graphics/AppBackdrop";
 
@@ -27,8 +37,8 @@ export default function Register() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (form.password.length < 8) {
-      toast.error("كلمة المرور يجب أن تكون 8 أحرف على الأقل");
+    if (strengthScore < 3) {
+      toast.error("كلمة المرور يجب أن تحقق جميع المتطلبات");
       return;
     }
     setLoading(true);
@@ -72,6 +82,34 @@ export default function Register() {
       dir: "ltr",
     },
   ];
+
+  // ══ Password Strength ══
+  const passwordChecks = useMemo(() => {
+    const pw = form.password;
+    return [
+      { label: "8 أحرف على الأقل", met: pw.length >= 8 },
+      { label: "حرف واحد على الأقل", met: /[a-zA-Zأ-ي]/.test(pw) },
+      { label: "رقم واحد على الأقل", met: /\d/.test(pw) },
+    ];
+  }, [form.password]);
+
+  const strengthScore = passwordChecks.filter((c) => c.met).length;
+  const strengthColor =
+    strengthScore === 3
+      ? "bg-emerald-500"
+      : strengthScore === 2
+        ? "bg-amber-500"
+        : strengthScore >= 1
+          ? "bg-red-500"
+          : "bg-white/10";
+  const strengthLabel =
+    strengthScore === 3
+      ? "قوية"
+      : strengthScore === 2
+        ? "متوسطة"
+        : strengthScore >= 1
+          ? "ضعيفة"
+          : "";
 
   return (
     <div className="app-shell min-h-screen flex items-center justify-center px-4 py-12 bg-[#08090d]">
@@ -143,11 +181,61 @@ export default function Register() {
                   )}
                 </button>
               </div>
+
+              {/* Password Strength Indicator */}
+              {form.password.length > 0 && (
+                <div className="mt-2.5 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-1.5 bg-white/6 rounded-full overflow-hidden flex gap-0.5">
+                      {[0, 1, 2].map((i) => (
+                        <div
+                          key={i}
+                          className={`flex-1 rounded-full transition-all duration-300 ${
+                            i < strengthScore ? strengthColor : "bg-white/6"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span
+                      className={`text-[10px] font-medium ${
+                        strengthScore === 3
+                          ? "text-emerald-400"
+                          : strengthScore === 2
+                            ? "text-amber-400"
+                            : "text-red-400"
+                      }`}
+                    >
+                      {strengthLabel}
+                    </span>
+                  </div>
+                  <div className="space-y-1">
+                    {passwordChecks.map((check) => (
+                      <div
+                        key={check.label}
+                        className="flex items-center gap-1.5 text-[11px]"
+                      >
+                        {check.met ? (
+                          <Check className="w-3 h-3 text-emerald-400" />
+                        ) : (
+                          <XIcon className="w-3 h-3 text-white/20" />
+                        )}
+                        <span
+                          className={
+                            check.met ? "text-white/60" : "text-white/30"
+                          }
+                        >
+                          {check.label}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || strengthScore < 3}
               className="btn-primary w-full py-3 text-center flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {loading ? (
@@ -159,6 +247,10 @@ export default function Register() {
                 </>
               )}
             </button>
+
+            <p className="text-[11px] text-white/25 text-center mt-3">
+              بإنشاء حسابك، أنت توافق على شروط الاستخدام وسياسة الخصوصية
+            </p>
           </form>
 
           <p className="text-center text-sm text-white/40 mt-6">

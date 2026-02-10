@@ -13,7 +13,8 @@ import {
   Crown,
   UserCog,
 } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
+import { tenantsApi } from "../../lib/api";
 import AppBackdrop from "../graphics/AppBackdrop";
 
 const navItems = [
@@ -32,6 +33,26 @@ export default function Layout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const isBuilder = location.pathname.startsWith("/stores/ai-builder");
+
+  // Fetch tenant plan dynamically
+  const [tenantPlan, setTenantPlan] = useState<string>("free");
+  useEffect(() => {
+    tenantsApi
+      .current()
+      .then((res) => setTenantPlan(res.data?.plan || "free"))
+      .catch(() => {});
+  }, []);
+
+  const planLabels: Record<string, string> = {
+    free: "الخطة المجانية",
+    pro: "الخطة الاحترافية",
+    business: "خطة الأعمال",
+  };
+  const planInfo: Record<string, string> = {
+    free: "3 متاجر • AI أساسي",
+    pro: "10 متاجر • AI متقدم",
+    business: "غير محدود • AI كامل",
+  };
 
   const handleLogout = () => {
     logout();
@@ -108,13 +129,17 @@ export default function Layout({ children }: { children: ReactNode }) {
               <div className="flex items-center gap-2 mb-1">
                 <Crown className="w-3.5 h-3.5 text-violet-400" />
                 <span className="text-[11px] font-semibold text-white/70">
-                  الخطة المجانية
+                  {planLabels[tenantPlan] || planLabels.free}
                 </span>
-                <span className="px-1 py-px rounded bg-violet-500/20 text-[8px] font-bold text-violet-400 mr-auto">
-                  ترقية
-                </span>
+                {tenantPlan === "free" && (
+                  <span className="px-1 py-px rounded bg-violet-500/20 text-[8px] font-bold text-violet-400 mr-auto">
+                    ترقية
+                  </span>
+                )}
               </div>
-              <p className="text-[10px] text-white/30">12 قالب • 21 قسم • AI</p>
+              <p className="text-[10px] text-white/30">
+                {planInfo[tenantPlan] || planInfo.free}
+              </p>
             </div>
           </div>
 

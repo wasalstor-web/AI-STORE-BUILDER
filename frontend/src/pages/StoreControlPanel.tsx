@@ -41,6 +41,7 @@ import {
   Save,
   Image,
   Upload,
+  ChevronDown,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useState, useRef, useEffect } from "react";
@@ -602,6 +603,15 @@ function ProductFormModal({
   const [categoryId, setCategoryId] = useState(product?.category_id || "");
   const [isActive, setIsActive] = useState(product?.is_active ?? true);
   const [imageUrl, setImageUrl] = useState(product?.image_url || "");
+  const [compareAtPrice, setCompareAtPrice] = useState(
+    product?.compare_at_price?.toString() || "",
+  );
+  const [weight, setWeight] = useState(product?.weight?.toString() || "");
+  const [weightUnit, setWeightUnit] = useState(
+    product?.weight_unit || "kg",
+  );
+  const [sku, setSku] = useState((product as Record<string, unknown>)?.sku as string || "");
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -647,6 +657,10 @@ function ProductFormModal({
         category_id: categoryId || null,
       };
       if (imageUrl) data.image_url = imageUrl;
+      if (compareAtPrice) data.compare_at_price = parseFloat(compareAtPrice);
+      if (weight) data.weight = parseFloat(weight);
+      if (weightUnit) data.weight_unit = weightUnit;
+      if (sku) data.sku = sku;
       if (product) {
         await productsApi.update(product.id, data);
         toast.success("تم تحديث المنتج");
@@ -807,6 +821,93 @@ function ProductFormModal({
               )}
             </select>
           </div>
+
+          {/* Advanced Options */}
+          <button
+            type="button"
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="flex items-center gap-2 text-sm text-text-muted hover:text-text-secondary transition-colors w-full"
+          >
+            <ChevronDown
+              className={`w-4 h-4 transition-transform ${showAdvanced ? "rotate-180" : ""}`}
+            />
+            خيارات متقدمة
+          </button>
+          <AnimatePresence>
+            {showAdvanced && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden space-y-4"
+              >
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-text-secondary mb-1.5 block">
+                      سعر المقارنة
+                    </label>
+                    <input
+                      type="number"
+                      value={compareAtPrice}
+                      onChange={(e) => setCompareAtPrice(e.target.value)}
+                      className="input-field"
+                      placeholder="299"
+                      min="0"
+                      step="0.01"
+                    />
+                    <p className="text-[10px] text-text-muted mt-1">
+                      يظهر كسعر مشطوب
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-text-secondary mb-1.5 block">
+                      رمز SKU
+                    </label>
+                    <input
+                      type="text"
+                      value={sku}
+                      onChange={(e) => setSku(e.target.value)}
+                      className="input-field"
+                      placeholder="PRD-001"
+                      dir="ltr"
+                      style={{ textAlign: "left" }}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-text-secondary mb-1.5 block">
+                      الوزن
+                    </label>
+                    <input
+                      type="number"
+                      value={weight}
+                      onChange={(e) => setWeight(e.target.value)}
+                      className="input-field"
+                      placeholder="0.5"
+                      min="0"
+                      step="0.01"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-text-secondary mb-1.5 block">
+                      وحدة الوزن
+                    </label>
+                    <select
+                      value={weightUnit}
+                      onChange={(e) => setWeightUnit(e.target.value)}
+                      className="input-field"
+                    >
+                      <option value="kg">كيلوغرام (kg)</option>
+                      <option value="g">غرام (g)</option>
+                      <option value="lb">باوند (lb)</option>
+                    </select>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
@@ -1188,14 +1289,22 @@ function OrdersTab({ storeId }: { storeId: string }) {
               return (
                 <div key={order.id} className="p-4 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-sm text-primary-light">{order.order_number}</span>
-                    <span className={`badge text-[10px] ${statusLabels[order.status]?.class || "badge-neutral"}`}>
+                    <span className="font-mono text-sm text-primary-light">
+                      {order.order_number}
+                    </span>
+                    <span
+                      className={`badge text-[10px] ${statusLabels[order.status]?.class || "badge-neutral"}`}
+                    >
                       {statusLabels[order.status]?.label || order.status}
                     </span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-text-secondary">{order.customer_name}</span>
-                    <span className="font-medium">{order.total} {order.currency}</span>
+                    <span className="text-text-secondary">
+                      {order.customer_name}
+                    </span>
+                    <span className="font-medium">
+                      {order.total} {order.currency}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-text-muted">
@@ -1203,11 +1312,20 @@ function OrdersTab({ storeId }: { storeId: string }) {
                     </span>
                     {nextStatus && nextLabel ? (
                       <button
-                        onClick={() => updateStatusMutation.mutate({ orderId: order.id, status: nextStatus })}
+                        onClick={() =>
+                          updateStatusMutation.mutate({
+                            orderId: order.id,
+                            status: nextStatus,
+                          })
+                        }
                         disabled={updateStatusMutation.isPending}
                         className="text-[11px] px-3 py-1.5 rounded-lg bg-primary/10 text-primary-light hover:bg-primary/20 transition-colors disabled:opacity-50"
                       >
-                        {updateStatusMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin inline" /> : `← ${nextLabel}`}
+                        {updateStatusMutation.isPending ? (
+                          <Loader2 className="w-3 h-3 animate-spin inline" />
+                        ) : (
+                          `← ${nextLabel}`
+                        )}
                       </button>
                     ) : order.status === "cancelled" ? (
                       <span className="text-[10px] text-text-muted">ملغي</span>
@@ -1222,266 +1340,272 @@ function OrdersTab({ storeId }: { storeId: string }) {
 
           {/* ── Desktop: Table Layout ── */}
           <div className="hidden md:block overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-dark-border text-text-muted text-xs">
-                <th className="text-right p-3 font-medium w-6"></th>
-                <th className="text-right p-3 font-medium">رقم الطلب</th>
-                <th className="text-right p-3 font-medium">العميل</th>
-                <th className="text-right p-3 font-medium">المبلغ</th>
-                <th className="text-right p-3 font-medium">الحالة</th>
-                <th className="text-right p-3 font-medium">التاريخ</th>
-                <th className="text-center p-3 font-medium">إجراء</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order) => {
-                const isExpanded = expandedOrder === order.id;
-                const nextStatus = getNextStatus(order.status);
-                const nextLabel = getNextStatusLabel(order.status);
-                return (
-                  <Fragment key={order.id}>
-                    <tr
-                      onClick={() =>
-                        setExpandedOrder(isExpanded ? null : order.id)
-                      }
-                      className={`border-b border-dark-border/50 hover:bg-dark-hover/30 transition-colors cursor-pointer ${isExpanded ? "bg-dark-hover/20" : ""}`}
-                    >
-                      <td className="p-3 text-text-muted">
-                        <motion.span
-                          animate={{ rotate: isExpanded ? 90 : 0 }}
-                          className="inline-block text-xs"
-                        >
-                          ◀
-                        </motion.span>
-                      </td>
-                      <td className="p-3 font-mono text-sm text-primary-light">
-                        {order.order_number}
-                      </td>
-                      <td className="p-3">
-                        <p className="text-sm font-medium">
-                          {order.customer_name}
-                        </p>
-                        <p className="text-[11px] text-text-muted">
-                          {order.customer_email}
-                        </p>
-                      </td>
-                      <td className="p-3 text-sm font-medium">
-                        {order.total} {order.currency}
-                      </td>
-                      <td className="p-3">
-                        <span
-                          className={`badge text-[10px] ${statusLabels[order.status]?.class || "badge-neutral"}`}
-                        >
-                          {statusLabels[order.status]?.label || order.status}
-                        </span>
-                      </td>
-                      <td className="p-3 text-xs text-text-muted">
-                        {new Date(order.created_at).toLocaleDateString("ar-SA")}
-                      </td>
-                      <td
-                        className="p-3 text-center"
-                        onClick={(e) => e.stopPropagation()}
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-dark-border text-text-muted text-xs">
+                  <th className="text-right p-3 font-medium w-6"></th>
+                  <th className="text-right p-3 font-medium">رقم الطلب</th>
+                  <th className="text-right p-3 font-medium">العميل</th>
+                  <th className="text-right p-3 font-medium">المبلغ</th>
+                  <th className="text-right p-3 font-medium">الحالة</th>
+                  <th className="text-right p-3 font-medium">التاريخ</th>
+                  <th className="text-center p-3 font-medium">إجراء</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.map((order) => {
+                  const isExpanded = expandedOrder === order.id;
+                  const nextStatus = getNextStatus(order.status);
+                  const nextLabel = getNextStatusLabel(order.status);
+                  return (
+                    <Fragment key={order.id}>
+                      <tr
+                        onClick={() =>
+                          setExpandedOrder(isExpanded ? null : order.id)
+                        }
+                        className={`border-b border-dark-border/50 hover:bg-dark-hover/30 transition-colors cursor-pointer ${isExpanded ? "bg-dark-hover/20" : ""}`}
                       >
-                        {nextStatus && nextLabel ? (
-                          <button
-                            onClick={() =>
-                              updateStatusMutation.mutate({
-                                orderId: order.id,
-                                status: nextStatus,
-                              })
-                            }
-                            disabled={updateStatusMutation.isPending}
-                            className="text-[11px] px-3 py-1.5 rounded-lg bg-primary/10 text-primary-light hover:bg-primary/20 transition-colors disabled:opacity-50"
+                        <td className="p-3 text-text-muted">
+                          <motion.span
+                            animate={{ rotate: isExpanded ? 90 : 0 }}
+                            className="inline-block text-xs"
                           >
-                            {updateStatusMutation.isPending ? (
-                              <Loader2 className="w-3 h-3 animate-spin inline" />
-                            ) : (
-                              `← ${nextLabel}`
-                            )}
-                          </button>
-                        ) : order.status === "cancelled" ? (
-                          <span className="text-[10px] text-text-muted">
-                            ملغي
-                          </span>
-                        ) : (
-                          <span className="text-[10px] text-success">
-                            ✓ مكتمل
-                          </span>
-                        )}
-                      </td>
-                    </tr>
-                    {/* Expanded Order Details */}
-                    {isExpanded && (
-                      <tr key={`${order.id}-detail`}>
-                        <td colSpan={7} className="p-0">
-                          <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="bg-dark-surface/50 border-b border-dark-border/50"
+                            ◀
+                          </motion.span>
+                        </td>
+                        <td className="p-3 font-mono text-sm text-primary-light">
+                          {order.order_number}
+                        </td>
+                        <td className="p-3">
+                          <p className="text-sm font-medium">
+                            {order.customer_name}
+                          </p>
+                          <p className="text-[11px] text-text-muted">
+                            {order.customer_email}
+                          </p>
+                        </td>
+                        <td className="p-3 text-sm font-medium">
+                          {order.total} {order.currency}
+                        </td>
+                        <td className="p-3">
+                          <span
+                            className={`badge text-[10px] ${statusLabels[order.status]?.class || "badge-neutral"}`}
                           >
-                            <div className="p-4 grid md:grid-cols-3 gap-4">
-                              {/* Order Items */}
-                              <div className="md:col-span-2">
-                                <p className="text-xs font-medium text-text-muted mb-2">
-                                  المنتجات
-                                </p>
-                                {order.items && order.items.length > 0 ? (
-                                  <div className="space-y-2">
-                                    {order.items.map((item) => (
-                                      <div
-                                        key={item.id}
-                                        className="flex items-center gap-3 bg-dark-bg/50 rounded-lg p-2.5"
-                                      >
-                                        <div className="w-9 h-9 rounded-lg bg-dark-hover border border-dark-border flex items-center justify-center shrink-0 overflow-hidden">
-                                          {item.product_image ? (
-                                            <img
-                                              src={item.product_image}
-                                              alt=""
-                                              className="w-full h-full object-cover"
-                                            />
-                                          ) : (
-                                            <Package className="w-3.5 h-3.5 text-text-muted" />
-                                          )}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                          <p className="text-sm truncate">
-                                            {item.product_name}
-                                          </p>
-                                          <p className="text-[11px] text-text-muted">
-                                            {item.quantity} × {item.unit_price}{" "}
-                                            {order.currency}
-                                          </p>
-                                        </div>
-                                        <span className="text-sm font-medium shrink-0">
-                                          {item.total_price} {order.currency}
-                                        </span>
-                                      </div>
-                                    ))}
-                                  </div>
-                                ) : (
-                                  <p className="text-xs text-text-muted">
-                                    لا توجد تفاصيل
-                                  </p>
-                                )}
-                              </div>
-                              {/* Order Info */}
-                              <div className="space-y-3">
-                                <div>
-                                  <p className="text-xs text-text-muted mb-1">
-                                    ملخص الطلب
-                                  </p>
-                                  <div className="bg-dark-bg/50 rounded-lg p-3 space-y-1.5 text-sm">
-                                    <div className="flex justify-between">
-                                      <span className="text-text-muted">
-                                        المجموع الفرعي
-                                      </span>
-                                      <span>
-                                        {order.subtotal} {order.currency}
-                                      </span>
-                                    </div>
-                                    {order.shipping_cost > 0 && (
-                                      <div className="flex justify-between">
-                                        <span className="text-text-muted">
-                                          الشحن
-                                        </span>
-                                        <span>
-                                          {order.shipping_cost} {order.currency}
-                                        </span>
-                                      </div>
-                                    )}
-                                    {order.tax_amount > 0 && (
-                                      <div className="flex justify-between">
-                                        <span className="text-text-muted">
-                                          الضريبة
-                                        </span>
-                                        <span>
-                                          {order.tax_amount} {order.currency}
-                                        </span>
-                                      </div>
-                                    )}
-                                    {order.discount_amount > 0 && (
-                                      <div className="flex justify-between text-success">
-                                        <span>خصم</span>
-                                        <span>
-                                          -{order.discount_amount}{" "}
-                                          {order.currency}
-                                        </span>
-                                      </div>
-                                    )}
-                                    <div className="flex justify-between font-bold pt-1.5 border-t border-dark-border">
-                                      <span>الإجمالي</span>
-                                      <span>
-                                        {order.total} {order.currency}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                                {order.customer_phone && (
-                                  <div>
-                                    <p className="text-xs text-text-muted">
-                                      الهاتف
-                                    </p>
-                                    <p className="text-sm" dir="ltr">
-                                      {order.customer_phone}
-                                    </p>
-                                  </div>
-                                )}
-                                {order.tracking_number && (
-                                  <div>
-                                    <p className="text-xs text-text-muted">
-                                      رقم التتبع
-                                    </p>
-                                    <p className="text-sm font-mono" dir="ltr">
-                                      {order.tracking_number}
-                                    </p>
-                                  </div>
-                                )}
-                                {order.customer_notes && (
-                                  <div>
-                                    <p className="text-xs text-text-muted">
-                                      ملاحظات العميل
-                                    </p>
-                                    <p className="text-sm text-text-secondary">
-                                      {order.customer_notes}
-                                    </p>
-                                  </div>
-                                )}
-                                {/* Status change dropdown */}
-                                <div>
-                                  <p className="text-xs text-text-muted mb-1.5">
-                                    تغيير الحالة
-                                  </p>
-                                  <select
-                                    value={order.status}
-                                    onChange={(e) =>
-                                      updateStatusMutation.mutate({
-                                        orderId: order.id,
-                                        status: e.target.value,
-                                      })
-                                    }
-                                    disabled={updateStatusMutation.isPending}
-                                    className="input-field text-sm py-2"
-                                  >
-                                    {ORDER_STATUSES.map((s) => (
-                                      <option key={s.value} value={s.value}>
-                                        {s.label}
-                                      </option>
-                                    ))}
-                                  </select>
-                                </div>
-                              </div>
-                            </div>
-                          </motion.div>
+                            {statusLabels[order.status]?.label || order.status}
+                          </span>
+                        </td>
+                        <td className="p-3 text-xs text-text-muted">
+                          {new Date(order.created_at).toLocaleDateString(
+                            "ar-SA",
+                          )}
+                        </td>
+                        <td
+                          className="p-3 text-center"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {nextStatus && nextLabel ? (
+                            <button
+                              onClick={() =>
+                                updateStatusMutation.mutate({
+                                  orderId: order.id,
+                                  status: nextStatus,
+                                })
+                              }
+                              disabled={updateStatusMutation.isPending}
+                              className="text-[11px] px-3 py-1.5 rounded-lg bg-primary/10 text-primary-light hover:bg-primary/20 transition-colors disabled:opacity-50"
+                            >
+                              {updateStatusMutation.isPending ? (
+                                <Loader2 className="w-3 h-3 animate-spin inline" />
+                              ) : (
+                                `← ${nextLabel}`
+                              )}
+                            </button>
+                          ) : order.status === "cancelled" ? (
+                            <span className="text-[10px] text-text-muted">
+                              ملغي
+                            </span>
+                          ) : (
+                            <span className="text-[10px] text-success">
+                              ✓ مكتمل
+                            </span>
+                          )}
                         </td>
                       </tr>
-                    )}
-                  </Fragment>
-                );
-              })}
-            </tbody>
-          </table>
+                      {/* Expanded Order Details */}
+                      {isExpanded && (
+                        <tr key={`${order.id}-detail`}>
+                          <td colSpan={7} className="p-0">
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              exit={{ opacity: 0, height: 0 }}
+                              className="bg-dark-surface/50 border-b border-dark-border/50"
+                            >
+                              <div className="p-4 grid md:grid-cols-3 gap-4">
+                                {/* Order Items */}
+                                <div className="md:col-span-2">
+                                  <p className="text-xs font-medium text-text-muted mb-2">
+                                    المنتجات
+                                  </p>
+                                  {order.items && order.items.length > 0 ? (
+                                    <div className="space-y-2">
+                                      {order.items.map((item) => (
+                                        <div
+                                          key={item.id}
+                                          className="flex items-center gap-3 bg-dark-bg/50 rounded-lg p-2.5"
+                                        >
+                                          <div className="w-9 h-9 rounded-lg bg-dark-hover border border-dark-border flex items-center justify-center shrink-0 overflow-hidden">
+                                            {item.product_image ? (
+                                              <img
+                                                src={item.product_image}
+                                                alt=""
+                                                className="w-full h-full object-cover"
+                                              />
+                                            ) : (
+                                              <Package className="w-3.5 h-3.5 text-text-muted" />
+                                            )}
+                                          </div>
+                                          <div className="flex-1 min-w-0">
+                                            <p className="text-sm truncate">
+                                              {item.product_name}
+                                            </p>
+                                            <p className="text-[11px] text-text-muted">
+                                              {item.quantity} ×{" "}
+                                              {item.unit_price} {order.currency}
+                                            </p>
+                                          </div>
+                                          <span className="text-sm font-medium shrink-0">
+                                            {item.total_price} {order.currency}
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <p className="text-xs text-text-muted">
+                                      لا توجد تفاصيل
+                                    </p>
+                                  )}
+                                </div>
+                                {/* Order Info */}
+                                <div className="space-y-3">
+                                  <div>
+                                    <p className="text-xs text-text-muted mb-1">
+                                      ملخص الطلب
+                                    </p>
+                                    <div className="bg-dark-bg/50 rounded-lg p-3 space-y-1.5 text-sm">
+                                      <div className="flex justify-between">
+                                        <span className="text-text-muted">
+                                          المجموع الفرعي
+                                        </span>
+                                        <span>
+                                          {order.subtotal} {order.currency}
+                                        </span>
+                                      </div>
+                                      {order.shipping_cost > 0 && (
+                                        <div className="flex justify-between">
+                                          <span className="text-text-muted">
+                                            الشحن
+                                          </span>
+                                          <span>
+                                            {order.shipping_cost}{" "}
+                                            {order.currency}
+                                          </span>
+                                        </div>
+                                      )}
+                                      {order.tax_amount > 0 && (
+                                        <div className="flex justify-between">
+                                          <span className="text-text-muted">
+                                            الضريبة
+                                          </span>
+                                          <span>
+                                            {order.tax_amount} {order.currency}
+                                          </span>
+                                        </div>
+                                      )}
+                                      {order.discount_amount > 0 && (
+                                        <div className="flex justify-between text-success">
+                                          <span>خصم</span>
+                                          <span>
+                                            -{order.discount_amount}{" "}
+                                            {order.currency}
+                                          </span>
+                                        </div>
+                                      )}
+                                      <div className="flex justify-between font-bold pt-1.5 border-t border-dark-border">
+                                        <span>الإجمالي</span>
+                                        <span>
+                                          {order.total} {order.currency}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  {order.customer_phone && (
+                                    <div>
+                                      <p className="text-xs text-text-muted">
+                                        الهاتف
+                                      </p>
+                                      <p className="text-sm" dir="ltr">
+                                        {order.customer_phone}
+                                      </p>
+                                    </div>
+                                  )}
+                                  {order.tracking_number && (
+                                    <div>
+                                      <p className="text-xs text-text-muted">
+                                        رقم التتبع
+                                      </p>
+                                      <p
+                                        className="text-sm font-mono"
+                                        dir="ltr"
+                                      >
+                                        {order.tracking_number}
+                                      </p>
+                                    </div>
+                                  )}
+                                  {order.customer_notes && (
+                                    <div>
+                                      <p className="text-xs text-text-muted">
+                                        ملاحظات العميل
+                                      </p>
+                                      <p className="text-sm text-text-secondary">
+                                        {order.customer_notes}
+                                      </p>
+                                    </div>
+                                  )}
+                                  {/* Status change dropdown */}
+                                  <div>
+                                    <p className="text-xs text-text-muted mb-1.5">
+                                      تغيير الحالة
+                                    </p>
+                                    <select
+                                      value={order.status}
+                                      onChange={(e) =>
+                                        updateStatusMutation.mutate({
+                                          orderId: order.id,
+                                          status: e.target.value,
+                                        })
+                                      }
+                                      disabled={updateStatusMutation.isPending}
+                                      className="input-field text-sm py-2"
+                                    >
+                                      {ORDER_STATUSES.map((s) => (
+                                        <option key={s.value} value={s.value}>
+                                          {s.label}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                </div>
+                              </div>
+                            </motion.div>
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
           <div className="p-3 flex items-center justify-between border-t border-dark-border">
             <span className="text-text-muted text-xs">

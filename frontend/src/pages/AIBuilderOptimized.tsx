@@ -85,12 +85,19 @@ export default function AIBuilderOptimized() {
             if (!raw) return;
             const msgs = JSON.parse(raw);
             const last = msgs[msgs.length - 1];
-            if (last?.timestamp && Date.now() - new Date(last.timestamp).getTime() > MAX_AGE_MS) {
+            if (
+              last?.timestamp &&
+              Date.now() - new Date(last.timestamp).getTime() > MAX_AGE_MS
+            ) {
               localStorage.removeItem(k);
             }
-          } catch { /* skip corrupt entries */ }
+          } catch {
+            /* skip corrupt entries */
+          }
         });
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, []);
   const [input, setInput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -326,6 +333,32 @@ export default function AIBuilderOptimized() {
       setCurrentHTML(history[historyIndex + 1].html);
     }
   }, [historyIndex, history]);
+
+  // ══ Keyboard Shortcuts ══
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      // Ctrl+Z → Undo
+      if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+      }
+      // Ctrl+Y or Ctrl+Shift+Z → Redo
+      if (
+        (e.ctrlKey || e.metaKey) &&
+        (e.key === "y" || (e.key === "z" && e.shiftKey))
+      ) {
+        e.preventDefault();
+        redo();
+      }
+      // Ctrl+Enter → Send message
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        e.preventDefault();
+        handleSend();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [undo, redo, handleSend]);
 
   // ══ Publish — with proper job polling ══
   const handlePublish = useCallback(async () => {

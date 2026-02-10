@@ -19,7 +19,7 @@ class Settings(BaseSettings):
 
     # ── App ──
     APP_NAME: str = "WebFlow-Builder"
-    APP_VERSION: str = "2.5.0"
+    APP_VERSION: str = "2.6.0"
     APP_ENV: str = "development"
     DEBUG: bool = True
 

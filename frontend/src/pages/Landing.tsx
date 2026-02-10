@@ -499,7 +499,7 @@ export default function Landing() {
               className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/4 border border-white/6 text-[13px] text-text-secondary mb-10 backdrop-blur-sm"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-              منصة بناء المواقع والمتاجر بالذكاء الاصطناعي — v2.5
+              منصة بناء المواقع والمتاجر بالذكاء الاصطناعي — v2.6
             </motion.div>
 
             {/* Main Title */}

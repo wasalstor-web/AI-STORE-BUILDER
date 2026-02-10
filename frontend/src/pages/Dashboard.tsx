@@ -309,32 +309,32 @@ export default function Dashboard() {
           ))}
         </div>
       ) : (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-        {stats.map((stat, i) => (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.06 }}
-            className="glass-card p-4 group hover:border-violet-500/20 transition-all hover:-translate-y-0.5"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div
-                className={`w-9 h-9 rounded-xl bg-linear-to-br ${stat.gradient} flex items-center justify-center`}
-              >
-                <stat.icon className="w-4 h-4 text-white" />
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          {stats.map((stat, i) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.06 }}
+              className="glass-card p-4 group hover:border-violet-500/20 transition-all hover:-translate-y-0.5"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div
+                  className={`w-9 h-9 rounded-xl bg-linear-to-br ${stat.gradient} flex items-center justify-center`}
+                >
+                  <stat.icon className="w-4 h-4 text-white" />
+                </div>
+                <span
+                  className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${stat.up ? "text-success bg-success/10" : "text-danger bg-danger/10"}`}
+                >
+                  {stat.trend}
+                </span>
               </div>
-              <span
-                className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${stat.up ? "text-success bg-success/10" : "text-danger bg-danger/10"}`}
-              >
-                {stat.trend}
-              </span>
-            </div>
-            <p className="text-xl font-bold tracking-tight">{stat.value}</p>
-            <p className="text-[11px] text-text-muted mt-0.5">{stat.label}</p>
-          </motion.div>
-        ))}
-      </div>
+              <p className="text-xl font-bold tracking-tight">{stat.value}</p>
+              <p className="text-[11px] text-text-muted mt-0.5">{stat.label}</p>
+            </motion.div>
+          ))}
+        </div>
       )}
 
       {/* ── Main Content Grid ── */}
