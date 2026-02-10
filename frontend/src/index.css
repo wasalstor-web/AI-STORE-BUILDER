@@ -1339,7 +1339,11 @@
   height: 600px;
   border-radius: 50%;
   pointer-events: none;
-  background: radial-gradient(circle, rgba(124, 58, 237, 0.06) 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(124, 58, 237, 0.06) 0%,
+    transparent 70%
+  );
   z-index: 0;
   transform: translate(-50%, -50%);
   transition: opacity 0.3s ease;
@@ -1360,14 +1364,23 @@
   background: var(--color-dark-card);
 }
 .gradient-border::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: -1px;
   border-radius: inherit;
-  background: linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(59, 130, 246, 0.1), transparent 60%);
+  background: linear-gradient(
+    135deg,
+    rgba(124, 58, 237, 0.3),
+    rgba(59, 130, 246, 0.1),
+    transparent 60%
+  );
   z-index: -1;
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
   mask-composite: exclude;
   -webkit-mask-composite: xor;
   padding: 1px;
@@ -1384,10 +1397,14 @@
   overflow: hidden;
 }
 .bento-card::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(124, 58, 237, 0.06) 0%, transparent 60%);
+  background: radial-gradient(
+    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(124, 58, 237, 0.06) 0%,
+    transparent 60%
+  );
   opacity: 0;
   transition: opacity 0.4s;
 }
@@ -1418,7 +1435,7 @@
   overflow: hidden;
 }
 .spotlight-sweep::after {
-  content: '';
+  content: "";
   position: absolute;
   top: -50%;
   left: -50%;
@@ -1436,8 +1453,13 @@
 }
 
 @keyframes spotlight-sweep {
-  0%, 100% { transform: translateX(-100%) rotate(25deg); }
-  50% { transform: translateX(100%) rotate(25deg); }
+  0%,
+  100% {
+    transform: translateX(-100%) rotate(25deg);
+  }
+  50% {
+    transform: translateX(100%) rotate(25deg);
+  }
 }
 
 /* Reveal on Scroll Animation */
@@ -1453,14 +1475,24 @@
 
 /* Animated Counter */
 @keyframes count-up {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Marquee */
 @keyframes marquee-scroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 .marquee-track {
   display: flex;
@@ -1474,8 +1506,14 @@
 
 /* Typing Cursor */
 @keyframes blink-cursor {
-  0%, 50% { border-color: var(--color-primary); }
-  51%, 100% { border-color: transparent; }
+  0%,
+  50% {
+    border-color: var(--color-primary);
+  }
+  51%,
+  100% {
+    border-color: transparent;
+  }
 }
 .typing-cursor {
   border-left: 2px solid var(--color-primary);
@@ -1485,7 +1523,11 @@
 
 /* Gradient Text */
 .gradient-text {
-  background: linear-gradient(135deg, var(--color-primary-light), var(--color-accent-light));
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-light),
+    var(--color-accent-light)
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1493,11 +1535,20 @@
 
 /* Shimmer Loading */
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 .shimmer {
-  background: linear-gradient(90deg, transparent 30%, rgba(255,255,255,0.04) 50%, transparent 70%);
+  background: linear-gradient(
+    90deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.04) 50%,
+    transparent 70%
+  );
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }

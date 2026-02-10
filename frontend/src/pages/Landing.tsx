@@ -455,7 +455,8 @@ export default function Landing() {
             </h1>
 
             <p className="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto mb-12 leading-relaxed">
-              متجر، موقع شركة، محفظة أعمال، مدونة، مطعم — اوصف مشروعك وWebFlow AI يبنيه لك في دقائق.{" "}
+              متجر، موقع شركة، محفظة أعمال، مدونة، مطعم — اوصف مشروعك وWebFlow
+              AI يبنيه لك في دقائق.{" "}
               <span className="text-text-primary font-medium">
                 16 نوع مشروع • قوالب جاهزة • كل شي بالعربي
               </span>
