@@ -7,11 +7,11 @@ import type { Store, Product, Category, Order, OrderSummary } from '../types';
 import {
   ArrowRight, Globe, Palette, ExternalLink, Clock, CheckCircle, AlertCircle,
   Loader2, BarChart3, Package, Settings, Copy, Bot, Eye, Monitor, Smartphone,
-  Tablet, ShoppingCart, Star, Trash2, Plus, Search, Edit3, MoreVertical,
-  TrendingUp, DollarSign, Users, Layers, X, Save, Image,
+  Tablet, ShoppingCart, Trash2, Plus, Search, Edit3,
+  TrendingUp, DollarSign, Layers, X, Save, Image,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 /* ── Tab Types ── */
 type TabId = 'overview' | 'products' | 'categories' | 'orders' | 'design' | 'settings';
@@ -34,8 +34,6 @@ const statusConfig: Record<string, { label: string; color: string; icon: typeof 
 
 export default function StoreControlPanel() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<TabId>('overview');
 
   const { data: store, isLoading, error } = useQuery<Store>({
