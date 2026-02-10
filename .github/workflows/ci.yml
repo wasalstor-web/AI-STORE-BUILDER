@@ -83,7 +83,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build Docker image
-        run: docker build -t ai-store-builder:test .
+        run: docker build -t ai-store-builder:test -f infra/Dockerfile .
 
       - name: Verify image
         run: docker images ai-store-builder:test
