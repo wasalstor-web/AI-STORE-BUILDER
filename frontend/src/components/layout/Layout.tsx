@@ -11,6 +11,7 @@ import {
   Bot,
   Palette,
   Crown,
+  UserCog,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import AppBackdrop from "../graphics/AppBackdrop";
@@ -132,6 +133,13 @@ export default function Layout({ children }: { children: ReactNode }) {
                 </p>
               </div>
             </div>
+            <Link
+              to="/profile"
+              className="flex items-center gap-2 w-full px-3 py-2 text-[12px] text-white/50 rounded-lg hover:bg-white/4 hover:text-white/80 transition-all mb-1"
+            >
+              <UserCog className="w-3.5 h-3.5" />
+              الملف الشخصي
+            </Link>
             <button
               onClick={handleLogout}
               className="flex items-center gap-2 w-full px-3 py-2 text-[12px] text-red-400/70 rounded-lg hover:bg-red-500/10 hover:text-red-400 transition-all"

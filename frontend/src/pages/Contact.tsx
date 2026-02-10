@@ -8,7 +8,7 @@ import {
   MapPin,
   Send,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
 const contactMethods = [
@@ -37,6 +37,8 @@ export default function Contact() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
+
+  useEffect(() => { document.title = "تواصل معنا | ويب فلو" }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

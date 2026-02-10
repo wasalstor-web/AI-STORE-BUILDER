@@ -1,7 +1,7 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
-import { storesApi, productsApi, categoriesApi, ordersApi } from "../lib/api";
+import { storesApi, productsApi, categoriesApi, ordersApi, uploadsApi } from "../lib/api";
 import { getTemplateHTML } from "../data/templates";
 import type { Store, Product, Category, Order, OrderSummary } from "../types";
 import {
@@ -33,6 +33,7 @@ import {
   X,
   Save,
   Image,
+  Upload,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useState, useRef, useEffect } from "react";
@@ -82,6 +83,10 @@ export default function StoreControlPanel() {
     queryFn: async () => (await storesApi.get(id!)).data,
     enabled: !!id,
   });
+
+  useEffect(() => {
+    document.title = store ? `${store.name} | ويب فلو` : "لوحة تحكم المتجر | ويب فلو";
+  }, [store]);
 
   if (isLoading) {
     return (
@@ -531,19 +536,46 @@ function ProductFormModal({
     product?.stock_quantity?.toString() || "10",
   );
   const [isActive, setIsActive] = useState(product?.is_active ?? true);
+  const [imageUrl, setImageUrl] = useState(product?.image_url || "");
+  const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("حجم الصورة يجب ان يكون أقل من 5MB");
+      return;
+    }
+    if (!file.type.startsWith("image/")) {
+      toast.error("الرجاء اختيار صورة");
+      return;
+    }
+    setUploading(true);
+    try {
+      const res = await uploadsApi.uploadImage(file, "products");
+      setImageUrl(res.data.url || res.data.file_url || "");
+      toast.success("تم رفع الصورة");
+    } catch {
+      toast.error("فشل رفع الصورة");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSubmit = async () => {
     if (!name || !price) return toast.error("الاسم والسعر مطلوبان");
     setSaving(true);
     try {
-      const data = {
+      const data: Record<string, unknown> = {
         name,
         price: parseFloat(price),
         description,
         stock_quantity: parseInt(stock),
         is_active: isActive,
       };
+      if (imageUrl) data.image_url = imageUrl;
       if (product) {
         await productsApi.update(product.id, data);
         toast.success("تم تحديث المنتج");
@@ -582,6 +614,50 @@ function ProductFormModal({
           </button>
         </div>
         <div className="space-y-4">
+          {/* Image Upload */}
+          <div>
+            <label className="text-sm font-medium text-text-secondary mb-1.5 block">
+              صورة المنتج
+            </label>
+            <div className="flex items-start gap-4">
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="w-24 h-24 rounded-xl border-2 border-dashed border-dark-border hover:border-primary/40 bg-dark-surface flex items-center justify-center cursor-pointer transition-colors overflow-hidden shrink-0"
+              >
+                {uploading ? (
+                  <Loader2 className="w-6 h-6 animate-spin text-primary-light" />
+                ) : imageUrl ? (
+                  <img src={imageUrl} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="text-center">
+                    <Upload className="w-5 h-5 text-text-muted mx-auto mb-1" />
+                    <span className="text-[10px] text-text-muted">رفع صورة</span>
+                  </div>
+                )}
+              </div>
+              <div className="flex-1 space-y-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+                <p className="text-xs text-text-muted">
+                  JPG, PNG أو WebP — حتى 5MB
+                </p>
+                {imageUrl && (
+                  <button
+                    onClick={() => setImageUrl("")}
+                    className="text-xs text-error hover:underline"
+                  >
+                    إزالة الصورة
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
           <div>
             <label className="text-sm font-medium text-text-secondary mb-1.5 block">
               اسم المنتج *
@@ -806,8 +882,18 @@ function CategoriesTab({ storeId }: { storeId: string }) {
 /* ══════════════════════════════════════════════════════════
    TAB: Orders
    ══════════════════════════════════════════════════════════ */
+const ORDER_STATUSES = [
+  { value: "pending", label: "قيد الانتظار", class: "badge-warning", next: "confirmed" },
+  { value: "confirmed", label: "مؤكد", class: "badge-primary", next: "shipped" },
+  { value: "shipped", label: "تم الشحن", class: "badge-info", next: "delivered" },
+  { value: "delivered", label: "تم التوصيل", class: "badge-success", next: null },
+  { value: "cancelled", label: "ملغي", class: "badge-neutral", next: null },
+] as const;
+
 function OrdersTab({ storeId }: { storeId: string }) {
+  const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState("");
+  const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["orders", storeId, statusFilter],
@@ -821,14 +907,29 @@ function OrdersTab({ storeId }: { storeId: string }) {
       ).data,
   });
 
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ orderId, status }: { orderId: string; status: string }) =>
+      ordersApi.update(orderId, { status }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["orders", storeId] });
+      queryClient.invalidateQueries({ queryKey: ["order-summary", storeId] });
+      toast.success("تم تحديث حالة الطلب");
+    },
+    onError: () => toast.error("فشل تحديث الحالة"),
+  });
+
   const orders: Order[] = data?.items || [];
 
-  const statusLabels: Record<string, { label: string; class: string }> = {
-    pending: { label: "قيد الانتظار", class: "badge-warning" },
-    confirmed: { label: "مؤكد", class: "badge-primary" },
-    shipped: { label: "تم الشحن", class: "badge-info" },
-    delivered: { label: "تم التوصيل", class: "badge-success" },
-    cancelled: { label: "ملغي", class: "badge-neutral" },
+  const statusLabels: Record<string, { label: string; class: string }> = Object.fromEntries(
+    ORDER_STATUSES.map((s) => [s.value, { label: s.label, class: s.class }])
+  );
+
+  const getNextStatus = (current: string) =>
+    ORDER_STATUSES.find((s) => s.value === current)?.next || null;
+
+  const getNextStatusLabel = (current: string) => {
+    const next = getNextStatus(current);
+    return next ? ORDER_STATUSES.find((s) => s.value === next)?.label : null;
   };
 
   return (
@@ -868,43 +969,204 @@ function OrdersTab({ storeId }: { storeId: string }) {
           <table className="w-full">
             <thead>
               <tr className="border-b border-dark-border text-text-muted text-xs">
+                <th className="text-right p-3 font-medium w-6"></th>
                 <th className="text-right p-3 font-medium">رقم الطلب</th>
                 <th className="text-right p-3 font-medium">العميل</th>
                 <th className="text-right p-3 font-medium">المبلغ</th>
                 <th className="text-right p-3 font-medium">الحالة</th>
                 <th className="text-right p-3 font-medium">التاريخ</th>
+                <th className="text-center p-3 font-medium">إجراء</th>
               </tr>
             </thead>
             <tbody>
-              {orders.map((order) => (
-                <tr
-                  key={order.id}
-                  className="border-b border-dark-border/50 hover:bg-dark-hover/30 transition-colors"
-                >
-                  <td className="p-3 font-mono text-sm text-primary-light">
-                    {order.order_number}
-                  </td>
-                  <td className="p-3">
-                    <p className="text-sm font-medium">{order.customer_name}</p>
-                    <p className="text-[11px] text-text-muted">
-                      {order.customer_email}
-                    </p>
-                  </td>
-                  <td className="p-3 text-sm font-medium">
-                    {order.total} {order.currency}
-                  </td>
-                  <td className="p-3">
-                    <span
-                      className={`badge text-[10px] ${statusLabels[order.status]?.class || "badge-neutral"}`}
+              {orders.map((order) => {
+                const isExpanded = expandedOrder === order.id;
+                const nextStatus = getNextStatus(order.status);
+                const nextLabel = getNextStatusLabel(order.status);
+                return (
+                  <>
+                    <tr
+                      key={order.id}
+                      onClick={() => setExpandedOrder(isExpanded ? null : order.id)}
+                      className={`border-b border-dark-border/50 hover:bg-dark-hover/30 transition-colors cursor-pointer ${isExpanded ? "bg-dark-hover/20" : ""}`}
                     >
-                      {statusLabels[order.status]?.label || order.status}
-                    </span>
-                  </td>
-                  <td className="p-3 text-xs text-text-muted">
-                    {new Date(order.created_at).toLocaleDateString("ar-SA")}
-                  </td>
-                </tr>
-              ))}
+                      <td className="p-3 text-text-muted">
+                        <motion.span
+                          animate={{ rotate: isExpanded ? 90 : 0 }}
+                          className="inline-block text-xs"
+                        >
+                          ◀
+                        </motion.span>
+                      </td>
+                      <td className="p-3 font-mono text-sm text-primary-light">
+                        {order.order_number}
+                      </td>
+                      <td className="p-3">
+                        <p className="text-sm font-medium">{order.customer_name}</p>
+                        <p className="text-[11px] text-text-muted">
+                          {order.customer_email}
+                        </p>
+                      </td>
+                      <td className="p-3 text-sm font-medium">
+                        {order.total} {order.currency}
+                      </td>
+                      <td className="p-3">
+                        <span
+                          className={`badge text-[10px] ${statusLabels[order.status]?.class || "badge-neutral"}`}
+                        >
+                          {statusLabels[order.status]?.label || order.status}
+                        </span>
+                      </td>
+                      <td className="p-3 text-xs text-text-muted">
+                        {new Date(order.created_at).toLocaleDateString("ar-SA")}
+                      </td>
+                      <td className="p-3 text-center" onClick={(e) => e.stopPropagation()}>
+                        {nextStatus && nextLabel ? (
+                          <button
+                            onClick={() =>
+                              updateStatusMutation.mutate({
+                                orderId: order.id,
+                                status: nextStatus,
+                              })
+                            }
+                            disabled={updateStatusMutation.isPending}
+                            className="text-[11px] px-3 py-1.5 rounded-lg bg-primary/10 text-primary-light hover:bg-primary/20 transition-colors disabled:opacity-50"
+                          >
+                            {updateStatusMutation.isPending ? (
+                              <Loader2 className="w-3 h-3 animate-spin inline" />
+                            ) : (
+                              `← ${nextLabel}`
+                            )}
+                          </button>
+                        ) : order.status === "cancelled" ? (
+                          <span className="text-[10px] text-text-muted">ملغي</span>
+                        ) : (
+                          <span className="text-[10px] text-success">✓ مكتمل</span>
+                        )}
+                      </td>
+                    </tr>
+                    {/* Expanded Order Details */}
+                    {isExpanded && (
+                      <tr key={`${order.id}-detail`}>
+                        <td colSpan={7} className="p-0">
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="bg-dark-surface/50 border-b border-dark-border/50"
+                          >
+                            <div className="p-4 grid md:grid-cols-3 gap-4">
+                              {/* Order Items */}
+                              <div className="md:col-span-2">
+                                <p className="text-xs font-medium text-text-muted mb-2">المنتجات</p>
+                                {order.items && order.items.length > 0 ? (
+                                  <div className="space-y-2">
+                                    {order.items.map((item) => (
+                                      <div key={item.id} className="flex items-center gap-3 bg-dark-bg/50 rounded-lg p-2.5">
+                                        <div className="w-9 h-9 rounded-lg bg-dark-hover border border-dark-border flex items-center justify-center shrink-0 overflow-hidden">
+                                          {item.product_image ? (
+                                            <img src={item.product_image} alt="" className="w-full h-full object-cover" />
+                                          ) : (
+                                            <Package className="w-3.5 h-3.5 text-text-muted" />
+                                          )}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                          <p className="text-sm truncate">{item.product_name}</p>
+                                          <p className="text-[11px] text-text-muted">
+                                            {item.quantity} × {item.unit_price} {order.currency}
+                                          </p>
+                                        </div>
+                                        <span className="text-sm font-medium shrink-0">
+                                          {item.total_price} {order.currency}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <p className="text-xs text-text-muted">لا توجد تفاصيل</p>
+                                )}
+                              </div>
+                              {/* Order Info */}
+                              <div className="space-y-3">
+                                <div>
+                                  <p className="text-xs text-text-muted mb-1">ملخص الطلب</p>
+                                  <div className="bg-dark-bg/50 rounded-lg p-3 space-y-1.5 text-sm">
+                                    <div className="flex justify-between">
+                                      <span className="text-text-muted">المجموع الفرعي</span>
+                                      <span>{order.subtotal} {order.currency}</span>
+                                    </div>
+                                    {order.shipping_cost > 0 && (
+                                      <div className="flex justify-between">
+                                        <span className="text-text-muted">الشحن</span>
+                                        <span>{order.shipping_cost} {order.currency}</span>
+                                      </div>
+                                    )}
+                                    {order.tax_amount > 0 && (
+                                      <div className="flex justify-between">
+                                        <span className="text-text-muted">الضريبة</span>
+                                        <span>{order.tax_amount} {order.currency}</span>
+                                      </div>
+                                    )}
+                                    {order.discount_amount > 0 && (
+                                      <div className="flex justify-between text-success">
+                                        <span>خصم</span>
+                                        <span>-{order.discount_amount} {order.currency}</span>
+                                      </div>
+                                    )}
+                                    <div className="flex justify-between font-bold pt-1.5 border-t border-dark-border">
+                                      <span>الإجمالي</span>
+                                      <span>{order.total} {order.currency}</span>
+                                    </div>
+                                  </div>
+                                </div>
+                                {order.customer_phone && (
+                                  <div>
+                                    <p className="text-xs text-text-muted">الهاتف</p>
+                                    <p className="text-sm" dir="ltr">{order.customer_phone}</p>
+                                  </div>
+                                )}
+                                {order.tracking_number && (
+                                  <div>
+                                    <p className="text-xs text-text-muted">رقم التتبع</p>
+                                    <p className="text-sm font-mono" dir="ltr">{order.tracking_number}</p>
+                                  </div>
+                                )}
+                                {order.customer_notes && (
+                                  <div>
+                                    <p className="text-xs text-text-muted">ملاحظات العميل</p>
+                                    <p className="text-sm text-text-secondary">{order.customer_notes}</p>
+                                  </div>
+                                )}
+                                {/* Status change dropdown */}
+                                <div>
+                                  <p className="text-xs text-text-muted mb-1.5">تغيير الحالة</p>
+                                  <select
+                                    value={order.status}
+                                    onChange={(e) =>
+                                      updateStatusMutation.mutate({
+                                        orderId: order.id,
+                                        status: e.target.value,
+                                      })
+                                    }
+                                    disabled={updateStatusMutation.isPending}
+                                    className="input-field text-sm py-2"
+                                  >
+                                    {ORDER_STATUSES.map((s) => (
+                                      <option key={s.value} value={s.value}>
+                                        {s.label}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+                          </motion.div>
+                        </td>
+                      </tr>
+                    )}
+                  </>
+                );
+              })}
             </tbody>
           </table>
           <div className="p-3 text-center text-text-muted text-xs border-t border-dark-border">

@@ -22,6 +22,12 @@ class RefreshRequest(BaseModel):
     refresh_token: str
 
 
+class UpdateProfileRequest(BaseModel):
+    full_name: str | None = Field(None, min_length=2, max_length=255, description="الاسم الكامل")
+    current_password: str | None = Field(None, min_length=1, description="كلمة المرور الحالية")
+    new_password: str | None = Field(None, min_length=8, max_length=128, description="كلمة المرور الجديدة")
+
+
 # ── Response ──
 class TokenResponse(BaseModel):
     access_token: str

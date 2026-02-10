@@ -50,6 +50,9 @@ const STORE_TYPES = [
 
 export default function CreateStore() {
   const navigate = useNavigate();
+
+  useEffect(() => { document.title = "إنشاء متجر | ويب فلو" }, []);
+
   const [step, setStep] = useState<"name" | "templates">("name");
   const [storeName, setStoreName] = useState("");
   const [storeType, setStoreType] = useState("");

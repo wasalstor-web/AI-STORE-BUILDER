@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Sparkles, ArrowRight, Shield } from "lucide-react";
+import { useEffect } from "react";
 
 const sections = [
   {
@@ -40,6 +41,8 @@ const sections = [
 ];
 
 export default function Privacy() {
+  useEffect(() => { document.title = "سياسة الخصوصية | ويب فلو" }, []);
+
   return (
     <div className="min-h-screen bg-dark-bg text-text-primary">
       {/* Header */}

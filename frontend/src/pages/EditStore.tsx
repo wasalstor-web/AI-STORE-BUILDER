@@ -5,6 +5,7 @@ import StoreEditor from '../components/editor/StoreEditor';
 import type { Store } from '../types';
 import { ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useEffect } from "react";
 
 export default function EditStore() {
   const { id } = useParams<{ id: string }>();
@@ -18,6 +19,8 @@ export default function EditStore() {
     },
     enabled: !!id,
   });
+
+  useEffect(() => { document.title = "تحرير المتجر | ويب فلو" }, []);
 
   if (isLoading) {
     return (

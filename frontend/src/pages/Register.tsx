@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { motion } from "framer-motion";
@@ -17,6 +17,8 @@ export default function Register() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => { document.title = "إنشاء حساب | ويب فلو" }, []);
 
   const update = (key: string, value: string) =>
     setForm((p) => ({ ...p, [key]: value }));

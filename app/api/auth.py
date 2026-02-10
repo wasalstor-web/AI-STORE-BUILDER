@@ -16,6 +16,7 @@ from app.schemas.auth import (
     RefreshRequest,
     RegisterRequest,
     TokenResponse,
+    UpdateProfileRequest,
     UserResponse,
 )
 from app.services.auth_service import (
@@ -126,3 +127,36 @@ async def refresh(
 @router.get("/me", response_model=UserResponse, summary="بيانات المستخدم الحالي")
 async def me(current_user: CurrentUser):
     return current_user
+
+
+@router.patch("/me", response_model=UserResponse, summary="تحديث الملف الشخصي")
+async def update_profile(
+    body: UpdateProfileRequest,
+    current_user: CurrentUser,
+    db: Annotated[AsyncSession, Depends(get_db)],
+):
+    from app.services.auth_service import hash_password, verify_password
+
+    user = await get_user_by_id(db, str(current_user.id))
+    if not user:
+        raise HTTPException(status_code=404, detail="المستخدم غير موجود")
+
+    if body.full_name is not None:
+        user.full_name = body.full_name
+
+    if body.new_password:
+        if not body.current_password:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="يجب إدخال كلمة المرور الحالية",
+            )
+        if not verify_password(body.current_password, user.hashed_password):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="كلمة المرور الحالية غير صحيحة",
+            )
+        user.hashed_password = hash_password(body.new_password)
+
+    await db.commit()
+    await db.refresh(user)
+    return user

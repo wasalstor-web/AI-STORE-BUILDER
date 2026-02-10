@@ -2,8 +2,11 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Home, ArrowRight, SearchX, Sparkles } from 'lucide-react';
 import AppBackdrop from '../components/graphics/AppBackdrop';
+import { useEffect } from "react";
 
 export default function NotFound() {
+  useEffect(() => { document.title = "الصفحة غير موجودة | ويب فلو" }, []);
+
   return (
     <div className="app-shell min-h-screen bg-dark-bg flex items-center justify-center px-6">
       <AppBackdrop variant="marketing" intensity="max" focus="center" />

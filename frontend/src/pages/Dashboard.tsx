@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { storesApi, tenantsApi } from "../lib/api";
+import { storesApi, tenantsApi, productsApi, ordersApi } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
+import { useEffect } from "react";
 import {
   Store,
   PlusCircle,
@@ -26,7 +27,7 @@ import {
   Code2,
   ChevronLeft,
 } from "lucide-react";
-import type { Store as StoreType, StoreListResponse, Tenant } from "../types";
+import type { Store as StoreType, StoreListResponse, Tenant, OrderSummary } from "../types";
 
 const storeTypeLabels: Record<string, string> = {
   fashion: "أزياء",
@@ -140,6 +141,10 @@ const proFeatures = [
 export default function Dashboard() {
   const { user } = useAuth();
 
+  useEffect(() => {
+    document.title = "لوحة التحكم | ويب فلو";
+  }, []);
+
   const { data: storesData, isLoading: storesLoading } =
     useQuery<StoreListResponse>({
       queryKey: ["stores"],
@@ -157,10 +162,59 @@ export default function Dashboard() {
     (s: StoreType) => s.status === "active",
   ).length;
 
+  // Aggregate products count across all active stores
+  const { data: aggregateProducts } = useQuery({
+    queryKey: ["aggregate-products", stores.map((s: StoreType) => s.id)],
+    queryFn: async () => {
+      const activeIds = stores
+        .filter((s: StoreType) => s.status === "active")
+        .map((s: StoreType) => s.id);
+      if (activeIds.length === 0) return 0;
+      const results = await Promise.all(
+        activeIds.map((id: string) =>
+          productsApi.list(id, { page: 1, page_size: 1 }).then((r) => r.data?.total || 0)
+        )
+      );
+      return results.reduce((sum: number, v: number) => sum + v, 0);
+    },
+    enabled: stores.length > 0,
+  });
+
+  // Aggregate orders data across all active stores
+  const { data: aggregateOrders } = useQuery<{ total: number; revenue: number; pending: number }>({
+    queryKey: ["aggregate-orders", stores.map((s: StoreType) => s.id)],
+    queryFn: async () => {
+      const activeIds = stores
+        .filter((s: StoreType) => s.status === "active")
+        .map((s: StoreType) => s.id);
+      if (activeIds.length === 0) return { total: 0, revenue: 0, pending: 0 };
+      const results = await Promise.all(
+        activeIds.map((id: string) =>
+          ordersApi.summary(id).then((r) => r.data as OrderSummary).catch(() => ({
+            total_orders: 0,
+            total_revenue: 0,
+            pending_orders: 0,
+            completed_orders: 0,
+          }))
+        )
+      );
+      return {
+        total: results.reduce((sum, r) => sum + r.total_orders, 0),
+        revenue: results.reduce((sum, r) => sum + r.total_revenue, 0),
+        pending: results.reduce((sum, r) => sum + r.pending_orders, 0),
+      };
+    },
+    enabled: stores.length > 0,
+  });
+
   const hour = new Date().getHours();
   const greeting =
     hour < 12 ? "صباح الخير" : hour < 18 ? "مساء الخير" : "مساء النور";
   const emoji = hour < 12 ? "☀️" : hour < 18 ? "🌤️" : "🌙";
+
+  const totalProducts = aggregateProducts ?? 0;
+  const totalOrders = aggregateOrders?.total ?? 0;
+  const totalRevenue = aggregateOrders?.revenue ?? 0;
 
   const stats = [
     {
@@ -168,7 +222,7 @@ export default function Dashboard() {
       value: totalStores,
       icon: Store,
       gradient: "from-primary to-primary-dark",
-      trend: totalStores > 0 ? "+100%" : "جديد",
+      trend: totalStores > 0 ? `${activeStores} نشط` : "جديد",
       up: true,
     },
     {
@@ -181,33 +235,33 @@ export default function Dashboard() {
     },
     {
       label: "المنتجات",
-      value: "—",
+      value: totalProducts,
       icon: Package,
       gradient: "from-accent to-orange-600",
-      trend: "قريباً",
-      up: true,
+      trend: totalProducts > 0 ? `${totalProducts} منتج` : "—",
+      up: totalProducts > 0,
+    },
+    {
+      label: "الطلبات",
+      value: totalOrders,
+      icon: ShoppingCart,
+      gradient: "from-violet-500 to-purple-600",
+      trend: totalOrders > 0 ? `${totalOrders} طلب` : "—",
+      up: totalOrders > 0,
+    },
+    {
+      label: "الإيرادات",
+      value: totalRevenue > 0 ? `${totalRevenue.toFixed(0)}` : "0",
+      icon: Star,
+      gradient: "from-yellow-500 to-amber-600",
+      trend: totalRevenue > 0 ? "ر.س" : "—",
+      up: totalRevenue > 0,
     },
     {
       label: "الزيارات",
       value: "قريباً",
       icon: Eye,
       gradient: "from-blue-400 to-blue-600",
-      trend: "—",
-      up: true,
-    },
-    {
-      label: "الطلبات",
-      value: "قريباً",
-      icon: ShoppingCart,
-      gradient: "from-violet-500 to-purple-600",
-      trend: "—",
-      up: true,
-    },
-    {
-      label: "تقييم العملاء",
-      value: "—",
-      icon: Star,
-      gradient: "from-yellow-500 to-amber-600",
       trend: "—",
       up: true,
     },

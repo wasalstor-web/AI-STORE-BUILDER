@@ -30,6 +30,8 @@ export default function AIBuilderOptimized() {
   const templateId = searchParams.get("template") || "";
   const existingStoreId = searchParams.get("storeId") || "";
 
+  useEffect(() => { document.title = "بناء بالذكاء الاصطناعي | ويب فلو" }, []);
+
   // ══ State ══
   const [storeId, setStoreId] = useState<string>(existingStoreId);
   const [isPublishing, setIsPublishing] = useState(false);
