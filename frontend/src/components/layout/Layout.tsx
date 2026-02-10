@@ -53,7 +53,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                 <Zap className="w-4 h-4 text-white" />
               </div>
               <span className="text-base font-bold bg-linear-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">
-                AI Builder
+                ويب فلو
               </span>
               <span className="px-1.5 py-0.5 rounded bg-violet-500/15 text-[8px] font-bold text-violet-400 tracking-wider">
                 PRO

@@ -61,7 +61,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
-    description="AI-Powered Multi-Tenant Store Builder",
+    description="\u0645\u0646\u0634\u0626 \u0648\u064a\u0628 \u0641\u0644\u0648 — AI-Powered Multi-Tenant Store Builder",
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan,

@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     )
 
     # ── App ──
-    APP_NAME: str = "AI-Store-Builder"
+    APP_NAME: str = "WebFlow-Builder"
     APP_VERSION: str = "1.0.0"
     APP_ENV: str = "development"
     DEBUG: bool = True

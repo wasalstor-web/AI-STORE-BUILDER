@@ -1,5 +1,11 @@
 """Schemas package — Pydantic models for API request/response."""
 
+from app.schemas.ai_chat import (
+    AIChatRequest,
+    AIChatResponse,
+    AIConversationRequest,
+    AIConversationResponse,
+)
 from app.schemas.auth import (
     LoginRequest,
     RefreshRequest,
@@ -21,6 +27,10 @@ from app.schemas.store import (
 from app.schemas.tenant import TenantResponse, TenantUpdate
 
 __all__ = [
+    "AIChatRequest",
+    "AIChatResponse",
+    "AIConversationRequest",
+    "AIConversationResponse",
     "APIResponse",
     "BrandingConfig",
     "JobCreateResponse",

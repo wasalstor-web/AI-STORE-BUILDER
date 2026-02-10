@@ -1,6 +1,5 @@
 """Category endpoints — CRUD for store categories."""
 
-import re
 import uuid
 from typing import Annotated
 
@@ -19,24 +18,9 @@ from app.schemas.category import (
     CategoryResponse,
     CategoryUpdate,
 )
+from app.utils.db_helpers import get_store_or_404, slugify
 
 router = APIRouter()
-
-
-def _slugify(text: str) -> str:
-    slug = re.sub(r"[^\w\s-]", "", text.lower().strip())
-    slug = re.sub(r"[\s_]+", "-", slug)
-    return slug or "category"
-
-
-async def _get_store_or_404(db: AsyncSession, store_id: uuid.UUID, tenant_id: uuid.UUID) -> Store:
-    result = await db.execute(
-        select(Store).where(Store.id == store_id, Store.tenant_id == tenant_id)
-    )
-    store = result.scalar_one_or_none()
-    if not store:
-        raise HTTPException(status_code=404, detail="المتجر غير موجود")
-    return store
 
 
 @router.post(
@@ -53,10 +37,10 @@ async def create_category(
     ctx: TenantCtx,
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    await _get_store_or_404(db, store_id, ctx.tenant_id)
+    await get_store_or_404(db, store_id, ctx.tenant_id)
 
     # Generate unique slug
-    base_slug = _slugify(body.name)
+    base_slug = slugify(body.name)
     slug = base_slug
     counter = 1
     while True:
@@ -102,7 +86,7 @@ async def list_categories(
     db: Annotated[AsyncSession, Depends(get_db)],
     parent_id: uuid.UUID | None = None,
 ):
-    await _get_store_or_404(db, store_id, ctx.tenant_id)
+    await get_store_or_404(db, store_id, ctx.tenant_id)
 
     q = select(Category).where(
         Category.store_id == store_id,
@@ -173,7 +157,7 @@ async def update_category(
     update_data = body.model_dump(exclude_unset=True)
 
     if "name" in update_data:
-        update_data["slug"] = _slugify(update_data["name"])
+        update_data["slug"] = slugify(update_data["name"])
 
     for field, value in update_data.items():
         setattr(category, field, value)

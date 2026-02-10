@@ -24,6 +24,7 @@ from app.schemas.order import (
     OrderSummary,
     OrderUpdateRequest,
 )
+from app.utils.db_helpers import get_store_or_404
 
 router = APIRouter()
 
@@ -35,16 +36,6 @@ def _generate_order_number() -> str:
     chars = string.ascii_uppercase + string.digits
     code = "".join(random.choices(chars, k=6))
     return f"ORD-{code}"
-
-
-async def _get_store_or_404(db: AsyncSession, store_id: uuid.UUID, tenant_id: uuid.UUID) -> Store:
-    result = await db.execute(
-        select(Store).where(Store.id == store_id, Store.tenant_id == tenant_id)
-    )
-    store = result.scalar_one_or_none()
-    if not store:
-        raise HTTPException(status_code=404, detail="المتجر غير موجود")
-    return store
 
 
 @router.post(
@@ -61,7 +52,7 @@ async def checkout(
     ctx: TenantCtx,
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    await _get_store_or_404(db, store_id, ctx.tenant_id)
+    await get_store_or_404(db, store_id, ctx.tenant_id)
 
     # Validate products & calculate totals
     order_items: list[OrderItem] = []
@@ -167,7 +158,7 @@ async def list_orders(
     status_filter: str | None = Query(None, alias="status"),
     payment_status: str | None = None,
 ):
-    await _get_store_or_404(db, store_id, ctx.tenant_id)
+    await get_store_or_404(db, store_id, ctx.tenant_id)
 
     base_q = select(Order).where(
         Order.store_id == store_id,
@@ -273,7 +264,7 @@ async def order_summary(
     ctx: TenantCtx,
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    await _get_store_or_404(db, store_id, ctx.tenant_id)
+    await get_store_or_404(db, store_id, ctx.tenant_id)
 
     base_filter = [Order.store_id == store_id, Order.tenant_id == ctx.tenant_id]
 

@@ -374,7 +374,7 @@ export default function Landing() {
               <Zap className="w-3.5 h-3.5 text-white" />
             </div>
             <span className="text-base font-bold tracking-tight bg-linear-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">
-              AI Builder
+              ويب فلو
             </span>
           </div>
           <nav className="hidden md:flex items-center gap-8 text-[13px] text-text-secondary">
@@ -917,7 +917,7 @@ export default function Landing() {
                   <Sparkles className="w-4 h-4 text-white" />
                 </div>
                 <span className="text-lg font-bold gradient-text-static">
-                  AI بلدر
+                  ويب فلو
                 </span>
               </div>
               <p className="text-sm text-text-secondary max-w-sm leading-relaxed">
@@ -964,7 +964,7 @@ export default function Landing() {
           </div>
           <div className="border-t border-white/4 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-[12px] text-text-muted">
-              &copy; {new Date().getFullYear()} AI Store Builder. جميع الحقوق
+              &copy; {new Date().getFullYear()} منشئ ويب فلو. جميع الحقوق
               محفوظة.
             </p>
             <p className="text-[12px] text-text-muted">صُنع في السعودية</p>

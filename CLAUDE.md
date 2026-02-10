@@ -1,4 +1,4 @@
-# AI Store Builder — Full-Stack Development Instructions
+# منشئ ويب فلو (WebFlow Builder) — Full-Stack Development Instructions
 
 > Claude Code: أنت المطور الرئيسي لهذا المشروع. تطور كل شي — Frontend, Backend, Database, Server, Deployment.
 
@@ -65,7 +65,7 @@ git reset --soft HEAD~1
 
 ## Identity
 
-You are a senior full-stack developer building "AI Store Builder" — a SaaS platform like Salla/Zid powered by AI.
+You are a senior full-stack developer building "منشئ ويب فلو" (WebFlow Builder) — a SaaS platform like Salla/Zid powered by AI.
 You own the ENTIRE project: code, database, server, deployment, everything.
 
 ---
@@ -127,7 +127,7 @@ User describes their store → AI generates a complete e-commerce store in minut
 ## Project Structure
 
 ```
-AI-STORE-BUILDER/
+WebFlow-Builder/
 ├── app/                        # ===== BACKEND (FastAPI) =====
 │   ├── main.py                 # App entry + CORS + middleware
 │   ├── config.py               # pydantic-settings (.env)
@@ -135,13 +135,13 @@ AI-STORE-BUILDER/
 │   ├── api/                    # Route handlers
 │   │   ├── auth.py             #   POST /register, /login, /refresh, GET /me
 │   │   ├── stores.py           #   CRUD + POST /generate (AI)
-│   │   ├── ai_chat.py          #   POST /chat (AI modify store)
+│   │   ├── ai_chat.py          #   POST /chat + /conversation (AI)
 │   │   ├── products.py         #   Product CRUD
 │   │   ├── categories.py       #   Category CRUD
 │   │   ├── orders.py           #   Order management
 │   │   ├── payments.py         #   Payment processing
 │   │   ├── jobs.py             #   Job progress tracking
-│   │   ├── preview.py          #   Store preview + HTML export
+│   │   ├── preview.py          #   Store preview HTML
 │   │   ├── uploads.py          #   File upload
 │   │   ├── tenants.py          #   Tenant management
 │   │   └── health.py           #   Health check
@@ -153,17 +153,30 @@ AI-STORE-BUILDER/
 │   │   ├── job.py              #   Background job tracking
 │   │   ├── product.py          #   Product
 │   │   ├── category.py         #   Category
-│   │   └── order.py            #   Order
+│   │   └── order.py            #   Order + OrderItem
 │   ├── schemas/                # Pydantic request/response
+│   │   ├── ai_chat.py          #   AI request/response models
+│   │   ├── auth.py             #   Auth DTOs
+│   │   ├── store.py            #   Store DTOs + config models
+│   │   ├── product.py          #   Product DTOs
+│   │   ├── category.py         #   Category DTOs
+│   │   ├── order.py            #   Order DTOs
+│   │   ├── job.py              #   Job DTOs
+│   │   ├── tenant.py           #   Tenant DTOs
+│   │   └── common.py           #   APIResponse wrapper
 │   ├── services/               # Business logic
 │   │   ├── store_generator.py  #   AI store generation (Anthropic → OpenAI → Template)
 │   │   ├── auth_service.py     #   Auth logic
 │   │   ├── payment_service.py  #   Payment stubs
+│   │   ├── tenant_service.py   #   Tenant creation
 │   │   └── upload_service.py   #   File handling
 │   ├── middleware/             # Request pipeline
 │   │   ├── auth.py             #   JWT verification
 │   │   ├── tenant.py           #   Tenant isolation
 │   │   └── rate_limit.py       #   slowapi rate limiting
+│   ├── utils/                  # Shared utilities
+│   │   ├── db_helpers.py       #   get_store_or_404, slugify
+│   │   └── sanitizer.py        #   HTML sanitizer (XSS prevention)
 │   └── workers/               # Background processors
 │       └── store_worker.py     #   ARQ worker
 │
@@ -175,16 +188,18 @@ AI-STORE-BUILDER/
 │       │   ├── Register.tsx    #   Auth
 │       │   ├── Dashboard.tsx   #   Main dashboard
 │       │   ├── CreateStore.tsx #   Store creation wizard
-│       │   ├── AIBuilder.tsx   #   AI editor (canvas + chat)
+│       │   ├── AIBuilderOptimized.tsx  #   AI editor (chat + preview)
 │       │   ├── StoreDetail.tsx #   Store details
-│       │   ├── EditStore.tsx   #   Store editing
+│       │   ├── EditStore.tsx   #   Store editing (drag-drop)
 │       │   └── NotFound.tsx    #   404
 │       ├── components/
-│       │   ├── editor/         #   Canvas, SectionLibrary, PropertiesPanel, DeviceSwitcher
-│       │   └── layout/         #   Sidebar, Header
+│       │   ├── builder/        #   ChatPanel, PreviewPanel, TopBar
+│       │   ├── editor/         #   StoreEditor, SortableSection, SectionProperties
+│       │   ├── graphics/       #   AppBackdrop
+│       │   └── layout/         #   Layout (sidebar + header)
 │       ├── data/
 │       │   ├── templates.ts    #   12 store templates
-│       │   └── sections.ts     #   21+ drag-drop sections
+│       │   └── templateEngine.ts  #   HTML generation engine (30+ sections)
 │       ├── lib/api.ts          #   Axios client + JWT interceptors
 │       ├── context/AuthContext.tsx
 │       ├── types/              #   TypeScript interfaces
@@ -194,7 +209,7 @@ AI-STORE-BUILDER/
 ├── tests/                      # pytest tests
 ├── docker-compose.yml          # Dev: PostgreSQL + Redis + API + Worker
 ├── Dockerfile                  # Python 3.12-slim + UV
-├── nginx-aisb-api.conf         # Production Nginx config
+├── safe-deploy.ps1             # Pre-deployment safety checks
 ├── .env                        # Environment variables
 └── .docs/                      # Documentation
 ```
@@ -435,7 +450,42 @@ docs: description     # Documentation
 
 ## Owner
 
+- **Project:** منشئ ويب فلو (WebFlow Builder)
 - **Developer:** Wahed Ahmed
 - **GitHub:** wasalstor-web
 - **Repo:** https://github.com/wasalstor-web/AI-STORE-BUILDER
 - **VPS:** 147.93.120.99 (Hostinger)
+
+---
+
+## Continuation Guide (for resuming work)
+
+### How to Resume Development
+```bash
+# 1. Start backend
+powershell -ExecutionPolicy Bypass -File start_backend.ps1
+
+# 2. Start frontend
+cd frontend && npm run dev
+
+# 3. Create feature branch for new work
+git checkout -b feature/your-task
+
+# 4. When done, verify & merge
+cd frontend && npx vite build        # Must pass
+git checkout main && git merge feature/your-task
+```
+
+### Key Architecture Decisions
+- **AI Chat Flow:** User chats freely → says "نفّذ" → HTML is generated from conversation context
+- **Two editing modes:** AI Builder (chat-based HTML) vs Visual Editor (drag-drop sections)
+- **Multi-provider AI chain:** Anthropic → OpenAI → Gemini → Local fallback
+- **Shared utilities:** `app/utils/db_helpers.py` for `get_store_or_404()` and `slugify()`
+- **Schemas location:** ALL Pydantic models in `app/schemas/` (including `ai_chat.py`)
+
+### What to Build Next (Phase 2)
+1. Products CRUD frontend pages
+2. Categories + filtering UI
+3. Image upload (S3/local)
+4. Shopping cart + checkout flow
+5. Order management dashboard

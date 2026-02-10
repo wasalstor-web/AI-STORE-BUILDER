@@ -17,13 +17,18 @@ import logging
 import httpx
 
 from fastapi import APIRouter, Depends, Request, HTTPException
-from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
 from app.database import get_db
 from app.middleware.auth import CurrentUser
 from app.middleware.rate_limit import limiter
+from app.schemas.ai_chat import (
+    AIChatRequest,
+    AIChatResponse,
+    AIConversationRequest,
+    AIConversationResponse,
+)
 
 router = APIRouter()
 settings = get_settings()
@@ -75,38 +80,6 @@ async def _save_conversation_to_supabase(
     except Exception as e:
         # Non-blocking - just log the error
         print(f"⚠️ Supabase save error (non-critical): {e}")
-
-
-class AIChatRequest(BaseModel):
-    message: str
-    current_html: str
-    store_name: str = "متجري"
-    store_type: str = "general"
-    store_id: Optional[str] = None
-    context: Optional[dict] = None
-
-
-class AIConversationRequest(BaseModel):
-    """Request for conversational AI (no HTML generation)."""
-    message: str
-    conversation_history: list[dict] = []
-    store_name: str = "متجري"
-    store_type: str = "general"
-
-
-class AIConversationResponse(BaseModel):
-    """Response for conversational AI."""
-    reply: str
-    suggestions: list[str] = []
-    should_execute: bool = False
-    execution_time: float = 0.0
-
-
-class AIChatResponse(BaseModel):
-    html: str
-    message: str
-    suggestions: list[str] = []
-    execution_time: float = 0.0
 
 
 CONVERSATION_SYSTEM_PROMPT = """أنت مساعد ذكي متخصص في بناء المتاجر الإلكترونية العربية. اسمك "مساعد المتجر الذكي".

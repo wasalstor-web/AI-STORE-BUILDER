@@ -16,7 +16,7 @@ export interface StoreTheme {
   borderColor: string;
   fontFamily: string;
   radius: string;
-  style: 'luxury' | 'modern' | 'minimal' | 'classic' | 'bold' | 'playful';
+  style: "luxury" | "modern" | "minimal" | "classic" | "bold" | "playful";
 }
 
 export interface SectionConfig {
@@ -26,18 +26,36 @@ export interface SectionConfig {
 }
 
 export type SectionType =
-  | 'navbar' | 'hero' | 'hero-split' | 'hero-video'
-  | 'categories' | 'categories-circle'
-  | 'products' | 'products-featured' | 'products-carousel'
-  | 'features' | 'features-detailed'
-  | 'testimonials' | 'testimonials-large'
-  | 'newsletter' | 'banner' | 'banner-marquee'
-  | 'stats' | 'brands'
-  | 'gallery' | 'offers' | 'countdown'
-  | 'cta' | 'faq' | 'contact'
-  | 'footer' | 'footer-rich'
-  | 'trust-badges' | 'instagram-feed' | 'video-section'
-  | 'spacer';
+  | "navbar"
+  | "hero"
+  | "hero-split"
+  | "hero-video"
+  | "categories"
+  | "categories-circle"
+  | "products"
+  | "products-featured"
+  | "products-carousel"
+  | "features"
+  | "features-detailed"
+  | "testimonials"
+  | "testimonials-large"
+  | "newsletter"
+  | "banner"
+  | "banner-marquee"
+  | "stats"
+  | "brands"
+  | "gallery"
+  | "offers"
+  | "countdown"
+  | "cta"
+  | "faq"
+  | "contact"
+  | "footer"
+  | "footer-rich"
+  | "trust-badges"
+  | "instagram-feed"
+  | "video-section"
+  | "spacer";
 
 export interface ProductData {
   name: string;
@@ -75,177 +93,893 @@ export interface TestimonialData {
 
 export const PRODUCT_SETS: Record<string, ProductData[]> = {
   fashion: [
-    { name: 'فستان سهرة أنيق', price: '899', oldPrice: '1,199', emoji: '👗', badge: 'خصم 25%', gradient: 'linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%)' },
-    { name: 'جاكيت جلد طبيعي', price: '1,499', emoji: '🧥', badge: 'جديد', gradient: 'linear-gradient(135deg, #efebe9 0%, #d7ccc8 100%)' },
-    { name: 'حقيبة يد كلاسيكية', price: '699', emoji: '👜', gradient: 'linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)' },
-    { name: 'حذاء رياضي فاخر', price: '459', emoji: '👟', badge: 'الأكثر مبيعاً', gradient: 'linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%)' },
-    { name: 'ساعة كلاسيكية ذهبية', price: '2,999', emoji: '⌚', gradient: 'linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%)' },
-    { name: 'نظارة شمسية ريبان', price: '349', emoji: '🕶️', gradient: 'linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%)' },
-    { name: 'وشاح حرير إيطالي', price: '299', emoji: '🧣', badge: 'حصري', gradient: 'linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%)' },
-    { name: 'حزام جلد طبيعي', price: '199', emoji: '👔', gradient: 'linear-gradient(135deg, #efebe9 0%, #bcaaa4 100%)' },
+    {
+      name: "فستان سهرة أنيق",
+      price: "899",
+      oldPrice: "1,199",
+      emoji: "👗",
+      badge: "خصم 25%",
+      gradient: "linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%)",
+    },
+    {
+      name: "جاكيت جلد طبيعي",
+      price: "1,499",
+      emoji: "🧥",
+      badge: "جديد",
+      gradient: "linear-gradient(135deg, #efebe9 0%, #d7ccc8 100%)",
+    },
+    {
+      name: "حقيبة يد كلاسيكية",
+      price: "699",
+      emoji: "👜",
+      gradient: "linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)",
+    },
+    {
+      name: "حذاء رياضي فاخر",
+      price: "459",
+      emoji: "👟",
+      badge: "الأكثر مبيعاً",
+      gradient: "linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%)",
+    },
+    {
+      name: "ساعة كلاسيكية ذهبية",
+      price: "2,999",
+      emoji: "⌚",
+      gradient: "linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%)",
+    },
+    {
+      name: "نظارة شمسية ريبان",
+      price: "349",
+      emoji: "🕶️",
+      gradient: "linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%)",
+    },
+    {
+      name: "وشاح حرير إيطالي",
+      price: "299",
+      emoji: "🧣",
+      badge: "حصري",
+      gradient: "linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%)",
+    },
+    {
+      name: "حزام جلد طبيعي",
+      price: "199",
+      emoji: "👔",
+      gradient: "linear-gradient(135deg, #efebe9 0%, #bcaaa4 100%)",
+    },
   ],
   electronics: [
-    { name: 'آيفون 16 برو ماكس', price: '5,499', emoji: '📱', badge: 'جديد', gradient: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)' },
-    { name: 'ماك بوك إير M4', price: '4,999', emoji: '💻', gradient: 'linear-gradient(135deg, #eceff1 0%, #cfd8dc 100%)' },
-    { name: 'AirPods Pro 3', price: '1,099', emoji: '🎧', badge: 'الأكثر مبيعاً', gradient: 'linear-gradient(135deg, #fafafa 0%, #eeeeee 100%)' },
-    { name: 'آيباد برو 13 إنش', price: '3,999', emoji: '📱', gradient: 'linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%)' },
-    { name: 'شاشة سامسونج 4K', price: '2,799', oldPrice: '3,499', emoji: '🖥️', badge: 'خصم 20%', gradient: 'linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%)' },
-    { name: 'كيبورد ميكانيكي RGB', price: '449', emoji: '⌨️', gradient: 'linear-gradient(135deg, #263238 0%, #37474f 100%)' },
-    { name: 'كاميرا سوني ألفا 7', price: '6,999', emoji: '📷', badge: 'احترافي', gradient: 'linear-gradient(135deg, #212121 0%, #424242 100%)' },
-    { name: 'شاحن لاسلكي MagSafe', price: '199', emoji: '🔋', gradient: 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)' },
+    {
+      name: "آيفون 16 برو ماكس",
+      price: "5,499",
+      emoji: "📱",
+      badge: "جديد",
+      gradient: "linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%)",
+    },
+    {
+      name: "ماك بوك إير M4",
+      price: "4,999",
+      emoji: "💻",
+      gradient: "linear-gradient(135deg, #eceff1 0%, #cfd8dc 100%)",
+    },
+    {
+      name: "AirPods Pro 3",
+      price: "1,099",
+      emoji: "🎧",
+      badge: "الأكثر مبيعاً",
+      gradient: "linear-gradient(135deg, #fafafa 0%, #eeeeee 100%)",
+    },
+    {
+      name: "آيباد برو 13 إنش",
+      price: "3,999",
+      emoji: "📱",
+      gradient: "linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%)",
+    },
+    {
+      name: "شاشة سامسونج 4K",
+      price: "2,799",
+      oldPrice: "3,499",
+      emoji: "🖥️",
+      badge: "خصم 20%",
+      gradient: "linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%)",
+    },
+    {
+      name: "كيبورد ميكانيكي RGB",
+      price: "449",
+      emoji: "⌨️",
+      gradient: "linear-gradient(135deg, #263238 0%, #37474f 100%)",
+    },
+    {
+      name: "كاميرا سوني ألفا 7",
+      price: "6,999",
+      emoji: "📷",
+      badge: "احترافي",
+      gradient: "linear-gradient(135deg, #212121 0%, #424242 100%)",
+    },
+    {
+      name: "شاحن لاسلكي MagSafe",
+      price: "199",
+      emoji: "🔋",
+      gradient: "linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)",
+    },
   ],
   beauty: [
-    { name: 'عطر عود ملكي', price: '799', emoji: '🌹', badge: 'الأكثر مبيعاً', gradient: 'linear-gradient(135deg, #4a148c 0%, #7b1fa2 100%)' },
-    { name: 'سيروم فيتامين سي', price: '189', emoji: '✨', badge: 'جديد', gradient: 'linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%)' },
-    { name: 'طقم مكياج احترافي', price: '459', emoji: '💄', gradient: 'linear-gradient(135deg, #fce4ec 0%, #f48fb1 100%)' },
-    { name: 'كريم مرطب هيالورونيك', price: '149', emoji: '🧴', gradient: 'linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%)' },
-    { name: 'مجموعة عناية بالشعر', price: '299', emoji: '💆', gradient: 'linear-gradient(135deg, #f3e5f5 0%, #ce93d8 100%)' },
-    { name: 'ماسك وجه ذهبي 24K', price: '99', oldPrice: '149', emoji: '🪞', badge: 'خصم', gradient: 'linear-gradient(135deg, #fff8e1 0%, #ffd54f 100%)' },
-    { name: 'باليت ظلال عيون', price: '279', emoji: '🎨', gradient: 'linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%)' },
-    { name: 'عطر مسك أبيض', price: '599', emoji: '🌸', badge: 'حصري', gradient: 'linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%)' },
+    {
+      name: "عطر عود ملكي",
+      price: "799",
+      emoji: "🌹",
+      badge: "الأكثر مبيعاً",
+      gradient: "linear-gradient(135deg, #4a148c 0%, #7b1fa2 100%)",
+    },
+    {
+      name: "سيروم فيتامين سي",
+      price: "189",
+      emoji: "✨",
+      badge: "جديد",
+      gradient: "linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%)",
+    },
+    {
+      name: "طقم مكياج احترافي",
+      price: "459",
+      emoji: "💄",
+      gradient: "linear-gradient(135deg, #fce4ec 0%, #f48fb1 100%)",
+    },
+    {
+      name: "كريم مرطب هيالورونيك",
+      price: "149",
+      emoji: "🧴",
+      gradient: "linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%)",
+    },
+    {
+      name: "مجموعة عناية بالشعر",
+      price: "299",
+      emoji: "💆",
+      gradient: "linear-gradient(135deg, #f3e5f5 0%, #ce93d8 100%)",
+    },
+    {
+      name: "ماسك وجه ذهبي 24K",
+      price: "99",
+      oldPrice: "149",
+      emoji: "🪞",
+      badge: "خصم",
+      gradient: "linear-gradient(135deg, #fff8e1 0%, #ffd54f 100%)",
+    },
+    {
+      name: "باليت ظلال عيون",
+      price: "279",
+      emoji: "🎨",
+      gradient: "linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%)",
+    },
+    {
+      name: "عطر مسك أبيض",
+      price: "599",
+      emoji: "🌸",
+      badge: "حصري",
+      gradient: "linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%)",
+    },
   ],
   food: [
-    { name: 'برجر واغيو مميز', price: '89', emoji: '🍔', badge: 'الأكثر طلباً', gradient: 'linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)' },
-    { name: 'بيتزا مارغريتا إيطالية', price: '49', emoji: '🍕', gradient: 'linear-gradient(135deg, #ffecb3 0%, #ffe082 100%)' },
-    { name: 'سلطة سيزر بالدجاج', price: '39', emoji: '🥗', badge: 'صحي', gradient: 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)' },
-    { name: 'ستيك مشوي على الفحم', price: '129', emoji: '🥩', gradient: 'linear-gradient(135deg, #efebe9 0%, #d7ccc8 100%)' },
-    { name: 'تشيز كيك توت', price: '45', emoji: '🍰', badge: 'جديد', gradient: 'linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%)' },
-    { name: 'عصير فواكه طبيعي', price: '25', emoji: '🥤', gradient: 'linear-gradient(135deg, #fff9c4 0%, #fff176 100%)' },
-    { name: 'سوشي رول مشكل', price: '79', emoji: '🍣', gradient: 'linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%)' },
-    { name: 'موكا لاتيه', price: '28', emoji: '☕', gradient: 'linear-gradient(135deg, #efebe9 0%, #bcaaa4 100%)' },
+    {
+      name: "برجر واغيو مميز",
+      price: "89",
+      emoji: "🍔",
+      badge: "الأكثر طلباً",
+      gradient: "linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)",
+    },
+    {
+      name: "بيتزا مارغريتا إيطالية",
+      price: "49",
+      emoji: "🍕",
+      gradient: "linear-gradient(135deg, #ffecb3 0%, #ffe082 100%)",
+    },
+    {
+      name: "سلطة سيزر بالدجاج",
+      price: "39",
+      emoji: "🥗",
+      badge: "صحي",
+      gradient: "linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)",
+    },
+    {
+      name: "ستيك مشوي على الفحم",
+      price: "129",
+      emoji: "🥩",
+      gradient: "linear-gradient(135deg, #efebe9 0%, #d7ccc8 100%)",
+    },
+    {
+      name: "تشيز كيك توت",
+      price: "45",
+      emoji: "🍰",
+      badge: "جديد",
+      gradient: "linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%)",
+    },
+    {
+      name: "عصير فواكه طبيعي",
+      price: "25",
+      emoji: "🥤",
+      gradient: "linear-gradient(135deg, #fff9c4 0%, #fff176 100%)",
+    },
+    {
+      name: "سوشي رول مشكل",
+      price: "79",
+      emoji: "🍣",
+      gradient: "linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%)",
+    },
+    {
+      name: "موكا لاتيه",
+      price: "28",
+      emoji: "☕",
+      gradient: "linear-gradient(135deg, #efebe9 0%, #bcaaa4 100%)",
+    },
   ],
   general: [
-    { name: 'منتج مميز أول', price: '199', emoji: '⭐', badge: 'الأكثر مبيعاً', gradient: 'linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%)' },
-    { name: 'منتج راقي ثاني', price: '349', emoji: '💎', badge: 'جديد', gradient: 'linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%)' },
-    { name: 'منتج عصري ثالث', price: '149', emoji: '🔥', gradient: 'linear-gradient(135deg, #fff3e0 0%, #ffcc80 100%)' },
-    { name: 'منتج حصري رابع', price: '599', emoji: '🎁', badge: 'حصري', gradient: 'linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%)' },
-    { name: 'منتج كلاسيكي خامس', price: '249', emoji: '🏷️', gradient: 'linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%)' },
-    { name: 'منتج عملي سادس', price: '89', oldPrice: '129', emoji: '📦', badge: 'خصم 30%', gradient: 'linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%)' },
-    { name: 'منتج فريد سابع', price: '449', emoji: '🎯', gradient: 'linear-gradient(135deg, #e8f5e9 0%, #a5d6a7 100%)' },
-    { name: 'منتج مبتكر ثامن', price: '699', emoji: '✨', gradient: 'linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%)' },
+    {
+      name: "منتج مميز أول",
+      price: "199",
+      emoji: "⭐",
+      badge: "الأكثر مبيعاً",
+      gradient: "linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%)",
+    },
+    {
+      name: "منتج راقي ثاني",
+      price: "349",
+      emoji: "💎",
+      badge: "جديد",
+      gradient: "linear-gradient(135deg, #e0f2f1 0%, #b2dfdb 100%)",
+    },
+    {
+      name: "منتج عصري ثالث",
+      price: "149",
+      emoji: "🔥",
+      gradient: "linear-gradient(135deg, #fff3e0 0%, #ffcc80 100%)",
+    },
+    {
+      name: "منتج حصري رابع",
+      price: "599",
+      emoji: "🎁",
+      badge: "حصري",
+      gradient: "linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%)",
+    },
+    {
+      name: "منتج كلاسيكي خامس",
+      price: "249",
+      emoji: "🏷️",
+      gradient: "linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%)",
+    },
+    {
+      name: "منتج عملي سادس",
+      price: "89",
+      oldPrice: "129",
+      emoji: "📦",
+      badge: "خصم 30%",
+      gradient: "linear-gradient(135deg, #e0e0e0 0%, #bdbdbd 100%)",
+    },
+    {
+      name: "منتج فريد سابع",
+      price: "449",
+      emoji: "🎯",
+      gradient: "linear-gradient(135deg, #e8f5e9 0%, #a5d6a7 100%)",
+    },
+    {
+      name: "منتج مبتكر ثامن",
+      price: "699",
+      emoji: "✨",
+      gradient: "linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%)",
+    },
   ],
   jewelry: [
-    { name: 'خاتم ألماس سوليتير', price: '12,999', emoji: '💍', badge: 'فاخر', gradient: 'linear-gradient(135deg, #fff8e1 0%, #ffd54f 100%)' },
-    { name: 'عقد ذهب عيار 21', price: '4,599', emoji: '📿', gradient: 'linear-gradient(135deg, #fff3e0 0%, #ffcc80 100%)' },
-    { name: 'أسوارة كارتييه', price: '8,999', emoji: '💎', badge: 'الأكثر مبيعاً', gradient: 'linear-gradient(135deg, #fafafa 0%, #e0e0e0 100%)' },
-    { name: 'أقراط لؤلؤ طبيعي', price: '2,999', emoji: '✨', gradient: 'linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%)' },
-    { name: 'ساعة رولكس ديت جست', price: '45,000', emoji: '⌚', badge: 'حصري', gradient: 'linear-gradient(135deg, #212121 0%, #424242 100%)' },
-    { name: 'طقم مجوهرات عروس', price: '18,999', emoji: '👑', gradient: 'linear-gradient(135deg, #fff8e1 0%, #ffe082 100%)' },
-    { name: 'بروش ذهبي فاخر', price: '3,499', emoji: '🏅', gradient: 'linear-gradient(135deg, #efebe9 0%, #d7ccc8 100%)' },
-    { name: 'خلخال ذهب ناعم', price: '1,899', emoji: '💫', badge: 'جديد', gradient: 'linear-gradient(135deg, #fff9c4 0%, #fff176 100%)' },
+    {
+      name: "خاتم ألماس سوليتير",
+      price: "12,999",
+      emoji: "💍",
+      badge: "فاخر",
+      gradient: "linear-gradient(135deg, #fff8e1 0%, #ffd54f 100%)",
+    },
+    {
+      name: "عقد ذهب عيار 21",
+      price: "4,599",
+      emoji: "📿",
+      gradient: "linear-gradient(135deg, #fff3e0 0%, #ffcc80 100%)",
+    },
+    {
+      name: "أسوارة كارتييه",
+      price: "8,999",
+      emoji: "💎",
+      badge: "الأكثر مبيعاً",
+      gradient: "linear-gradient(135deg, #fafafa 0%, #e0e0e0 100%)",
+    },
+    {
+      name: "أقراط لؤلؤ طبيعي",
+      price: "2,999",
+      emoji: "✨",
+      gradient: "linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%)",
+    },
+    {
+      name: "ساعة رولكس ديت جست",
+      price: "45,000",
+      emoji: "⌚",
+      badge: "حصري",
+      gradient: "linear-gradient(135deg, #212121 0%, #424242 100%)",
+    },
+    {
+      name: "طقم مجوهرات عروس",
+      price: "18,999",
+      emoji: "👑",
+      gradient: "linear-gradient(135deg, #fff8e1 0%, #ffe082 100%)",
+    },
+    {
+      name: "بروش ذهبي فاخر",
+      price: "3,499",
+      emoji: "🏅",
+      gradient: "linear-gradient(135deg, #efebe9 0%, #d7ccc8 100%)",
+    },
+    {
+      name: "خلخال ذهب ناعم",
+      price: "1,899",
+      emoji: "💫",
+      badge: "جديد",
+      gradient: "linear-gradient(135deg, #fff9c4 0%, #fff176 100%)",
+    },
   ],
   sports: [
-    { name: 'حذاء جري نايك إير', price: '699', emoji: '👟', badge: 'الأكثر مبيعاً', gradient: 'linear-gradient(135deg, #e8f5e9 0%, #a5d6a7 100%)' },
-    { name: 'طقم تمارين كامل', price: '349', emoji: '🏋️', gradient: 'linear-gradient(135deg, #e3f2fd 0%, #90caf9 100%)' },
-    { name: 'ساعة رياضية ذكية', price: '1,299', emoji: '⌚', badge: 'جديد', gradient: 'linear-gradient(135deg, #263238 0%, #455a64 100%)' },
-    { name: 'شنطة رياضية أديداس', price: '249', emoji: '🎒', gradient: 'linear-gradient(135deg, #212121 0%, #616161 100%)' },
-    { name: 'مضرب تنس ويلسون', price: '899', emoji: '🎾', gradient: 'linear-gradient(135deg, #fff3e0 0%, #ffcc80 100%)' },
-    { name: 'سجادة يوغا بريميوم', price: '149', emoji: '🧘', badge: 'صحي', gradient: 'linear-gradient(135deg, #f3e5f5 0%, #ce93d8 100%)' },
-    { name: 'دراجة هوائية احترافية', price: '3,499', emoji: '🚴', gradient: 'linear-gradient(135deg, #e0e0e0 0%, #9e9e9e 100%)' },
-    { name: 'بروتين واي 2 كيلو', price: '199', emoji: '💪', gradient: 'linear-gradient(135deg, #efebe9 0%, #bcaaa4 100%)' },
+    {
+      name: "حذاء جري نايك إير",
+      price: "699",
+      emoji: "👟",
+      badge: "الأكثر مبيعاً",
+      gradient: "linear-gradient(135deg, #e8f5e9 0%, #a5d6a7 100%)",
+    },
+    {
+      name: "طقم تمارين كامل",
+      price: "349",
+      emoji: "🏋️",
+      gradient: "linear-gradient(135deg, #e3f2fd 0%, #90caf9 100%)",
+    },
+    {
+      name: "ساعة رياضية ذكية",
+      price: "1,299",
+      emoji: "⌚",
+      badge: "جديد",
+      gradient: "linear-gradient(135deg, #263238 0%, #455a64 100%)",
+    },
+    {
+      name: "شنطة رياضية أديداس",
+      price: "249",
+      emoji: "🎒",
+      gradient: "linear-gradient(135deg, #212121 0%, #616161 100%)",
+    },
+    {
+      name: "مضرب تنس ويلسون",
+      price: "899",
+      emoji: "🎾",
+      gradient: "linear-gradient(135deg, #fff3e0 0%, #ffcc80 100%)",
+    },
+    {
+      name: "سجادة يوغا بريميوم",
+      price: "149",
+      emoji: "🧘",
+      badge: "صحي",
+      gradient: "linear-gradient(135deg, #f3e5f5 0%, #ce93d8 100%)",
+    },
+    {
+      name: "دراجة هوائية احترافية",
+      price: "3,499",
+      emoji: "🚴",
+      gradient: "linear-gradient(135deg, #e0e0e0 0%, #9e9e9e 100%)",
+    },
+    {
+      name: "بروتين واي 2 كيلو",
+      price: "199",
+      emoji: "💪",
+      gradient: "linear-gradient(135deg, #efebe9 0%, #bcaaa4 100%)",
+    },
   ],
   kids: [
-    { name: 'دمية دب عملاقة', price: '149', emoji: '🧸', badge: 'الأكثر مبيعاً', gradient: 'linear-gradient(135deg, #fff9c4 0%, #fff176 100%)' },
-    { name: 'ليقو سفينة فضائية', price: '299', emoji: '🧩', badge: 'جديد', gradient: 'linear-gradient(135deg, #e3f2fd 0%, #90caf9 100%)' },
-    { name: 'كتب أطفال تعليمية', price: '89', emoji: '📚', gradient: 'linear-gradient(135deg, #e8f5e9 0%, #a5d6a7 100%)' },
-    { name: 'طقم ألوان وأقلام', price: '59', emoji: '🎨', gradient: 'linear-gradient(135deg, #fce4ec 0%, #f48fb1 100%)' },
-    { name: 'سيارة ريموت كنترول', price: '199', emoji: '🚗', badge: 'عرض', gradient: 'linear-gradient(135deg, #fff3e0 0%, #ffcc80 100%)' },
-    { name: 'بازل 500 قطعة', price: '79', emoji: '🧩', gradient: 'linear-gradient(135deg, #f3e5f5 0%, #ce93d8 100%)' },
-    { name: 'خيمة أطفال داخلية', price: '249', emoji: '⛺', gradient: 'linear-gradient(135deg, #e0f2f1 0%, #80cbc4 100%)' },
-    { name: 'لعبة طبخ مصغرة', price: '129', emoji: '🍳', gradient: 'linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%)' },
+    {
+      name: "دمية دب عملاقة",
+      price: "149",
+      emoji: "🧸",
+      badge: "الأكثر مبيعاً",
+      gradient: "linear-gradient(135deg, #fff9c4 0%, #fff176 100%)",
+    },
+    {
+      name: "ليقو سفينة فضائية",
+      price: "299",
+      emoji: "🧩",
+      badge: "جديد",
+      gradient: "linear-gradient(135deg, #e3f2fd 0%, #90caf9 100%)",
+    },
+    {
+      name: "كتب أطفال تعليمية",
+      price: "89",
+      emoji: "📚",
+      gradient: "linear-gradient(135deg, #e8f5e9 0%, #a5d6a7 100%)",
+    },
+    {
+      name: "طقم ألوان وأقلام",
+      price: "59",
+      emoji: "🎨",
+      gradient: "linear-gradient(135deg, #fce4ec 0%, #f48fb1 100%)",
+    },
+    {
+      name: "سيارة ريموت كنترول",
+      price: "199",
+      emoji: "🚗",
+      badge: "عرض",
+      gradient: "linear-gradient(135deg, #fff3e0 0%, #ffcc80 100%)",
+    },
+    {
+      name: "بازل 500 قطعة",
+      price: "79",
+      emoji: "🧩",
+      gradient: "linear-gradient(135deg, #f3e5f5 0%, #ce93d8 100%)",
+    },
+    {
+      name: "خيمة أطفال داخلية",
+      price: "249",
+      emoji: "⛺",
+      gradient: "linear-gradient(135deg, #e0f2f1 0%, #80cbc4 100%)",
+    },
+    {
+      name: "لعبة طبخ مصغرة",
+      price: "129",
+      emoji: "🍳",
+      gradient: "linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%)",
+    },
   ],
   home: [
-    { name: 'أريكة مخملية فاخرة', price: '4,999', emoji: '🛋️', badge: 'جديد', gradient: 'linear-gradient(135deg, #efebe9 0%, #d7ccc8 100%)' },
-    { name: 'مصباح أرضي إسكندنافي', price: '699', emoji: '💡', gradient: 'linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%)' },
-    { name: 'لوحة جدارية فنية', price: '349', emoji: '🖼️', badge: 'حصري', gradient: 'linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%)' },
-    { name: 'نبتة زينة داخلية', price: '89', emoji: '🌱', gradient: 'linear-gradient(135deg, #e8f5e9 0%, #a5d6a7 100%)' },
-    { name: 'شمعة عطرية فاخرة', price: '149', emoji: '🕯️', badge: 'الأكثر مبيعاً', gradient: 'linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)' },
-    { name: 'سجادة بيرسيان', price: '2,499', emoji: '🏠', gradient: 'linear-gradient(135deg, #efebe9 0%, #bcaaa4 100%)' },
-    { name: 'مرآة حائط ذهبية', price: '599', emoji: '🪞', gradient: 'linear-gradient(135deg, #fff8e1 0%, #ffd54f 100%)' },
-    { name: 'مزهرية سيراميك', price: '199', emoji: '🏺', badge: 'فن يدوي', gradient: 'linear-gradient(135deg, #e0f2f1 0%, #80cbc4 100%)' },
+    {
+      name: "أريكة مخملية فاخرة",
+      price: "4,999",
+      emoji: "🛋️",
+      badge: "جديد",
+      gradient: "linear-gradient(135deg, #efebe9 0%, #d7ccc8 100%)",
+    },
+    {
+      name: "مصباح أرضي إسكندنافي",
+      price: "699",
+      emoji: "💡",
+      gradient: "linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%)",
+    },
+    {
+      name: "لوحة جدارية فنية",
+      price: "349",
+      emoji: "🖼️",
+      badge: "حصري",
+      gradient: "linear-gradient(135deg, #e8eaf6 0%, #c5cae9 100%)",
+    },
+    {
+      name: "نبتة زينة داخلية",
+      price: "89",
+      emoji: "🌱",
+      gradient: "linear-gradient(135deg, #e8f5e9 0%, #a5d6a7 100%)",
+    },
+    {
+      name: "شمعة عطرية فاخرة",
+      price: "149",
+      emoji: "🕯️",
+      badge: "الأكثر مبيعاً",
+      gradient: "linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)",
+    },
+    {
+      name: "سجادة بيرسيان",
+      price: "2,499",
+      emoji: "🏠",
+      gradient: "linear-gradient(135deg, #efebe9 0%, #bcaaa4 100%)",
+    },
+    {
+      name: "مرآة حائط ذهبية",
+      price: "599",
+      emoji: "🪞",
+      gradient: "linear-gradient(135deg, #fff8e1 0%, #ffd54f 100%)",
+    },
+    {
+      name: "مزهرية سيراميك",
+      price: "199",
+      emoji: "🏺",
+      badge: "فن يدوي",
+      gradient: "linear-gradient(135deg, #e0f2f1 0%, #80cbc4 100%)",
+    },
   ],
   perfume: [
-    { name: 'عود كمبودي فاخر', price: '1,299', emoji: '🌹', badge: 'فاخر', gradient: 'linear-gradient(135deg, #311b92 0%, #4527a0 100%)' },
-    { name: 'عطر مسك طبيعي', price: '599', emoji: '🌸', badge: 'الأكثر مبيعاً', gradient: 'linear-gradient(135deg, #fce4ec 0%, #f48fb1 100%)' },
-    { name: 'بخور عربي أصيل', price: '249', emoji: '✨', gradient: 'linear-gradient(135deg, #4e342e 0%, #6d4c41 100%)' },
-    { name: 'دخون ملكي', price: '349', emoji: '🔮', badge: 'حصري', gradient: 'linear-gradient(135deg, #1a237e 0%, #283593 100%)' },
-    { name: 'عطر ورد طائفي', price: '899', emoji: '🌺', gradient: 'linear-gradient(135deg, #880e4f 0%, #ad1457 100%)' },
-    { name: 'مجموعة عطور سفر', price: '399', emoji: '🎀', badge: 'هدية مثالية', gradient: 'linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)' },
-    { name: 'عطر عنبر خالص', price: '1,899', emoji: '💎', gradient: 'linear-gradient(135deg, #3e2723 0%, #5d4037 100%)' },
-    { name: 'زيت عود هندي', price: '2,499', emoji: '🫧', badge: 'نادر', gradient: 'linear-gradient(135deg, #263238 0%, #37474f 100%)' },
+    {
+      name: "عود كمبودي فاخر",
+      price: "1,299",
+      emoji: "🌹",
+      badge: "فاخر",
+      gradient: "linear-gradient(135deg, #311b92 0%, #4527a0 100%)",
+    },
+    {
+      name: "عطر مسك طبيعي",
+      price: "599",
+      emoji: "🌸",
+      badge: "الأكثر مبيعاً",
+      gradient: "linear-gradient(135deg, #fce4ec 0%, #f48fb1 100%)",
+    },
+    {
+      name: "بخور عربي أصيل",
+      price: "249",
+      emoji: "✨",
+      gradient: "linear-gradient(135deg, #4e342e 0%, #6d4c41 100%)",
+    },
+    {
+      name: "دخون ملكي",
+      price: "349",
+      emoji: "🔮",
+      badge: "حصري",
+      gradient: "linear-gradient(135deg, #1a237e 0%, #283593 100%)",
+    },
+    {
+      name: "عطر ورد طائفي",
+      price: "899",
+      emoji: "🌺",
+      gradient: "linear-gradient(135deg, #880e4f 0%, #ad1457 100%)",
+    },
+    {
+      name: "مجموعة عطور سفر",
+      price: "399",
+      emoji: "🎀",
+      badge: "هدية مثالية",
+      gradient: "linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%)",
+    },
+    {
+      name: "عطر عنبر خالص",
+      price: "1,899",
+      emoji: "💎",
+      gradient: "linear-gradient(135deg, #3e2723 0%, #5d4037 100%)",
+    },
+    {
+      name: "زيت عود هندي",
+      price: "2,499",
+      emoji: "🫧",
+      badge: "نادر",
+      gradient: "linear-gradient(135deg, #263238 0%, #37474f 100%)",
+    },
   ],
   health: [
-    { name: 'فيتامين D3 + K2', price: '89', emoji: '💊', badge: 'الأكثر مبيعاً', gradient: 'linear-gradient(135deg, #e8f5e9 0%, #a5d6a7 100%)' },
-    { name: 'بروتين نباتي عضوي', price: '199', emoji: '🌿', badge: 'عضوي', gradient: 'linear-gradient(135deg, #f1f8e9 0%, #aed581 100%)' },
-    { name: 'زيت جوز الهند البكر', price: '59', emoji: '🥥', gradient: 'linear-gradient(135deg, #efebe9 0%, #d7ccc8 100%)' },
-    { name: 'عسل مانوكا نيوزلندي', price: '349', emoji: '🍯', badge: 'طبيعي 100%', gradient: 'linear-gradient(135deg, #fff8e1 0%, #ffcc80 100%)' },
-    { name: 'شاي أعشاب مهدئ', price: '39', emoji: '🍵', gradient: 'linear-gradient(135deg, #e0f2f1 0%, #80cbc4 100%)' },
-    { name: 'كولاجين بحري', price: '249', emoji: '✨', badge: 'جديد', gradient: 'linear-gradient(135deg, #e3f2fd 0%, #90caf9 100%)' },
-    { name: 'مكمل أوميغا 3', price: '129', emoji: '🐟', gradient: 'linear-gradient(135deg, #e8eaf6 0%, #9fa8da 100%)' },
-    { name: 'سوبر فود مكس', price: '179', emoji: '🥑', badge: 'نباتي', gradient: 'linear-gradient(135deg, #e8f5e9 0%, #66bb6a 100%)' },
+    {
+      name: "فيتامين D3 + K2",
+      price: "89",
+      emoji: "💊",
+      badge: "الأكثر مبيعاً",
+      gradient: "linear-gradient(135deg, #e8f5e9 0%, #a5d6a7 100%)",
+    },
+    {
+      name: "بروتين نباتي عضوي",
+      price: "199",
+      emoji: "🌿",
+      badge: "عضوي",
+      gradient: "linear-gradient(135deg, #f1f8e9 0%, #aed581 100%)",
+    },
+    {
+      name: "زيت جوز الهند البكر",
+      price: "59",
+      emoji: "🥥",
+      gradient: "linear-gradient(135deg, #efebe9 0%, #d7ccc8 100%)",
+    },
+    {
+      name: "عسل مانوكا نيوزلندي",
+      price: "349",
+      emoji: "🍯",
+      badge: "طبيعي 100%",
+      gradient: "linear-gradient(135deg, #fff8e1 0%, #ffcc80 100%)",
+    },
+    {
+      name: "شاي أعشاب مهدئ",
+      price: "39",
+      emoji: "🍵",
+      gradient: "linear-gradient(135deg, #e0f2f1 0%, #80cbc4 100%)",
+    },
+    {
+      name: "كولاجين بحري",
+      price: "249",
+      emoji: "✨",
+      badge: "جديد",
+      gradient: "linear-gradient(135deg, #e3f2fd 0%, #90caf9 100%)",
+    },
+    {
+      name: "مكمل أوميغا 3",
+      price: "129",
+      emoji: "🐟",
+      gradient: "linear-gradient(135deg, #e8eaf6 0%, #9fa8da 100%)",
+    },
+    {
+      name: "سوبر فود مكس",
+      price: "179",
+      emoji: "🥑",
+      badge: "نباتي",
+      gradient: "linear-gradient(135deg, #e8f5e9 0%, #66bb6a 100%)",
+    },
   ],
   auto: [
-    { name: 'زيت محرك سينثتك 5W-30', price: '149', emoji: '🛢️', badge: 'الأكثر مبيعاً', gradient: 'linear-gradient(135deg, #212121 0%, #424242 100%)' },
-    { name: 'بطارية سيارة AGM', price: '699', emoji: '🔋', gradient: 'linear-gradient(135deg, #263238 0%, #455a64 100%)' },
-    { name: 'إطارات ميشلان 4 قطع', price: '2,499', emoji: '🛞', badge: 'عرض خاص', gradient: 'linear-gradient(135deg, #37474f 0%, #546e7a 100%)' },
-    { name: 'كاميرا سيارة أمامية', price: '349', emoji: '📷', badge: 'جديد', gradient: 'linear-gradient(135deg, #1a237e 0%, #283593 100%)' },
-    { name: 'طقم عدة إصلاح 120 قطعة', price: '499', emoji: '🔧', gradient: 'linear-gradient(135deg, #b71c1c 0%, #c62828 100%)' },
-    { name: 'منظف داخلي سيراميك', price: '89', emoji: '✨', gradient: 'linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%)' },
-    { name: 'شاحن سيارة سريع', price: '129', emoji: '⚡', gradient: 'linear-gradient(135deg, #f57f17 0%, #ff8f00 100%)' },
-    { name: 'مسّاحات ممتازة زوج', price: '79', emoji: '🚗', gradient: 'linear-gradient(135deg, #0d47a1 0%, #1565c0 100%)' },
+    {
+      name: "زيت محرك سينثتك 5W-30",
+      price: "149",
+      emoji: "🛢️",
+      badge: "الأكثر مبيعاً",
+      gradient: "linear-gradient(135deg, #212121 0%, #424242 100%)",
+    },
+    {
+      name: "بطارية سيارة AGM",
+      price: "699",
+      emoji: "🔋",
+      gradient: "linear-gradient(135deg, #263238 0%, #455a64 100%)",
+    },
+    {
+      name: "إطارات ميشلان 4 قطع",
+      price: "2,499",
+      emoji: "🛞",
+      badge: "عرض خاص",
+      gradient: "linear-gradient(135deg, #37474f 0%, #546e7a 100%)",
+    },
+    {
+      name: "كاميرا سيارة أمامية",
+      price: "349",
+      emoji: "📷",
+      badge: "جديد",
+      gradient: "linear-gradient(135deg, #1a237e 0%, #283593 100%)",
+    },
+    {
+      name: "طقم عدة إصلاح 120 قطعة",
+      price: "499",
+      emoji: "🔧",
+      gradient: "linear-gradient(135deg, #b71c1c 0%, #c62828 100%)",
+    },
+    {
+      name: "منظف داخلي سيراميك",
+      price: "89",
+      emoji: "✨",
+      gradient: "linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%)",
+    },
+    {
+      name: "شاحن سيارة سريع",
+      price: "129",
+      emoji: "⚡",
+      gradient: "linear-gradient(135deg, #f57f17 0%, #ff8f00 100%)",
+    },
+    {
+      name: "مسّاحات ممتازة زوج",
+      price: "79",
+      emoji: "🚗",
+      gradient: "linear-gradient(135deg, #0d47a1 0%, #1565c0 100%)",
+    },
   ],
 };
 
 export const CATEGORY_SETS: Record<string, CategoryData[]> = {
   fashion: [
-    { name: 'أزياء نسائية', emoji: '👗', count: '120+', gradient: 'linear-gradient(135deg, #e91e63, #ad1457)' },
-    { name: 'أزياء رجالية', emoji: '👔', count: '85+', gradient: 'linear-gradient(135deg, #2196f3, #1565c0)' },
-    { name: 'أحذية', emoji: '👠', count: '60+', gradient: 'linear-gradient(135deg, #ff9800, #ef6c00)' },
-    { name: 'إكسسوارات', emoji: '💎', count: '45+', gradient: 'linear-gradient(135deg, #9c27b0, #6a1b9a)' },
-    { name: 'حقائب', emoji: '👜', count: '35+', gradient: 'linear-gradient(135deg, #795548, #4e342e)' },
-    { name: 'ساعات', emoji: '⌚', count: '30+', gradient: 'linear-gradient(135deg, #ffd700, #b8860b)' },
+    {
+      name: "أزياء نسائية",
+      emoji: "👗",
+      count: "120+",
+      gradient: "linear-gradient(135deg, #e91e63, #ad1457)",
+    },
+    {
+      name: "أزياء رجالية",
+      emoji: "👔",
+      count: "85+",
+      gradient: "linear-gradient(135deg, #2196f3, #1565c0)",
+    },
+    {
+      name: "أحذية",
+      emoji: "👠",
+      count: "60+",
+      gradient: "linear-gradient(135deg, #ff9800, #ef6c00)",
+    },
+    {
+      name: "إكسسوارات",
+      emoji: "💎",
+      count: "45+",
+      gradient: "linear-gradient(135deg, #9c27b0, #6a1b9a)",
+    },
+    {
+      name: "حقائب",
+      emoji: "👜",
+      count: "35+",
+      gradient: "linear-gradient(135deg, #795548, #4e342e)",
+    },
+    {
+      name: "ساعات",
+      emoji: "⌚",
+      count: "30+",
+      gradient: "linear-gradient(135deg, #ffd700, #b8860b)",
+    },
   ],
   electronics: [
-    { name: 'هواتف ذكية', emoji: '📱', count: '50+', gradient: 'linear-gradient(135deg, #2196f3, #0d47a1)' },
-    { name: 'لابتوبات', emoji: '💻', count: '35+', gradient: 'linear-gradient(135deg, #607d8b, #37474f)' },
-    { name: 'سماعات', emoji: '🎧', count: '40+', gradient: 'linear-gradient(135deg, #9c27b0, #4a148c)' },
-    { name: 'شاشات', emoji: '🖥️', count: '25+', gradient: 'linear-gradient(135deg, #212121, #424242)' },
-    { name: 'ألعاب', emoji: '🎮', count: '60+', gradient: 'linear-gradient(135deg, #4caf50, #1b5e20)' },
-    { name: 'كاميرات', emoji: '📷', count: '20+', gradient: 'linear-gradient(135deg, #ff5722, #bf360c)' },
+    {
+      name: "هواتف ذكية",
+      emoji: "📱",
+      count: "50+",
+      gradient: "linear-gradient(135deg, #2196f3, #0d47a1)",
+    },
+    {
+      name: "لابتوبات",
+      emoji: "💻",
+      count: "35+",
+      gradient: "linear-gradient(135deg, #607d8b, #37474f)",
+    },
+    {
+      name: "سماعات",
+      emoji: "🎧",
+      count: "40+",
+      gradient: "linear-gradient(135deg, #9c27b0, #4a148c)",
+    },
+    {
+      name: "شاشات",
+      emoji: "🖥️",
+      count: "25+",
+      gradient: "linear-gradient(135deg, #212121, #424242)",
+    },
+    {
+      name: "ألعاب",
+      emoji: "🎮",
+      count: "60+",
+      gradient: "linear-gradient(135deg, #4caf50, #1b5e20)",
+    },
+    {
+      name: "كاميرات",
+      emoji: "📷",
+      count: "20+",
+      gradient: "linear-gradient(135deg, #ff5722, #bf360c)",
+    },
   ],
   beauty: [
-    { name: 'عطور', emoji: '🌹', count: '80+', gradient: 'linear-gradient(135deg, #9c27b0, #4a148c)' },
-    { name: 'مكياج', emoji: '💄', count: '120+', gradient: 'linear-gradient(135deg, #e91e63, #880e4f)' },
-    { name: 'عناية بالبشرة', emoji: '✨', count: '60+', gradient: 'linear-gradient(135deg, #00bcd4, #006064)' },
-    { name: 'عناية بالشعر', emoji: '💆', count: '45+', gradient: 'linear-gradient(135deg, #ff9800, #e65100)' },
-    { name: 'أدوات تجميل', emoji: '🪞', count: '35+', gradient: 'linear-gradient(135deg, #f06292, #c2185b)' },
-    { name: 'هدايا', emoji: '🎁', count: '25+', gradient: 'linear-gradient(135deg, #ffd54f, #f9a825)' },
+    {
+      name: "عطور",
+      emoji: "🌹",
+      count: "80+",
+      gradient: "linear-gradient(135deg, #9c27b0, #4a148c)",
+    },
+    {
+      name: "مكياج",
+      emoji: "💄",
+      count: "120+",
+      gradient: "linear-gradient(135deg, #e91e63, #880e4f)",
+    },
+    {
+      name: "عناية بالبشرة",
+      emoji: "✨",
+      count: "60+",
+      gradient: "linear-gradient(135deg, #00bcd4, #006064)",
+    },
+    {
+      name: "عناية بالشعر",
+      emoji: "💆",
+      count: "45+",
+      gradient: "linear-gradient(135deg, #ff9800, #e65100)",
+    },
+    {
+      name: "أدوات تجميل",
+      emoji: "🪞",
+      count: "35+",
+      gradient: "linear-gradient(135deg, #f06292, #c2185b)",
+    },
+    {
+      name: "هدايا",
+      emoji: "🎁",
+      count: "25+",
+      gradient: "linear-gradient(135deg, #ffd54f, #f9a825)",
+    },
   ],
   food: [
-    { name: 'برجر', emoji: '🍔', count: '15+', gradient: 'linear-gradient(135deg, #ff9800, #e65100)' },
-    { name: 'بيتزا', emoji: '🍕', count: '12+', gradient: 'linear-gradient(135deg, #f44336, #c62828)' },
-    { name: 'سلطات', emoji: '🥗', count: '10+', gradient: 'linear-gradient(135deg, #4caf50, #2e7d32)' },
-    { name: 'مشويات', emoji: '🥩', count: '8+', gradient: 'linear-gradient(135deg, #795548, #3e2723)' },
-    { name: 'حلويات', emoji: '🍰', count: '20+', gradient: 'linear-gradient(135deg, #e91e63, #ad1457)' },
-    { name: 'مشروبات', emoji: '☕', count: '15+', gradient: 'linear-gradient(135deg, #6d4c41, #3e2723)' },
+    {
+      name: "برجر",
+      emoji: "🍔",
+      count: "15+",
+      gradient: "linear-gradient(135deg, #ff9800, #e65100)",
+    },
+    {
+      name: "بيتزا",
+      emoji: "🍕",
+      count: "12+",
+      gradient: "linear-gradient(135deg, #f44336, #c62828)",
+    },
+    {
+      name: "سلطات",
+      emoji: "🥗",
+      count: "10+",
+      gradient: "linear-gradient(135deg, #4caf50, #2e7d32)",
+    },
+    {
+      name: "مشويات",
+      emoji: "🥩",
+      count: "8+",
+      gradient: "linear-gradient(135deg, #795548, #3e2723)",
+    },
+    {
+      name: "حلويات",
+      emoji: "🍰",
+      count: "20+",
+      gradient: "linear-gradient(135deg, #e91e63, #ad1457)",
+    },
+    {
+      name: "مشروبات",
+      emoji: "☕",
+      count: "15+",
+      gradient: "linear-gradient(135deg, #6d4c41, #3e2723)",
+    },
   ],
   general: [
-    { name: 'الأكثر مبيعاً', emoji: '🔥', count: '50+', gradient: 'linear-gradient(135deg, #ff5722, #d84315)' },
-    { name: 'وصل حديثاً', emoji: '⭐', count: '30+', gradient: 'linear-gradient(135deg, #ffc107, #ff8f00)' },
-    { name: 'عروض خاصة', emoji: '🏷️', count: '25+', gradient: 'linear-gradient(135deg, #4caf50, #2e7d32)' },
-    { name: 'إلكترونيات', emoji: '📱', count: '40+', gradient: 'linear-gradient(135deg, #2196f3, #1565c0)' },
-    { name: 'أزياء', emoji: '👗', count: '35+', gradient: 'linear-gradient(135deg, #e91e63, #ad1457)' },
-    { name: 'منزل', emoji: '🏠', count: '20+', gradient: 'linear-gradient(135deg, #795548, #4e342e)' },
+    {
+      name: "الأكثر مبيعاً",
+      emoji: "🔥",
+      count: "50+",
+      gradient: "linear-gradient(135deg, #ff5722, #d84315)",
+    },
+    {
+      name: "وصل حديثاً",
+      emoji: "⭐",
+      count: "30+",
+      gradient: "linear-gradient(135deg, #ffc107, #ff8f00)",
+    },
+    {
+      name: "عروض خاصة",
+      emoji: "🏷️",
+      count: "25+",
+      gradient: "linear-gradient(135deg, #4caf50, #2e7d32)",
+    },
+    {
+      name: "إلكترونيات",
+      emoji: "📱",
+      count: "40+",
+      gradient: "linear-gradient(135deg, #2196f3, #1565c0)",
+    },
+    {
+      name: "أزياء",
+      emoji: "👗",
+      count: "35+",
+      gradient: "linear-gradient(135deg, #e91e63, #ad1457)",
+    },
+    {
+      name: "منزل",
+      emoji: "🏠",
+      count: "20+",
+      gradient: "linear-gradient(135deg, #795548, #4e342e)",
+    },
   ],
 };
 
 export const TESTIMONIALS_DATA: TestimonialData[] = [
-  { name: 'سارة المالكي', role: 'عميلة مميزة', text: 'تجربة تسوق رائعة! المنتجات أصلية 100% والتوصيل وصلني في نفس اليوم. أنصح الجميع بالتعامل معهم.', rating: 5, initials: 'سم' },
-  { name: 'محمد العتيبي', role: 'عميل دائم', text: 'أفضل متجر تعاملت معه في السعودية. خدمة العملاء ممتازة والمنتجات بجودة عالية. شكراً لكم!', rating: 5, initials: 'مع' },
-  { name: 'نورة القحطاني', role: 'مشترية معتمدة', text: 'جودة عالية وأسعار منافسة جداً. التغليف كان فاخر والمنتج مطابق للوصف تماماً. سأعود بالتأكيد!', rating: 5, initials: 'نق' },
-  { name: 'عبدالله الشمري', role: 'عميل VIP', text: 'من أضخم المتاجر الإلكترونية المحلية. تشكيلة واسعة وعروض مستمرة. التوصيل سريع ومجاني.', rating: 4, initials: 'عش' },
-  { name: 'ريم الحربي', role: 'عميلة جديدة', text: 'أول مرة أتعامل معهم وكانت تجربة مذهلة. سرعة في المعالجة والشحن. أكيد بكرر التجربة.', rating: 5, initials: 'رح' },
-  { name: 'فيصل الدوسري', role: 'عميل منتظم', text: 'ما لقيت متجر إلكتروني بهالمستوى من الاحترافية. الدفع سهل وآمن والمنتجات ممتازة.', rating: 5, initials: 'فد' },
+  {
+    name: "سارة المالكي",
+    role: "عميلة مميزة",
+    text: "تجربة تسوق رائعة! المنتجات أصلية 100% والتوصيل وصلني في نفس اليوم. أنصح الجميع بالتعامل معهم.",
+    rating: 5,
+    initials: "سم",
+  },
+  {
+    name: "محمد العتيبي",
+    role: "عميل دائم",
+    text: "أفضل متجر تعاملت معه في السعودية. خدمة العملاء ممتازة والمنتجات بجودة عالية. شكراً لكم!",
+    rating: 5,
+    initials: "مع",
+  },
+  {
+    name: "نورة القحطاني",
+    role: "مشترية معتمدة",
+    text: "جودة عالية وأسعار منافسة جداً. التغليف كان فاخر والمنتج مطابق للوصف تماماً. سأعود بالتأكيد!",
+    rating: 5,
+    initials: "نق",
+  },
+  {
+    name: "عبدالله الشمري",
+    role: "عميل VIP",
+    text: "من أضخم المتاجر الإلكترونية المحلية. تشكيلة واسعة وعروض مستمرة. التوصيل سريع ومجاني.",
+    rating: 4,
+    initials: "عش",
+  },
+  {
+    name: "ريم الحربي",
+    role: "عميلة جديدة",
+    text: "أول مرة أتعامل معهم وكانت تجربة مذهلة. سرعة في المعالجة والشحن. أكيد بكرر التجربة.",
+    rating: 5,
+    initials: "رح",
+  },
+  {
+    name: "فيصل الدوسري",
+    role: "عميل منتظم",
+    text: "ما لقيت متجر إلكتروني بهالمستوى من الاحترافية. الدفع سهل وآمن والمنتجات ممتازة.",
+    rating: 5,
+    initials: "فد",
+  },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -541,14 +1275,20 @@ function generateBaseCSS(theme: StoreTheme): string {
 // ═══════════════════════════════════════════════════════════════════════════
 
 function renderNavbar(props: Record<string, any>, storeName: string): string {
-  const links = props.links || ['الرئيسية', 'المنتجات', 'العروض', 'من نحن', 'تواصل معنا'];
-  const cta = props.cta || 'تسوق الآن';
+  const links = props.links || [
+    "الرئيسية",
+    "المنتجات",
+    "العروض",
+    "من نحن",
+    "تواصل معنا",
+  ];
+  const cta = props.cta || "تسوق الآن";
   return `
   <nav class="navbar" data-section-type="navbar">
     <div class="navbar-inner">
       <span class="logo">${storeName}</span>
       <div class="nav-links">
-        ${links.map((l: string) => `<a href="#">${l}</a>`).join('')}
+        ${links.map((l: string) => `<a href="#">${l}</a>`).join("")}
       </div>
       <div class="nav-icons">
         <button class="nav-icon" title="بحث">🔍</button>
@@ -562,10 +1302,12 @@ function renderNavbar(props: Record<string, any>, storeName: string): string {
 
 function renderHero(props: Record<string, any>, storeName: string): string {
   const title = props.title || `مرحباً بكم في ${storeName}`;
-  const subtitle = props.subtitle || 'اكتشفوا تشكيلتنا الفريدة من أفضل المنتجات بأسعار لا تُقاوم';
-  const cta = props.cta || 'تسوق الآن';
-  const cta2 = props.cta2 || 'اكتشف المزيد';
-  const height = props.height || '500px';
+  const subtitle =
+    props.subtitle ||
+    "اكتشفوا تشكيلتنا الفريدة من أفضل المنتجات بأسعار لا تُقاوم";
+  const cta = props.cta || "تسوق الآن";
+  const cta2 = props.cta2 || "اكتشف المزيد";
+  const height = props.height || "500px";
   return `
   <section class="hero" style="background:var(--hg);padding:0" data-section-type="hero" data-anim>
     <div class="hero-shapes">
@@ -576,7 +1318,7 @@ function renderHero(props: Record<string, any>, storeName: string): string {
     <div class="hero-content" style="min-height:${height};display:flex;align-items:center">
       <div class="container" style="width:100%">
         <div style="max-width:700px">
-          <div class="badge badge-p mb-16" style="background:rgba(255,255,255,.15);backdrop-filter:blur(10px);color:#fff">✨ ${props.badge || 'وصل حديثاً — مجموعة 2026'}</div>
+          <div class="badge badge-p mb-16" style="background:rgba(255,255,255,.15);backdrop-filter:blur(10px);color:#fff">✨ ${props.badge || "وصل حديثاً — مجموعة 2026"}</div>
           <h1 class="text-5xl font-black mb-24" style="color:#fff">${title}</h1>
           <p class="text-lg mb-32" style="color:rgba(255,255,255,.85);max-width:540px;line-height:1.8">${subtitle}</p>
           <div class="flex gap-16 flex-wrap">
@@ -589,10 +1331,14 @@ function renderHero(props: Record<string, any>, storeName: string): string {
   </section>`;
 }
 
-function renderHeroSplit(props: Record<string, any>, storeName: string): string {
+function renderHeroSplit(
+  props: Record<string, any>,
+  storeName: string,
+): string {
   const title = props.title || `اكتشف ${storeName}`;
-  const subtitle = props.subtitle || 'تشكيلة حصرية تجمع بين الأناقة والجودة العالية';
-  const emoji = props.emoji || '🛍️';
+  const subtitle =
+    props.subtitle || "تشكيلة حصرية تجمع بين الأناقة والجودة العالية";
+  const emoji = props.emoji || "🛍️";
   return `
   <section class="section" style="background:var(--sf)" data-section-type="hero-split" data-anim>
     <div class="container">
@@ -636,18 +1382,24 @@ function renderTrustBadges(_props: Record<string, any>): string {
   </section>`;
 }
 
-function renderCategories(props: Record<string, any>, storeType: string): string {
-  const categories = props.categories || CATEGORY_SETS[storeType] || CATEGORY_SETS.general;
+function renderCategories(
+  props: Record<string, any>,
+  storeType: string,
+): string {
+  const categories =
+    props.categories || CATEGORY_SETS[storeType] || CATEGORY_SETS.general;
   return `
   <section class="section" id="categories" data-section-type="categories" data-anim>
     <div class="container">
       <div class="section-header">
-        <h2>${props.title || 'تسوق حسب القسم'}</h2>
-        <p>${props.subtitle || 'اختر من تشكيلتنا المتنوعة'}</p>
+        <h2>${props.title || "تسوق حسب القسم"}</h2>
+        <p>${props.subtitle || "اختر من تشكيلتنا المتنوعة"}</p>
         <div class="line"></div>
       </div>
       <div class="grid grid-6 gap-16">
-        ${(categories as CategoryData[]).map((cat: CategoryData) => `
+        ${(categories as CategoryData[])
+          .map(
+            (cat: CategoryData) => `
           <div class="cat-card" style="background:${cat.gradient}">
             <div class="cat-inner">
               <span class="cat-emoji">${cat.emoji}</span>
@@ -655,28 +1407,33 @@ function renderCategories(props: Record<string, any>, storeType: string): string
               <div class="cat-count">${cat.count} منتج</div>
             </div>
           </div>
-        `).join('')}
+        `,
+          )
+          .join("")}
       </div>
     </div>
   </section>`;
 }
 
 function renderProducts(props: Record<string, any>, storeType: string): string {
-  const products = props.products || PRODUCT_SETS[storeType] || PRODUCT_SETS.general;
+  const products =
+    props.products || PRODUCT_SETS[storeType] || PRODUCT_SETS.general;
   const count = props.count || 8;
   const displayProducts = (products as ProductData[]).slice(0, count);
   return `
   <section class="section" id="products" data-section-type="products" data-anim>
     <div class="container">
       <div class="section-header">
-        <h2>${props.title || 'منتجات مميزة'}</h2>
-        <p>${props.subtitle || 'اكتشف أحدث المنتجات المختارة بعناية'}</p>
+        <h2>${props.title || "منتجات مميزة"}</h2>
+        <p>${props.subtitle || "اكتشف أحدث المنتجات المختارة بعناية"}</p>
         <div class="line"></div>
       </div>
       <div class="grid grid-4">
-        ${displayProducts.map((p: ProductData) => `
+        ${displayProducts
+          .map(
+            (p: ProductData) => `
           <div class="product-card">
-            ${p.badge ? `<span class="product-badge" style="background:${p.badge.includes('خصم') ? '#ff4757' : 'var(--a)'}">${p.badge}</span>` : ''}
+            ${p.badge ? `<span class="product-badge" style="background:${p.badge.includes("خصم") ? "#ff4757" : "var(--a)"}">${p.badge}</span>` : ""}
             <div class="product-img" style="background:${p.gradient}">
               ${p.emoji}
               <div class="product-actions">
@@ -689,11 +1446,13 @@ function renderProducts(props: Record<string, any>, storeType: string): string {
               <div class="product-name">${p.name}</div>
               <div class="flex items-center gap-8">
                 <span class="product-price">${p.price} ر.س</span>
-                ${p.oldPrice ? `<span class="product-old-price">${p.oldPrice} ر.س</span>` : ''}
+                ${p.oldPrice ? `<span class="product-old-price">${p.oldPrice} ر.س</span>` : ""}
               </div>
             </div>
           </div>
-        `).join('')}
+        `,
+          )
+          .join("")}
       </div>
       <div class="text-center mt-32">
         <a href="#" class="btn btn-o">عرض جميع المنتجات ←</a>
@@ -702,36 +1461,42 @@ function renderProducts(props: Record<string, any>, storeType: string): string {
   </section>`;
 }
 
-function renderProductsFeatured(props: Record<string, any>, storeType: string): string {
-  const products = props.products || PRODUCT_SETS[storeType] || PRODUCT_SETS.general;
+function renderProductsFeatured(
+  props: Record<string, any>,
+  storeType: string,
+): string {
+  const products =
+    props.products || PRODUCT_SETS[storeType] || PRODUCT_SETS.general;
   const main = (products as ProductData[])[0];
   const side = (products as ProductData[]).slice(1, 4);
   return `
   <section class="section" data-section-type="products-featured" data-anim>
     <div class="container">
       <div class="section-header">
-        <h2>${props.title || 'منتج مميز'}</h2>
-        <p>${props.subtitle || 'اختيارنا لهذا الأسبوع'}</p>
+        <h2>${props.title || "منتج مميز"}</h2>
+        <p>${props.subtitle || "اختيارنا لهذا الأسبوع"}</p>
         <div class="line"></div>
       </div>
       <div class="grid grid-2 items-center" style="gap:40px">
         <div class="card" style="padding:0;overflow:hidden">
           <div style="height:400px;background:${main.gradient};display:flex;align-items:center;justify-content:center;font-size:6rem;position:relative">
             ${main.emoji}
-            ${main.badge ? `<span class="product-badge" style="background:var(--a)">${main.badge}</span>` : ''}
+            ${main.badge ? `<span class="product-badge" style="background:var(--a)">${main.badge}</span>` : ""}
           </div>
         </div>
         <div>
-          <div class="badge badge-a mb-16">${main.badge || '⭐ اختيار المحرر'}</div>
+          <div class="badge badge-a mb-16">${main.badge || "⭐ اختيار المحرر"}</div>
           <h3 class="text-3xl font-black mb-12">${main.name}</h3>
           <p class="text-sec mb-24 leading-relaxed" style="font-size:1.05rem">منتج استثنائي بجودة فائقة. مصمم بعناية لتلبية أعلى المعايير وتجاوز توقعاتك. احصل عليه الآن واستمتع بتجربة فريدة.</p>
           <div class="flex items-center gap-16 mb-24">
             <span class="text-3xl font-black text-primary">${main.price} ر.س</span>
-            ${main.oldPrice ? `<span class="text-xl text-sec" style="text-decoration:line-through">${main.oldPrice} ر.س</span>` : ''}
+            ${main.oldPrice ? `<span class="text-xl text-sec" style="text-decoration:line-through">${main.oldPrice} ر.س</span>` : ""}
           </div>
           <a href="#" class="btn btn-p btn-lg">أضف للسلة 🛒</a>
           <div class="grid grid-3 mt-32" style="gap:16px">
-            ${side.map((p: ProductData) => `
+            ${side
+              .map(
+                (p: ProductData) => `
               <div class="card" style="cursor:pointer">
                 <div style="height:100px;background:${p.gradient};display:flex;align-items:center;justify-content:center;font-size:2rem">${p.emoji}</div>
                 <div class="p-16">
@@ -739,7 +1504,9 @@ function renderProductsFeatured(props: Record<string, any>, storeType: string): 
                   <div class="text-primary font-bold">${p.price} ر.س</div>
                 </div>
               </div>
-            `).join('')}
+            `,
+              )
+              .join("")}
           </div>
         </div>
       </div>
@@ -750,53 +1517,138 @@ function renderProductsFeatured(props: Record<string, any>, storeType: string): 
 function renderFeatures(props: Record<string, any>, storeType: string): string {
   const defaultFeatures: Record<string, FeatureData[]> = {
     fashion: [
-      { icon: '🚚', title: 'شحن مجاني', desc: 'توصيل مجاني لجميع الطلبات فوق 200 ر.س في المملكة' },
-      { icon: '↩️', title: 'إرجاع سهل', desc: 'إرجاع مجاني خلال 14 يوم بدون أي أسئلة' },
-      { icon: '✅', title: 'أصلية 100%', desc: 'جميع منتجاتنا أصلية مع شهادة ضمان معتمدة' },
-      { icon: '💳', title: 'دفع مرن', desc: 'ادفع بالبطاقة أو مدى أو أبل باي أو تقسيط' },
+      {
+        icon: "🚚",
+        title: "شحن مجاني",
+        desc: "توصيل مجاني لجميع الطلبات فوق 200 ر.س في المملكة",
+      },
+      {
+        icon: "↩️",
+        title: "إرجاع سهل",
+        desc: "إرجاع مجاني خلال 14 يوم بدون أي أسئلة",
+      },
+      {
+        icon: "✅",
+        title: "أصلية 100%",
+        desc: "جميع منتجاتنا أصلية مع شهادة ضمان معتمدة",
+      },
+      {
+        icon: "💳",
+        title: "دفع مرن",
+        desc: "ادفع بالبطاقة أو مدى أو أبل باي أو تقسيط",
+      },
     ],
     electronics: [
-      { icon: '🔧', title: 'ضمان سنتين', desc: 'ضمان شامل على جميع الأجهزة مع صيانة مجانية' },
-      { icon: '💬', title: 'دعم فني 24/7', desc: 'فريق دعم متخصص يساعدك في أي وقت' },
-      { icon: '🚀', title: 'توصيل سريع', desc: 'توصيل خلال 24 ساعة داخل المدن الرئيسية' },
-      { icon: '💰', title: 'أقساط بدون فوائد', desc: 'تقسيط مريح حتى 12 شهر بدون أي فوائد' },
+      {
+        icon: "🔧",
+        title: "ضمان سنتين",
+        desc: "ضمان شامل على جميع الأجهزة مع صيانة مجانية",
+      },
+      {
+        icon: "💬",
+        title: "دعم فني 24/7",
+        desc: "فريق دعم متخصص يساعدك في أي وقت",
+      },
+      {
+        icon: "🚀",
+        title: "توصيل سريع",
+        desc: "توصيل خلال 24 ساعة داخل المدن الرئيسية",
+      },
+      {
+        icon: "💰",
+        title: "أقساط بدون فوائد",
+        desc: "تقسيط مريح حتى 12 شهر بدون أي فوائد",
+      },
     ],
     beauty: [
-      { icon: '🌿', title: 'مكونات طبيعية', desc: 'منتجات مصنوعة من أجود المكونات الطبيعية' },
-      { icon: '🎁', title: 'عينات مجانية', desc: 'احصلي على عينات مجانية مع كل طلب' },
-      { icon: '👩‍⚕️', title: 'نصائح خبراء', desc: 'استشارات مجانية من خبراء التجميل والعناية' },
-      { icon: '📦', title: 'تغليف فاخر', desc: 'تغليف احترافي يليق بجمال منتجاتنا' },
+      {
+        icon: "🌿",
+        title: "مكونات طبيعية",
+        desc: "منتجات مصنوعة من أجود المكونات الطبيعية",
+      },
+      {
+        icon: "🎁",
+        title: "عينات مجانية",
+        desc: "احصلي على عينات مجانية مع كل طلب",
+      },
+      {
+        icon: "👩‍⚕️",
+        title: "نصائح خبراء",
+        desc: "استشارات مجانية من خبراء التجميل والعناية",
+      },
+      {
+        icon: "📦",
+        title: "تغليف فاخر",
+        desc: "تغليف احترافي يليق بجمال منتجاتنا",
+      },
     ],
     food: [
-      { icon: '🕐', title: 'توصيل 30 دقيقة', desc: 'طلبك يوصلك خلال 30 دقيقة أو أقل' },
-      { icon: '🌿', title: 'مكونات طازجة', desc: 'نستخدم أفضل المكونات الطازجة يومياً' },
-      { icon: '👨‍🍳', title: 'طهاة محترفون', desc: 'طهاة بخبرة عالمية يعدون وجباتك بعناية' },
-      { icon: '♻️', title: 'تغليف صديق للبيئة', desc: 'عبوات قابلة لإعادة التدوير بنسبة 100%' },
+      {
+        icon: "🕐",
+        title: "توصيل 30 دقيقة",
+        desc: "طلبك يوصلك خلال 30 دقيقة أو أقل",
+      },
+      {
+        icon: "🌿",
+        title: "مكونات طازجة",
+        desc: "نستخدم أفضل المكونات الطازجة يومياً",
+      },
+      {
+        icon: "👨‍🍳",
+        title: "طهاة محترفون",
+        desc: "طهاة بخبرة عالمية يعدون وجباتك بعناية",
+      },
+      {
+        icon: "♻️",
+        title: "تغليف صديق للبيئة",
+        desc: "عبوات قابلة لإعادة التدوير بنسبة 100%",
+      },
     ],
     default: [
-      { icon: '🚚', title: 'شحن سريع', desc: 'توصيل سريع لجميع المناطق في المملكة' },
-      { icon: '🔒', title: 'دفع آمن', desc: 'حماية كاملة لبياناتك المالية مع أحدث تقنيات التشفير' },
-      { icon: '↩️', title: 'استرجاع مجاني', desc: 'إرجاع مجاني خلال 14 يوم بدون أي شروط' },
-      { icon: '💬', title: 'دعم متواصل', desc: 'فريق خدمة عملاء متاح على مدار الساعة' },
+      {
+        icon: "🚚",
+        title: "شحن سريع",
+        desc: "توصيل سريع لجميع المناطق في المملكة",
+      },
+      {
+        icon: "🔒",
+        title: "دفع آمن",
+        desc: "حماية كاملة لبياناتك المالية مع أحدث تقنيات التشفير",
+      },
+      {
+        icon: "↩️",
+        title: "استرجاع مجاني",
+        desc: "إرجاع مجاني خلال 14 يوم بدون أي شروط",
+      },
+      {
+        icon: "💬",
+        title: "دعم متواصل",
+        desc: "فريق خدمة عملاء متاح على مدار الساعة",
+      },
     ],
   };
-  const features = props.features || defaultFeatures[storeType] || defaultFeatures.default;
+  const features =
+    props.features || defaultFeatures[storeType] || defaultFeatures.default;
   return `
   <section class="section" id="features" style="background:var(--sf)" data-section-type="features" data-anim>
     <div class="container">
       <div class="section-header">
-        <h2>${props.title || 'لماذا تختارنا؟'}</h2>
-        <p>${props.subtitle || 'نقدم لك تجربة تسوق لا مثيل لها'}</p>
+        <h2>${props.title || "لماذا تختارنا؟"}</h2>
+        <p>${props.subtitle || "نقدم لك تجربة تسوق لا مثيل لها"}</p>
         <div class="line"></div>
       </div>
       <div class="grid grid-4">
-        ${(features as FeatureData[]).map((f: FeatureData) => `
+        ${(features as FeatureData[])
+          .map(
+            (f: FeatureData) => `
           <div class="feature-card">
             <div class="feature-icon">${f.icon}</div>
             <div class="feature-title">${f.title}</div>
             <div class="feature-desc">${f.desc}</div>
           </div>
-        `).join('')}
+        `,
+          )
+          .join("")}
       </div>
     </div>
   </section>`;
@@ -808,14 +1660,16 @@ function renderTestimonials(props: Record<string, any>): string {
   <section class="section" data-section-type="testimonials" data-anim>
     <div class="container">
       <div class="section-header">
-        <h2>${props.title || 'آراء عملائنا'}</h2>
-        <p>${props.subtitle || 'ثقة أكثر من 10,000 عميل سعيد'}</p>
+        <h2>${props.title || "آراء عملائنا"}</h2>
+        <p>${props.subtitle || "ثقة أكثر من 10,000 عميل سعيد"}</p>
         <div class="line"></div>
       </div>
       <div class="grid grid-3">
-        ${(testimonials as TestimonialData[]).map((t: TestimonialData) => `
+        ${(testimonials as TestimonialData[])
+          .map(
+            (t: TestimonialData) => `
           <div class="testimonial-card">
-            <div class="stars">${'★'.repeat(t.rating)}${'☆'.repeat(5 - t.rating)}</div>
+            <div class="stars">${"★".repeat(t.rating)}${"☆".repeat(5 - t.rating)}</div>
             <div class="testimonial-text">${t.text}</div>
             <div class="testimonial-author">
               <div class="testimonial-avatar">${t.initials}</div>
@@ -825,7 +1679,9 @@ function renderTestimonials(props: Record<string, any>): string {
               </div>
             </div>
           </div>
-        `).join('')}
+        `,
+          )
+          .join("")}
       </div>
     </div>
   </section>`;
@@ -836,11 +1692,11 @@ function renderNewsletter(props: Record<string, any>): string {
   <section class="section-sm" data-section-type="newsletter" data-anim>
     <div class="container">
       <div class="newsletter-box">
-        <h3>${props.title || 'اشترك في نشرتنا البريدية'}</h3>
-        <p>${props.subtitle || 'احصل على أحدث العروض والمنتجات الجديدة مباشرة في بريدك'}</p>
+        <h3>${props.title || "اشترك في نشرتنا البريدية"}</h3>
+        <p>${props.subtitle || "احصل على أحدث العروض والمنتجات الجديدة مباشرة في بريدك"}</p>
         <div class="newsletter-form">
           <input type="email" class="newsletter-input" placeholder="أدخل بريدك الإلكتروني" dir="rtl">
-          <button class="newsletter-btn btn-w">${props.btnText || 'اشترك الآن'}</button>
+          <button class="newsletter-btn btn-w">${props.btnText || "اشترك الآن"}</button>
         </div>
       </div>
     </div>
@@ -850,44 +1706,57 @@ function renderNewsletter(props: Record<string, any>): string {
 function renderBanner(props: Record<string, any>): string {
   return `
   <div class="promo-banner" data-section-type="banner">
-    ${props.emoji || '🎉'} ${props.text || 'خصم 30% على جميع المنتجات — استخدم كود: SAVE30'}
+    ${props.emoji || "🎉"} ${props.text || "خصم 30% على جميع المنتجات — استخدم كود: SAVE30"}
     <a href="#">تسوق الآن</a>
   </div>`;
 }
 
 function renderStats(props: Record<string, any>): string {
   const stats = props.stats || [
-    { value: '+10K', label: 'عميل سعيد' },
-    { value: '+500', label: 'منتج متوفر' },
-    { value: '+50K', label: 'طلب منجز' },
-    { value: '4.9', label: 'تقييم العملاء' },
+    { value: "+10K", label: "عميل سعيد" },
+    { value: "+500", label: "منتج متوفر" },
+    { value: "+50K", label: "طلب منجز" },
+    { value: "4.9", label: "تقييم العملاء" },
   ];
   return `
   <section class="section-sm" style="background:var(--sf)" data-section-type="stats" data-anim>
     <div class="container">
       <div class="grid grid-4">
-        ${(stats as Array<{value: string; label: string}>).map(s => `
+        ${(stats as Array<{ value: string; label: string }>)
+          .map(
+            (s) => `
           <div class="stat-item">
             <div class="stat-value">${s.value}</div>
             <div class="stat-label">${s.label}</div>
           </div>
-        `).join('')}
+        `,
+          )
+          .join("")}
       </div>
     </div>
   </section>`;
 }
 
 function renderBrands(props: Record<string, any>): string {
-  const brands = props.brands || ['Apple', 'Samsung', 'Nike', 'Adidas', 'Chanel', 'Dior', 'Gucci', 'Louis Vuitton'];
+  const brands = props.brands || [
+    "Apple",
+    "Samsung",
+    "Nike",
+    "Adidas",
+    "Chanel",
+    "Dior",
+    "Gucci",
+    "Louis Vuitton",
+  ];
   return `
   <section class="section-sm" data-section-type="brands" data-anim>
     <div class="container">
       <div class="section-header">
-        <h2>${props.title || 'علاماتنا التجارية'}</h2>
+        <h2>${props.title || "علاماتنا التجارية"}</h2>
         <div class="line"></div>
       </div>
       <div class="brands-row">
-        ${(brands as string[]).map((b: string) => `<span class="brand-item">${b}</span>`).join('')}
+        ${(brands as string[]).map((b: string) => `<span class="brand-item">${b}</span>`).join("")}
       </div>
     </div>
   </section>`;
@@ -895,20 +1764,43 @@ function renderBrands(props: Record<string, any>): string {
 
 function renderOffers(props: Record<string, any>): string {
   const offers = props.offers || [
-    { emoji: '🔥', title: 'تخفيضات الموسم', desc: 'خصومات تصل حتى 50% على آخر مجموعة', tag: 'عرض محدود', price: 'يبدأ من 99 ر.س', gradient: 'linear-gradient(135deg, #e74c3c, #c0392b)' },
-    { emoji: '⭐', title: 'منتجات VIP', desc: 'منتجات حصرية لأعضاء النادي فقط', tag: 'حصري', price: 'يبدأ من 199 ر.س', gradient: 'linear-gradient(135deg, #8e44ad, #6c3483)' },
-    { emoji: '🎁', title: 'اشترِ 2 واحصل على 1', desc: 'عرض خاص على منتجات مختارة', tag: 'أكثر توفيراً', price: 'وفر حتى 300 ر.س', gradient: 'linear-gradient(135deg, #27ae60, #1e8449)' },
+    {
+      emoji: "🔥",
+      title: "تخفيضات الموسم",
+      desc: "خصومات تصل حتى 50% على آخر مجموعة",
+      tag: "عرض محدود",
+      price: "يبدأ من 99 ر.س",
+      gradient: "linear-gradient(135deg, #e74c3c, #c0392b)",
+    },
+    {
+      emoji: "⭐",
+      title: "منتجات VIP",
+      desc: "منتجات حصرية لأعضاء النادي فقط",
+      tag: "حصري",
+      price: "يبدأ من 199 ر.س",
+      gradient: "linear-gradient(135deg, #8e44ad, #6c3483)",
+    },
+    {
+      emoji: "🎁",
+      title: "اشترِ 2 واحصل على 1",
+      desc: "عرض خاص على منتجات مختارة",
+      tag: "أكثر توفيراً",
+      price: "وفر حتى 300 ر.س",
+      gradient: "linear-gradient(135deg, #27ae60, #1e8449)",
+    },
   ];
   return `
   <section class="section" data-section-type="offers" data-anim>
     <div class="container">
       <div class="section-header">
-        <h2>${props.title || '🔥 عروض لا تفوّت'}</h2>
-        <p>${props.subtitle || 'عروض محدودة — اغتنم الفرصة قبل النفاد'}</p>
+        <h2>${props.title || "🔥 عروض لا تفوّت"}</h2>
+        <p>${props.subtitle || "عروض محدودة — اغتنم الفرصة قبل النفاد"}</p>
         <div class="line"></div>
       </div>
       <div class="grid grid-3">
-        ${(offers as any[]).map(o => `
+        ${(offers as any[])
+          .map(
+            (o) => `
           <div class="offer-card" style="background:${o.gradient}">
             <span class="offer-tag">${o.tag}</span>
             <span class="offer-emoji">${o.emoji}</span>
@@ -917,7 +1809,9 @@ function renderOffers(props: Record<string, any>): string {
             <div class="offer-price">${o.price}</div>
             <a href="#" class="btn btn-w btn-sm mt-16">اكتشف العرض ←</a>
           </div>
-        `).join('')}
+        `,
+          )
+          .join("")}
       </div>
     </div>
   </section>`;
@@ -929,8 +1823,8 @@ function renderCountdown(props: Record<string, any>): string {
     <div class="container">
       <div class="countdown-section">
         <div class="badge" style="background:rgba(255,255,255,.15);color:#fff;backdrop-filter:blur(10px);margin-bottom:16px;display:inline-block">⏰ عرض لفترة محدودة</div>
-        <h2 class="text-3xl font-black mb-8">${props.title || 'تخفيضات نهاية الموسم'}</h2>
-        <p class="opacity-80">${props.subtitle || 'خصم يصل إلى 70% — ينتهي قريباً!'}</p>
+        <h2 class="text-3xl font-black mb-8">${props.title || "تخفيضات نهاية الموسم"}</h2>
+        <p class="opacity-80">${props.subtitle || "خصم يصل إلى 70% — ينتهي قريباً!"}</p>
         <div class="countdown-grid">
           <div class="countdown-item"><span class="countdown-value">03</span><span class="countdown-label">أيام</span></div>
           <div class="countdown-item"><span class="countdown-value">12</span><span class="countdown-label">ساعة</span></div>
@@ -945,36 +1839,40 @@ function renderCountdown(props: Record<string, any>): string {
 
 function renderGallery(props: Record<string, any>, storeType: string): string {
   const emojis: Record<string, string[]> = {
-    fashion: ['👗', '👠', '👜', '💍', '⌚', '🧥', '👔', '🕶️'],
-    beauty: ['🌹', '💄', '✨', '🌸', '🧴', '🎀', '💅', '🪞'],
-    food: ['🍔', '🍕', '🥗', '🍰', '☕', '🍣', '🥤', '🍝'],
-    default: ['📸', '🎨', '🌟', '💫', '🎪', '🌈', '🎭', '✨'],
+    fashion: ["👗", "👠", "👜", "💍", "⌚", "🧥", "👔", "🕶️"],
+    beauty: ["🌹", "💄", "✨", "🌸", "🧴", "🎀", "💅", "🪞"],
+    food: ["🍔", "🍕", "🥗", "🍰", "☕", "🍣", "🥤", "🍝"],
+    default: ["📸", "🎨", "🌟", "💫", "🎪", "🌈", "🎭", "✨"],
   };
   const icons = emojis[storeType] || emojis.default;
   const gradients = [
-    'linear-gradient(135deg, #667eea, #764ba2)',
-    'linear-gradient(135deg, #f093fb, #f5576c)',
-    'linear-gradient(135deg, #4facfe, #00f2fe)',
-    'linear-gradient(135deg, #43e97b, #38f9d7)',
-    'linear-gradient(135deg, #fa709a, #fee140)',
-    'linear-gradient(135deg, #a18cd1, #fbc2eb)',
-    'linear-gradient(135deg, #fccb90, #d57eeb)',
-    'linear-gradient(135deg, #e0c3fc, #8ec5fc)',
+    "linear-gradient(135deg, #667eea, #764ba2)",
+    "linear-gradient(135deg, #f093fb, #f5576c)",
+    "linear-gradient(135deg, #4facfe, #00f2fe)",
+    "linear-gradient(135deg, #43e97b, #38f9d7)",
+    "linear-gradient(135deg, #fa709a, #fee140)",
+    "linear-gradient(135deg, #a18cd1, #fbc2eb)",
+    "linear-gradient(135deg, #fccb90, #d57eeb)",
+    "linear-gradient(135deg, #e0c3fc, #8ec5fc)",
   ];
   return `
   <section class="section" data-section-type="gallery" data-anim>
     <div class="container">
       <div class="section-header">
-        <h2>${props.title || '📸 معرض الصور'}</h2>
-        <p>${props.subtitle || 'لمحات من أجمل منتجاتنا'}</p>
+        <h2>${props.title || "📸 معرض الصور"}</h2>
+        <p>${props.subtitle || "لمحات من أجمل منتجاتنا"}</p>
         <div class="line"></div>
       </div>
       <div class="gallery-grid">
-        ${icons.map((icon: string, i: number) => `
+        ${icons
+          .map(
+            (icon: string, i: number) => `
           <div class="gallery-item" style="background:${gradients[i]}">
             ${icon}
           </div>
-        `).join('')}
+        `,
+          )
+          .join("")}
       </div>
     </div>
   </section>`;
@@ -985,11 +1883,11 @@ function renderCTA(props: Record<string, any>): string {
   <section class="section-sm" data-section-type="cta" data-anim>
     <div class="container">
       <div class="cta-section">
-        <h2>${props.title || 'جاهز تبدأ التسوق؟'}</h2>
-        <p>${props.subtitle || 'آلاف المنتجات بانتظارك — ابدأ الآن واستمتع بعروض حصرية'}</p>
+        <h2>${props.title || "جاهز تبدأ التسوق؟"}</h2>
+        <p>${props.subtitle || "آلاف المنتجات بانتظارك — ابدأ الآن واستمتع بعروض حصرية"}</p>
         <div class="flex justify-center gap-16" style="position:relative;z-index:1">
-          <a href="#" class="btn btn-w btn-lg">${props.cta || 'تسوق الآن'} ←</a>
-          <a href="#" class="btn btn-lg" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3)">${props.cta2 || 'تواصل معنا'}</a>
+          <a href="#" class="btn btn-w btn-lg">${props.cta || "تسوق الآن"} ←</a>
+          <a href="#" class="btn btn-lg" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3)">${props.cta2 || "تواصل معنا"}</a>
         </div>
       </div>
     </div>
@@ -998,21 +1896,38 @@ function renderCTA(props: Record<string, any>): string {
 
 function renderFAQ(props: Record<string, any>): string {
   const faqs = props.items || [
-    { q: 'كم مدة التوصيل؟', a: 'التوصيل داخل المدن الرئيسية خلال 24 ساعة، وباقي المناطق خلال 2-5 أيام عمل. نوفر أيضاً خيار التوصيل السريع.' },
-    { q: 'هل يمكنني إرجاع المنتج؟', a: 'نعم، يمكنك إرجاع أي منتج خلال 14 يوم من تاريخ الاستلام بدون أي شروط. سنقوم بإرسال مندوب لاستلام المنتج.' },
-    { q: 'ما طرق الدفع المتاحة؟', a: 'نقبل الدفع بالبطاقات البنكية (فيزا/ماستركارد)، مدى، أبل باي، تحويل بنكي، والدفع عند الاستلام في بعض المناطق.' },
-    { q: 'هل المنتجات أصلية؟', a: 'جميع منتجاتنا أصلية 100% ومستوردة مباشرة من الشركات المصنعة. نقدم شهادة أصالة مع كل منتج.' },
-    { q: 'كيف أتابع طلبي؟', a: 'بعد تأكيد طلبك، ستصلك رسالة على الإيميل والجوال تحتوي رقم التتبع. يمكنك متابعة حالة طلبك من صفحة "طلباتي" أو عبر رابط التتبع.' },
+    {
+      q: "كم مدة التوصيل؟",
+      a: "التوصيل داخل المدن الرئيسية خلال 24 ساعة، وباقي المناطق خلال 2-5 أيام عمل. نوفر أيضاً خيار التوصيل السريع.",
+    },
+    {
+      q: "هل يمكنني إرجاع المنتج؟",
+      a: "نعم، يمكنك إرجاع أي منتج خلال 14 يوم من تاريخ الاستلام بدون أي شروط. سنقوم بإرسال مندوب لاستلام المنتج.",
+    },
+    {
+      q: "ما طرق الدفع المتاحة؟",
+      a: "نقبل الدفع بالبطاقات البنكية (فيزا/ماستركارد)، مدى، أبل باي، تحويل بنكي، والدفع عند الاستلام في بعض المناطق.",
+    },
+    {
+      q: "هل المنتجات أصلية؟",
+      a: "جميع منتجاتنا أصلية 100% ومستوردة مباشرة من الشركات المصنعة. نقدم شهادة أصالة مع كل منتج.",
+    },
+    {
+      q: "كيف أتابع طلبي؟",
+      a: 'بعد تأكيد طلبك، ستصلك رسالة على الإيميل والجوال تحتوي رقم التتبع. يمكنك متابعة حالة طلبك من صفحة "طلباتي" أو عبر رابط التتبع.',
+    },
   ];
   return `
   <section class="section" style="background:var(--sf)" data-section-type="faq" data-anim>
     <div class="container" style="max-width:800px">
       <div class="section-header">
-        <h2>${props.title || 'الأسئلة الشائعة'}</h2>
-        <p>${props.subtitle || 'إجابات لأكثر الأسئلة شيوعاً'}</p>
+        <h2>${props.title || "الأسئلة الشائعة"}</h2>
+        <p>${props.subtitle || "إجابات لأكثر الأسئلة شيوعاً"}</p>
         <div class="line"></div>
       </div>
-      ${(faqs as any[]).map(f => `
+      ${(faqs as any[])
+        .map(
+          (f) => `
         <div class="faq-item">
           <div class="faq-q">
             <span>${f.q}</span>
@@ -1020,7 +1935,9 @@ function renderFAQ(props: Record<string, any>): string {
           </div>
           <div class="faq-a">${f.a}</div>
         </div>
-      `).join('')}
+      `,
+        )
+        .join("")}
     </div>
   </section>`;
 }
@@ -1030,8 +1947,8 @@ function renderContact(props: Record<string, any>, storeName: string): string {
   <section class="section" data-section-type="contact" data-anim>
     <div class="container">
       <div class="section-header">
-        <h2>${props.title || 'تواصل معنا'}</h2>
-        <p>${props.subtitle || 'نسعد بخدمتك — تواصل معنا في أي وقت'}</p>
+        <h2>${props.title || "تواصل معنا"}</h2>
+        <p>${props.subtitle || "نسعد بخدمتك — تواصل معنا في أي وقت"}</p>
         <div class="line"></div>
       </div>
       <div class="contact-grid">
@@ -1042,7 +1959,7 @@ function renderContact(props: Record<string, any>, storeName: string): string {
           </div>
           <div class="contact-info-item">
             <div class="contact-icon">📧</div>
-            <div><strong>البريد الإلكتروني</strong><br><span class="text-sec">info@${storeName.replace(/\s+/g, '').toLowerCase()}.com</span></div>
+            <div><strong>البريد الإلكتروني</strong><br><span class="text-sec">info@${storeName.replace(/\s+/g, "").toLowerCase()}.com</span></div>
           </div>
           <div class="contact-info-item">
             <div class="contact-icon">📞</div>
@@ -1130,32 +2047,59 @@ function renderSpacer(_props: Record<string, any>): string {
 // Section Router
 // ═══════════════════════════════════════════════════════════════════════════
 
-function renderSection(section: SectionConfig, storeName: string, storeType: string): string {
+function renderSection(
+  section: SectionConfig,
+  storeName: string,
+  storeType: string,
+): string {
   const p = section.props || {};
   switch (section.type) {
-    case 'navbar': return renderNavbar(p, storeName);
-    case 'hero': return renderHero(p, storeName);
-    case 'hero-split': return renderHeroSplit(p, storeName);
-    case 'trust-badges': return renderTrustBadges(p);
-    case 'categories': return renderCategories(p, storeType);
-    case 'products': return renderProducts(p, storeType);
-    case 'products-featured': return renderProductsFeatured(p, storeType);
-    case 'features': return renderFeatures(p, storeType);
-    case 'testimonials': return renderTestimonials(p);
-    case 'newsletter': return renderNewsletter(p);
-    case 'banner': return renderBanner(p);
-    case 'stats': return renderStats(p);
-    case 'brands': return renderBrands(p);
-    case 'offers': return renderOffers(p);
-    case 'countdown': return renderCountdown(p);
-    case 'gallery': return renderGallery(p, storeType);
-    case 'cta': return renderCTA(p);
-    case 'faq': return renderFAQ(p);
-    case 'contact': return renderContact(p, storeName);
-    case 'footer': return renderFooter(p, storeName);
-    case 'footer-rich': return renderFooter(p, storeName);
-    case 'spacer': return renderSpacer(p);
-    default: return `<!-- Unknown section: ${section.type} -->`;
+    case "navbar":
+      return renderNavbar(p, storeName);
+    case "hero":
+      return renderHero(p, storeName);
+    case "hero-split":
+      return renderHeroSplit(p, storeName);
+    case "trust-badges":
+      return renderTrustBadges(p);
+    case "categories":
+      return renderCategories(p, storeType);
+    case "products":
+      return renderProducts(p, storeType);
+    case "products-featured":
+      return renderProductsFeatured(p, storeType);
+    case "features":
+      return renderFeatures(p, storeType);
+    case "testimonials":
+      return renderTestimonials(p);
+    case "newsletter":
+      return renderNewsletter(p);
+    case "banner":
+      return renderBanner(p);
+    case "stats":
+      return renderStats(p);
+    case "brands":
+      return renderBrands(p);
+    case "offers":
+      return renderOffers(p);
+    case "countdown":
+      return renderCountdown(p);
+    case "gallery":
+      return renderGallery(p, storeType);
+    case "cta":
+      return renderCTA(p);
+    case "faq":
+      return renderFAQ(p);
+    case "contact":
+      return renderContact(p, storeName);
+    case "footer":
+      return renderFooter(p, storeName);
+    case "footer-rich":
+      return renderFooter(p, storeName);
+    case "spacer":
+      return renderSpacer(p);
+    default:
+      return `<!-- Unknown section: ${section.type} -->`;
   }
 }
 
@@ -1167,10 +2111,12 @@ export function generateStoreHTML(
   storeName: string,
   storeType: string,
   theme: StoreTheme,
-  sections: SectionConfig[]
+  sections: SectionConfig[],
 ): string {
   const css = generateBaseCSS(theme);
-  const body = sections.map(s => renderSection(s, storeName, storeType)).join('\n');
+  const body = sections
+    .map((s) => renderSection(s, storeName, storeType))
+    .join("\n");
 
   return `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -1221,53 +2167,3 @@ ${body}
 </body>
 </html>`;
 }
-
-// ═══════════════════════════════════════════════════════════════════════════
-// Individual Section HTML (for drag-and-drop adding)
-// ═══════════════════════════════════════════════════════════════════════════
-
-export function generateSingleSectionHTML(
-  sectionType: SectionType,
-  props: Record<string, any>,
-  storeName: string,
-  storeType: string
-): string {
-  return renderSection({ id: `section-${Date.now()}`, type: sectionType, props }, storeName, storeType);
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// Section Library — metadata for UI
-// ═══════════════════════════════════════════════════════════════════════════
-
-export interface SectionLibraryItem {
-  type: SectionType;
-  name: string;
-  nameEn: string;
-  icon: string;
-  category: 'hero' | 'content' | 'products' | 'social' | 'marketing' | 'footer';
-  description: string;
-}
-
-export const SECTION_LIBRARY: SectionLibraryItem[] = [
-  { type: 'navbar', name: 'شريط التنقل', nameEn: 'Navbar', icon: '📋', category: 'hero', description: 'شريط تنقل احترافي مع لوقو وروابط وأيقونات' },
-  { type: 'hero', name: 'بطل كامل العرض', nameEn: 'Full Hero', icon: '🎬', category: 'hero', description: 'قسم رئيسي كامل العرض مع عنوان كبير وزر إجراء' },
-  { type: 'hero-split', name: 'بطل مقسم', nameEn: 'Split Hero', icon: '📐', category: 'hero', description: 'قسم رئيسي مقسم نصفين — نص + صورة' },
-  { type: 'trust-badges', name: 'شارات الثقة', nameEn: 'Trust Badges', icon: '✅', category: 'marketing', description: 'شارات شحن مجاني ودفع آمن وإرجاع سهل' },
-  { type: 'banner', name: 'بانر إعلاني', nameEn: 'Banner', icon: '📢', category: 'marketing', description: 'شريط إعلاني بعرض مميز وكود خصم' },
-  { type: 'categories', name: 'أقسام المتجر', nameEn: 'Categories', icon: '📂', category: 'content', description: 'شبكة أقسام ملونة مع أيقونات وعدد المنتجات' },
-  { type: 'products', name: 'شبكة المنتجات', nameEn: 'Products Grid', icon: '🛍️', category: 'products', description: 'شبكة منتجات احترافية مع بطاقات وأسعار وأزرار' },
-  { type: 'products-featured', name: 'منتج مميز', nameEn: 'Featured Product', icon: '⭐', category: 'products', description: 'عرض منتج مميز كبير مع تفاصيل وصف وسعر' },
-  { type: 'features', name: 'المميزات', nameEn: 'Features', icon: '💡', category: 'content', description: '4 مميزات مع أيقونات وعناوين ووصف' },
-  { type: 'offers', name: 'عروض خاصة', nameEn: 'Offers', icon: '🔥', category: 'marketing', description: '3 كروت عروض ملونة مع أسعار وأزرار' },
-  { type: 'countdown', name: 'عداد تنازلي', nameEn: 'Countdown', icon: '⏰', category: 'marketing', description: 'عداد تنازلي للعروض مع أرقام متحركة' },
-  { type: 'testimonials', name: 'آراء العملاء', nameEn: 'Testimonials', icon: '💬', category: 'social', description: '3 كروت تقييمات عملاء مع نجوم وصور' },
-  { type: 'stats', name: 'إحصائيات', nameEn: 'Stats', icon: '📊', category: 'content', description: 'أرقام وإحصائيات (عملاء، منتجات، طلبات)' },
-  { type: 'brands', name: 'العلامات التجارية', nameEn: 'Brands', icon: '🏢', category: 'social', description: 'شريط شعارات العلامات التجارية الشريكة' },
-  { type: 'gallery', name: 'معرض صور', nameEn: 'Gallery', icon: '📸', category: 'content', description: 'شبكة صور ملونة بتأثير hover جميل' },
-  { type: 'newsletter', name: 'نشرة بريدية', nameEn: 'Newsletter', icon: '📧', category: 'marketing', description: 'قسم اشتراك بالبريد مع حقل إدخال وزر' },
-  { type: 'cta', name: 'دعوة للإجراء', nameEn: 'CTA', icon: '🎯', category: 'marketing', description: 'قسم دعوة للإجراء مع عنوان كبير وأزرار' },
-  { type: 'faq', name: 'أسئلة شائعة', nameEn: 'FAQ', icon: '❓', category: 'content', description: 'قسم أسئلة وأجوبة تفاعلي (أكورديون)' },
-  { type: 'contact', name: 'تواصل معنا', nameEn: 'Contact', icon: '📞', category: 'content', description: 'نموذج تواصل مع معلومات الاتصال' },
-  { type: 'footer', name: 'تذييل الصفحة', nameEn: 'Footer', icon: '🔚', category: 'footer', description: 'تذييل صفحة كامل مع روابط ووسائل تواصل ودفع' },
-  { type: 'spacer', name: 'مسافة فارغة', nameEn: 'Spacer', icon: '↕️', category: 'content', description: 'مسافة فارغة بين الأقسام' },
-];
