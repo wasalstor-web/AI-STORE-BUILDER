@@ -1,0 +1,15 @@
+{
+  "enabledMcpjsonServers": [
+    "figma",
+    "github",
+    "context7",
+    "supabase",
+    "postgres",
+    "filesystem",
+    "puppeteer",
+    "memory",
+    "sequential-thinking",
+    "fetch"
+  ],
+  "enableAllProjectMcpServers": true
+}

@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { AlertTriangle, RotateCcw, Home } from 'lucide-react';
+import AppBackdrop from './graphics/AppBackdrop';
 
 interface Props {
   children: ReactNode;
@@ -34,8 +35,9 @@ export default class ErrorBoundary extends Component<Props, State> {
       if (this.props.fallback) return this.props.fallback;
 
       return (
-        <div className="min-h-screen bg-dark-bg flex items-center justify-center px-6">
-          <div className="text-center max-w-md">
+        <div className="app-shell min-h-screen bg-dark-bg flex items-center justify-center px-6">
+          <AppBackdrop variant="app" intensity="max" focus="center" />
+          <div className="app-content text-center max-w-md">
             <div className="w-20 h-20 rounded-3xl bg-danger/10 border border-danger/20 flex items-center justify-center mx-auto mb-6">
               <AlertTriangle className="w-10 h-10 text-danger" />
             </div>

@@ -97,30 +97,43 @@ app.add_middleware(
 )
 
 # -- Import & register routers --
-from app.api.ai_chat import router as ai_chat_router  # noqa: E402
-from app.api.auth import router as auth_router  # noqa: E402
-from app.api.categories import router as categories_router  # noqa: E402
 from app.api.health import router as health_router  # noqa: E402
+from app.api.auth import router as auth_router  # noqa: E402
+from app.api.tenants import router as tenants_router  # noqa: E402
+from app.api.stores import router as stores_router  # noqa: E402
 from app.api.jobs import router as jobs_router  # noqa: E402
-from app.api.orders import router as orders_router  # noqa: E402
-from app.api.payments import router as payments_router  # noqa: E402
+from app.api.ai_chat import router as ai_chat_router  # noqa: E402
 from app.api.preview import router as preview_router  # noqa: E402
 from app.api.products import router as products_router  # noqa: E402
-from app.api.stores import router as stores_router  # noqa: E402
-from app.api.tenants import router as tenants_router  # noqa: E402
+from app.api.categories import router as categories_router  # noqa: E402
+from app.api.orders import router as orders_router  # noqa: E402
+from app.api.payments import router as payments_router  # noqa: E402
 from app.api.uploads import router as uploads_router  # noqa: E402
 
+# ── Public routes ──
 app.include_router(health_router)
+
+# ── Auth ──
 app.include_router(auth_router, prefix=f"{settings.API_V1_PREFIX}/auth", tags=["Auth"])
+
+# ── Core resources ──
 app.include_router(tenants_router, prefix=f"{settings.API_V1_PREFIX}/tenants", tags=["Tenants"])
 app.include_router(stores_router, prefix=f"{settings.API_V1_PREFIX}/stores", tags=["Stores"])
 app.include_router(jobs_router, prefix=f"{settings.API_V1_PREFIX}/jobs", tags=["Jobs"])
+
+# ── AI ──
 app.include_router(ai_chat_router, prefix=f"{settings.API_V1_PREFIX}/ai", tags=["AI Chat"])
+
+# ── Store content ──
 app.include_router(preview_router, prefix=f"{settings.API_V1_PREFIX}/preview", tags=["Preview"])
 app.include_router(products_router, prefix=f"{settings.API_V1_PREFIX}", tags=["Products"])
 app.include_router(categories_router, prefix=f"{settings.API_V1_PREFIX}", tags=["Categories"])
+
+# ── Commerce ──
 app.include_router(orders_router, prefix=f"{settings.API_V1_PREFIX}", tags=["Orders"])
 app.include_router(payments_router, prefix=f"{settings.API_V1_PREFIX}", tags=["Payments"])
+
+# ── Media ──
 app.include_router(uploads_router, prefix=f"{settings.API_V1_PREFIX}", tags=["Uploads"])
 
 

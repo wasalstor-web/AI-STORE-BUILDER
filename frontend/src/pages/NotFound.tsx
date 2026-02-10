@@ -1,19 +1,17 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Home, ArrowRight, SearchX, Sparkles } from 'lucide-react';
+import AppBackdrop from '../components/graphics/AppBackdrop';
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-dark-bg flex items-center justify-center px-6 relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[150px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-accent/5 rounded-full blur-[100px] pointer-events-none" />
-
+    <div className="app-shell min-h-screen bg-dark-bg flex items-center justify-center px-6">
+      <AppBackdrop variant="marketing" intensity="max" focus="center" />
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="text-center max-w-lg relative z-10"
+        className="app-content text-center max-w-lg"
       >
         {/* 404 Number */}
         <div className="relative mb-8">
@@ -23,7 +21,7 @@ export default function NotFound() {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.3, type: 'spring', stiffness: 200 }}
-              className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary/20 to-accent/20 border border-primary/20 flex items-center justify-center backdrop-blur-sm"
+              className="w-24 h-24 rounded-3xl bg-linear-to-br from-primary/20 to-accent/20 border border-primary/20 flex items-center justify-center backdrop-blur-sm"
             >
               <SearchX className="w-12 h-12 text-primary-light" />
             </motion.div>

@@ -4,6 +4,7 @@ Uses pydantic-settings for type-safe env var loading.
 """
 
 from functools import lru_cache
+from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -24,12 +25,14 @@ class Settings(BaseSettings):
 
     # ── API ──
     API_V1_PREFIX: str = "/api/v1"
+    HOST: str = "127.0.0.1"
+    PORT: int = 8000
 
     # ── Database ──
     DATABASE_URL: str = "sqlite+aiosqlite:///./ai_store_builder.db"
 
-    # ── Redis ──
-    REDIS_URL: str = "redis://redis:6379/0"
+    # ── Redis (Optional) ──
+    REDIS_URL: str = ""
 
     # ── JWT ──
     JWT_SECRET_KEY: str = "CHANGE-ME-generate-a-real-secret-with-openssl-rand-hex-64"
@@ -45,14 +48,35 @@ class Settings(BaseSettings):
     # ── CORS ──
     CORS_ORIGINS: list[str] = [
         "http://localhost:3000",
+        "http://localhost:3003",
+        "http://localhost:5173",
         "http://localhost:8000",
+        "http://147.93.120.99",
+        "http://147.93.120.99:8000",
         "https://ai-store-builder.pages.dev",
         "https://*.ai-store-builder.pages.dev",
     ]
 
-    # ── AI (Phase 2) ──
+    # ── AI (Multi-Provider) ──
     OPENAI_API_KEY: str = ""
     ANTHROPIC_API_KEY: str = ""
+    GOOGLE_API_KEY: str = ""
+    AI_PRIMARY_PROVIDER: Literal["anthropic", "openai", "google"] = "anthropic"
+    CLAUDE_MODEL: str = "claude-sonnet-4-20250514"
+    GPT_MODEL: str = "gpt-4o-mini"
+    GEMINI_MODEL: str = "gemini-2.0-flash"
+    AI_TEMPERATURE: float = 0.7
+    AI_MAX_TOKENS: int = 8000
+    
+    # ── Supabase (Real-time Database) ──
+    SUPABASE_URL: str = ""
+    SUPABASE_KEY: str = ""
+    SUPABASE_SERVICE_KEY: str = ""
+    
+    # ── Real-time Features ──
+    ENABLE_WEBSOCKETS: bool = True
+    AI_LEARNING_MODE: bool = True
+    STORE_AI_CONVERSATIONS: bool = True
 
     # ── Payment (Phase 3) ──
     MOYASAR_API_KEY: str = ""

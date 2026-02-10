@@ -269,7 +269,7 @@ export default function AIBuilder() {
             <ArrowRight className="w-4 h-4" />
           </Link>
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-linear-to-br from-primary to-accent flex items-center justify-center">
               <Sparkles className="w-3.5 h-3.5 text-white" />
             </div>
             <span className="font-bold text-sm">{storeName}</span>

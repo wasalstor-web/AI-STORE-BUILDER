@@ -1,6 +1,7 @@
 """
 AI Store Builder — Database Engine & Session Management
-Async SQLAlchemy 2.0 — supports both PostgreSQL and SQLite.
+Async SQLAlchemy 2.0 — supports PostgreSQL (Supabase) and SQLite.
+Production-ready with connection pooling.
 """
 
 from collections.abc import AsyncGenerator
@@ -16,18 +17,22 @@ from app.config import get_settings
 settings = get_settings()
 
 _is_sqlite = settings.DATABASE_URL.startswith("sqlite")
+_is_postgres = "postgresql" in settings.DATABASE_URL or "postgres" in settings.DATABASE_URL
 
 _engine_kwargs: dict = {
     "echo": settings.DEBUG and not settings.is_production,
 }
-if not _is_sqlite:
+
+if _is_postgres:
+    # PostgreSQL/Supabase optimized settings
     _engine_kwargs.update(
         pool_size=20,
         max_overflow=10,
         pool_pre_ping=True,
         pool_recycle=300,
+        pool_timeout=30,
     )
-else:
+elif _is_sqlite:
     # SQLite needs check_same_thread=False for async
     _engine_kwargs["connect_args"] = {"check_same_thread": False}
 

@@ -87,7 +87,7 @@ export default function CreateStore() {
           <motion.div key="name" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="max-w-2xl mx-auto pt-6">
             <div className="text-center mb-8">
               <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 200 }}
-                className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary via-accent to-primary-dark flex items-center justify-center mx-auto mb-5 shadow-lg shadow-primary/20">
+                className="w-20 h-20 rounded-3xl bg-linear-to-br from-primary via-accent to-primary-dark flex items-center justify-center mx-auto mb-5 shadow-lg shadow-primary/20">
                 <Sparkles className="w-10 h-10 text-white" />
               </motion.div>
               <h1 className="text-3xl lg:text-4xl font-bold mb-3">أنشئ متجرك الإلكتروني</h1>

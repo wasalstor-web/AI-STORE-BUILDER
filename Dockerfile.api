@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir asyncpg psycopg2-binary python-slugify
+    pip install --no-cache-dir psycopg2-binary
 
 # Application code
 COPY app/ ./app/

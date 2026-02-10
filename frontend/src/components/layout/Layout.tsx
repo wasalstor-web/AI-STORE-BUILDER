@@ -1,27 +1,28 @@
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   PlusCircle,
   LogOut,
   Menu,
   X,
-  Sparkles,
+  Zap,
   Bot,
   Palette,
   Crown,
-} from 'lucide-react';
-import { useState, type ReactNode } from 'react';
+} from "lucide-react";
+import { useState, type ReactNode } from "react";
+import AppBackdrop from "../graphics/AppBackdrop";
 
 const navItems = [
-  { path: '/dashboard', label: 'لوحة التحكم', icon: LayoutDashboard },
-  { path: '/stores/create', label: 'إنشاء متجر', icon: PlusCircle },
-  { path: '/stores/ai-builder', label: 'بناء بالـ AI', icon: Bot },
+  { path: "/dashboard", label: "لوحة التحكم", icon: LayoutDashboard },
+  { path: "/stores/create", label: "إنشاء متجر", icon: PlusCircle },
+  { path: "/stores/ai-builder", label: "بناء بالـ AI", icon: Bot },
 ];
 
 const secondaryItems = [
-  { path: '/stores/create', label: 'معرض القوالب', icon: Palette },
+  { path: "/stores/create", label: "معرض القوالب", icon: Palette },
 ];
 
 export default function Layout({ children }: { children: ReactNode }) {
@@ -29,165 +30,199 @@ export default function Layout({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const isBuilder = location.pathname.startsWith("/stores/ai-builder");
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate("/");
   };
 
   return (
-    <div className="flex min-h-screen">
-      {/* ══ Sidebar (Desktop) ══ */}
-      <aside className="hidden lg:flex flex-col w-64 bg-dark-surface border-l border-dark-border">
-        {/* Logo */}
-        <div className="p-6 border-b border-dark-border">
-          <Link to="/dashboard" className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-lg shadow-primary/15">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-lg font-bold gradient-text">AI بلدر</span>
-            <span className="badge badge-primary text-[9px]">Pro</span>
-          </Link>
-        </div>
+    <div className="app-shell">
+      <AppBackdrop
+        variant={isBuilder ? "builder" : "app"}
+        intensity={isBuilder ? "lux" : "max"}
+      />
+      <div className="app-content flex min-h-screen">
+        {/* ══ Sidebar (Desktop) ══ */}
+        <aside className="hidden lg:flex flex-col w-60 bg-[#0e1015]/90 backdrop-blur-xl border-l border-white/6">
+          {/* Logo */}
+          <div className="px-5 py-4 border-b border-white/6">
+            <Link to="/dashboard" className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-linear-to-br from-violet-500 to-blue-500 flex items-center justify-center shadow-lg shadow-violet-500/20">
+                <Zap className="w-4 h-4 text-white" />
+              </div>
+              <span className="text-base font-bold bg-linear-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">
+                AI Builder
+              </span>
+              <span className="px-1.5 py-0.5 rounded bg-violet-500/15 text-[8px] font-bold text-violet-400 tracking-wider">
+                PRO
+              </span>
+            </Link>
+          </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-1">
-          <p className="text-[10px] text-text-muted font-medium px-4 mb-2 uppercase tracking-wider">الرئيسية</p>
-          {navItems.map((item) => {
-            const active = location.pathname === item.path;
-            return (
+          {/* Navigation */}
+          <nav className="flex-1 px-3 py-4 space-y-0.5">
+            <p className="text-[10px] text-white/25 font-medium px-3 mb-2 tracking-wider">
+              القائمة
+            </p>
+            {navItems.map((item) => {
+              const active = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all text-[13px] ${
+                    active
+                      ? "bg-violet-500/15 text-violet-400 border border-violet-500/20"
+                      : "text-white/50 hover:bg-white/4 hover:text-white/80 border border-transparent"
+                  }`}
+                >
+                  <item.icon className="w-4 h-4" />
+                  {item.label}
+                </Link>
+              );
+            })}
+
+            <div className="pt-4 pb-1">
+              <p className="text-[10px] text-white/25 font-medium px-3 mb-2 tracking-wider">
+                أدوات
+              </p>
+            </div>
+            {secondaryItems.map((item) => (
               <Link
-                key={item.path}
+                key={item.label}
                 to={item.path}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm ${
-                  active
-                    ? 'bg-primary/20 text-primary-light border border-primary/30'
-                    : 'text-text-secondary hover:bg-dark-hover hover:text-text-primary'
-                }`}
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all text-[13px] text-white/50 hover:bg-white/4 hover:text-white/80"
               >
-                <item.icon className="w-5 h-5" />
+                <item.icon className="w-4 h-4" />
                 {item.label}
               </Link>
-            );
-          })}
+            ))}
+          </nav>
 
-          <div className="pt-4 pb-1">
-            <p className="text-[10px] text-text-muted font-medium px-4 mb-2 uppercase tracking-wider">أدوات</p>
-          </div>
-          {secondaryItems.map((item) => (
-            <Link key={item.label} to={item.path}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-sm text-text-secondary hover:bg-dark-hover hover:text-text-primary">
-              <item.icon className="w-5 h-5" />
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-
-        {/* Plan badge */}
-        <div className="px-4 pb-2">
-          <div className="p-3 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/10">
-            <div className="flex items-center gap-2 mb-1">
-              <Crown className="w-3.5 h-3.5 text-accent" />
-              <span className="text-xs font-semibold">الخطة المجانية</span>
-              <span className="badge badge-accent text-[8px] mr-auto">ترقية</span>
+          {/* Plan badge */}
+          <div className="px-3 pb-2">
+            <div className="p-3 rounded-lg bg-linear-to-br from-violet-500/8 to-blue-500/8 border border-violet-500/10">
+              <div className="flex items-center gap-2 mb-1">
+                <Crown className="w-3.5 h-3.5 text-violet-400" />
+                <span className="text-[11px] font-semibold text-white/70">
+                  الخطة المجانية
+                </span>
+                <span className="px-1 py-px rounded bg-violet-500/20 text-[8px] font-bold text-violet-400 mr-auto">
+                  ترقية
+                </span>
+              </div>
+              <p className="text-[10px] text-white/30">12 قالب • 21 قسم • AI</p>
             </div>
-            <p className="text-[10px] text-text-muted">12 قالب • 21 قسم • AI</p>
           </div>
+
+          {/* User info */}
+          <div className="px-3 py-3 border-t border-white/6">
+            <div className="flex items-center gap-2.5 mb-2.5">
+              <div className="w-8 h-8 rounded-full bg-violet-500/20 flex items-center justify-center text-xs font-bold text-violet-400">
+                {user?.full_name?.charAt(0) || "U"}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] font-medium text-white/80 truncate">
+                  {user?.full_name}
+                </p>
+                <p className="text-[10px] text-white/30 truncate">
+                  {user?.email}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 w-full px-3 py-2 text-[12px] text-red-400/70 rounded-lg hover:bg-red-500/10 hover:text-red-400 transition-all"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              تسجيل الخروج
+            </button>
+          </div>
+        </aside>
+
+        {/* ══ Mobile Header ══ */}
+        <div className="flex-1 flex flex-col">
+          <header className="lg:hidden flex items-center justify-between px-4 py-3 bg-[#0e1015]/90 backdrop-blur-xl border-b border-white/6">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="text-white/40 hover:text-white/70 transition-colors"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <span className="font-bold text-sm bg-linear-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">
+              AI Builder
+            </span>
+            <div className="w-5" />
+          </header>
+
+          {/* ══ Mobile Sidebar Overlay ══ */}
+          <AnimatePresence>
+            {sidebarOpen && (
+              <>
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 lg:hidden"
+                  onClick={() => setSidebarOpen(false)}
+                />
+                <motion.aside
+                  initial={{ x: 100 }}
+                  animate={{ x: 0 }}
+                  exit={{ x: 100 }}
+                  transition={{ type: "spring", damping: 25 }}
+                  className="fixed top-0 right-0 bottom-0 w-64 bg-[#0e1015] z-50 lg:hidden flex flex-col border-l border-white/6"
+                >
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-white/6">
+                    <span className="font-bold text-sm bg-linear-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">
+                      AI Builder
+                    </span>
+                    <button
+                      onClick={() => setSidebarOpen(false)}
+                      className="text-white/40 hover:text-white/70 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <nav className="flex-1 p-3 space-y-0.5">
+                    {navItems.map((item) => {
+                      const active = location.pathname === item.path;
+                      return (
+                        <Link
+                          key={item.path}
+                          to={item.path}
+                          onClick={() => setSidebarOpen(false)}
+                          className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all text-[13px] ${
+                            active
+                              ? "bg-violet-500/15 text-violet-400"
+                              : "text-white/50 hover:bg-white/4"
+                          }`}
+                        >
+                          <item.icon className="w-4 h-4" />
+                          {item.label}
+                        </Link>
+                      );
+                    })}
+                  </nav>
+                  <div className="p-3 border-t border-white/6">
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-2 w-full px-3 py-2 text-[12px] text-red-400/70 rounded-lg hover:bg-red-500/10 hover:text-red-400 transition-all"
+                    >
+                      <LogOut className="w-3.5 h-3.5" />
+                      تسجيل الخروج
+                    </button>
+                  </div>
+                </motion.aside>
+              </>
+            )}
+          </AnimatePresence>
+
+          {/* ══ Main Content ══ */}
+          <main className="flex-1 p-4 lg:p-8 overflow-y-auto">{children}</main>
         </div>
-
-        {/* User info */}
-        <div className="p-4 border-t border-dark-border">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-sm font-bold text-primary-light">
-              {user?.full_name?.charAt(0) || 'U'}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{user?.full_name}</p>
-              <p className="text-xs text-text-muted truncate">{user?.email}</p>
-            </div>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 w-full px-4 py-2 text-sm text-danger rounded-lg hover:bg-danger/10 transition-colors btn-ghost"
-          >
-            <LogOut className="w-4 h-4" />
-            تسجيل الخروج
-          </button>
-        </div>
-      </aside>
-
-      {/* ══ Mobile Header ══ */}
-      <div className="flex-1 flex flex-col">
-        <header className="lg:hidden flex items-center justify-between p-4 bg-dark-surface/80 backdrop-blur-xl border-b border-dark-border">
-          <button onClick={() => setSidebarOpen(true)} className="text-text-secondary">
-            <Menu className="w-6 h-6" />
-          </button>
-          <span className="font-bold gradient-text">AI بلدر</span>
-          <div className="w-6" />
-        </header>
-
-        {/* ══ Mobile Sidebar Overlay ══ */}
-        <AnimatePresence>
-          {sidebarOpen && (
-            <>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/60 z-40 lg:hidden"
-                onClick={() => setSidebarOpen(false)}
-              />
-              <motion.aside
-                initial={{ x: 100 }}
-                animate={{ x: 0 }}
-                exit={{ x: 100 }}
-                transition={{ type: 'spring', damping: 25 }}
-                className="fixed top-0 right-0 bottom-0 w-72 bg-dark-surface z-50 lg:hidden flex flex-col"
-              >
-                <div className="flex items-center justify-between p-4 border-b border-dark-border">
-                  <span className="font-bold gradient-text">AI بلدر</span>
-                  <button onClick={() => setSidebarOpen(false)}>
-                    <X className="w-5 h-5 text-text-secondary" />
-                  </button>
-                </div>
-                <nav className="flex-1 p-4 space-y-1">
-                  {navItems.map((item) => {
-                    const active = location.pathname === item.path;
-                    return (
-                      <Link
-                        key={item.path}
-                        to={item.path}
-                        onClick={() => setSidebarOpen(false)}
-                        className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                          active
-                            ? 'bg-primary/20 text-primary-light'
-                            : 'text-text-secondary hover:bg-dark-hover'
-                        }`}
-                      >
-                        <item.icon className="w-5 h-5" />
-                        {item.label}
-                      </Link>
-                    );
-                  })}
-                </nav>
-                <div className="p-4 border-t border-dark-border">
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-2 w-full px-4 py-2 text-sm text-danger rounded-lg hover:bg-danger/10"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    تسجيل الخروج
-                  </button>
-                </div>
-              </motion.aside>
-            </>
-          )}
-        </AnimatePresence>
-
-        {/* ══ Main Content ══ */}
-        <main className="flex-1 p-4 lg:p-8 overflow-y-auto">
-          {children}
-        </main>
       </div>
     </div>
   );

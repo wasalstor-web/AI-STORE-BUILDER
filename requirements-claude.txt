@@ -1,0 +1,8 @@
+# Enhanced Claude AI Dependencies
+anthropic>=0.25.0
+supabase>=2.9.0
+websockets>=11.0.2
+aioredis>=2.0.1
+sentence-transformers>=2.6.1
+langdetect>=1.0.9
+beautifulsoup4>=4.12.3

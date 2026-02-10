@@ -209,7 +209,7 @@ export default function StoreDetail() {
           <p className="text-text-muted text-sm">هذه العملية تستغرق دقيقة إلى دقيقتين</p>
           <div className="w-48 h-1.5 bg-dark-surface rounded-full mx-auto mt-6 overflow-hidden">
             <motion.div
-              className="h-full bg-gradient-to-l from-primary to-accent rounded-full"
+              className="h-full bg-linear-to-l from-primary to-accent rounded-full"
               animate={{ x: ['-100%', '100%'] }}
               transition={{ repeat: Infinity, duration: 1.5, ease: 'linear' }}
               style={{ width: '40%' }}

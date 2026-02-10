@@ -57,6 +57,8 @@ Desktop.ini
 #  Node / Frontend 
 node_modules/
 frontend/dist/
+frontend/dist.tar.gz
+frontend/dist.zip
 *.tsbuildinfo
 .eslintcache
 
