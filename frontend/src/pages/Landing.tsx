@@ -82,7 +82,7 @@ const features = [
   {
     icon: Bot,
     title: "بناء بالذكاء الاصطناعي",
-    desc: "اوصف متجرك والذكاء الاصطناعي يبني لك تصميم كامل — يفهم العربي 100%",
+    desc: "اوصف مشروعك والذكاء الاصطناعي يبني لك تصميم كامل — يفهم العربي 100%",
     gradient: "from-violet-500 to-purple-600",
     badge: "الأقوى",
   },
@@ -95,25 +95,25 @@ const features = [
   {
     icon: Palette,
     title: "12 قالب احترافي",
-    desc: "أزياء فاخرة، إلكترونيات، جواهر، عطور، رياضة — لكل نوع قالب جاهز",
+    desc: "أزياء، إلكترونيات، مطاعم، محافظ أعمال، عقارات — 16 نوع مشروع",
     gradient: "from-amber-500 to-orange-600",
   },
   {
     icon: Code2,
     title: "تصدير HTML كامل",
-    desc: "حمّل تصميم متجرك كملف HTML جاهز — ملكك تنشره وين ما تبي",
+    desc: "حمّل تصميم موقعك كملف HTML جاهز — ملكك تنشره وين ما تبي",
     gradient: "from-emerald-500 to-green-600",
   },
   {
     icon: Shield,
     title: "متجاوب 100%",
-    desc: "يشتغل بكمال على الجوال، التابلت، والكمبيوتر — مع RTL ودعم عربي",
+    desc: "يشتغل بكمال على الجوال، التابلت، والكمبيوتر — مع RTL ودعم عربي كامل",
     gradient: "from-blue-500 to-indigo-600",
   },
   {
     icon: Zap,
     title: "سرعة خارقة",
-    desc: "كود نظيف وخفيف — متجرك يحمّل في أقل من ثانية",
+    desc: "كود نظيف وخفيف — موقعك يحمّل في أقل من ثانية",
     gradient: "from-rose-500 to-pink-600",
   },
 ];
@@ -148,8 +148,8 @@ const testimonials = [
 const steps = [
   {
     num: "01",
-    title: "سمّ متجرك",
-    desc: "اكتب اسم متجرك واختر نوعه من 12 تخصص",
+    title: "سمّ مشروعك",
+    desc: "اكتب اسم مشروعك واختر نوعه من 16 تخصص",
     icon: MessageSquare,
   },
   {
@@ -443,22 +443,21 @@ export default function Landing() {
               className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/4 border border-white/6 text-[13px] text-text-secondary mb-10 backdrop-blur-sm"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-              منصة بناء المتاجر بالذكاء الاصطناعي
+              منصة بناء المواقع والمتاجر بالذكاء الاصطناعي — v2.0
             </motion.div>
 
             {/* Main Title */}
             <h1 className="text-5xl md:text-7xl lg:text-[5.5rem] font-bold leading-[1.1] mb-7 tracking-tight">
-              <span className="block text-white/95">ابنِ متجرك</span>
+              <span className="block text-white/95">ابنِ موقعك</span>
               <span className="block bg-linear-to-r from-violet-400 via-blue-400 to-violet-400 bg-clip-text text-transparent mt-2">
                 بقوة الذكاء الاصطناعي
               </span>
             </h1>
 
             <p className="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto mb-12 leading-relaxed">
-              اختر من 12 قالب احترافي، اسحب وأفلت أقسام جاهزة، أو خلّ الذكاء
-              الاصطناعي يبني لك متجر كامل —{" "}
+              متجر، موقع شركة، محفظة أعمال، مدونة، مطعم — اوصف مشروعك وWebFlow AI يبنيه لك في دقائق.{" "}
               <span className="text-text-primary font-medium">
-                كل شي بالعربي
+                16 نوع مشروع • قوالب جاهزة • كل شي بالعربي
               </span>
             </p>
 
@@ -469,7 +468,7 @@ export default function Landing() {
                 className="text-base px-8 py-4 flex items-center gap-2.5 rounded-xl bg-linear-to-r from-violet-600 to-blue-600 text-white font-semibold hover:from-violet-500 hover:to-blue-500 transition-all shadow-lg shadow-violet-600/20 active:scale-[0.98]"
               >
                 <Rocket className="w-5 h-5" />
-                ابدأ بناء متجرك — مجاناً
+                ابدأ بناء موقعك — مجاناً
                 <ArrowLeft className="w-4 h-4" />
               </Link>
               <a
@@ -486,7 +485,7 @@ export default function Landing() {
               {[
                 { value: "12", label: "قالب احترافي", icon: Palette },
                 { value: "21+", label: "قسم جاهز", icon: Layers },
-                { value: "12", label: "نوع متجر", icon: Package },
+                { value: "16", label: "نوع مشروع", icon: Package },
                 { value: "∞", label: "تخصيص AI", icon: Bot },
               ].map((s) => (
                 <div key={s.label} className="flex items-center gap-3 text-sm">
