@@ -23,6 +23,10 @@ const STORE_TYPES = [
   { v: 'perfume', l: '🌹 عطور', color: '#6c3483' },
   { v: 'health', l: '🌿 صحة', color: '#27ae60' },
   { v: 'auto', l: '🚗 سيارات', color: '#e74c3c' },
+  { v: 'restaurant', l: '🍕 مطعم', color: '#ff6348' },
+  { v: 'portfolio', l: '💼 محفظة أعمال', color: '#5f27cd' },
+  { v: 'blog', l: '✍️ مدونة', color: '#01a3a4' },
+  { v: 'realestate', l: '🏢 عقارات', color: '#2c3e50' },
   { v: 'general', l: '🏪 عام', color: '#6c5ce7' },
 ];
 
