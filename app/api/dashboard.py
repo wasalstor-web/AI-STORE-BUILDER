@@ -94,7 +94,8 @@ async def get_dashboard_stats(
         await db.execute(
             select(func.coalesce(func.sum(Order.total), 0.0)).where(
                 Order.store_id.in_(store_ids),
-                Order.status.in_(["paid", "confirmed", "shipped", "delivered", "completed"]),
+                Order.status.in_(["completed", "delivered", "shipped"]),
+                Order.payment_status == "paid",
             )
         )
     ).scalar() or 0.0

@@ -26,6 +26,7 @@ interface TopBarProps {
   onCodeToggle: () => void;
   onDownload: () => void;
   onPublish: () => void;
+  isPublishing?: boolean;
 }
 
 export default memo(function TopBar({
@@ -41,6 +42,7 @@ export default memo(function TopBar({
   onCodeToggle,
   onDownload,
   onPublish,
+  isPublishing,
 }: TopBarProps) {
   return (
     <div className="flex items-center justify-between h-11 px-3 bg-[#0e1015] border-b border-white/6 shrink-0 select-none">
@@ -126,10 +128,15 @@ export default memo(function TopBar({
         {/* Publish Button */}
         <button
           onClick={onPublish}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-linear-to-r from-violet-600 to-blue-600 text-white text-xs font-semibold hover:from-violet-500 hover:to-blue-500 transition-all shadow-lg shadow-violet-600/20 active:scale-95"
+          disabled={isPublishing}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-linear-to-r from-violet-600 to-blue-600 text-white text-xs font-semibold hover:from-violet-500 hover:to-blue-500 transition-all shadow-lg shadow-violet-600/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <Rocket className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">نشر</span>
+          {isPublishing ? (
+            <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <Rocket className="w-3.5 h-3.5" />
+          )}
+          <span className="hidden sm:inline">{isPublishing ? "جاري النشر..." : "نشر"}</span>
         </button>
       </div>
     </div>

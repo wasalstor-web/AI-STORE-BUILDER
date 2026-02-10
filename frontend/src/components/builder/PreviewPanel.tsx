@@ -222,6 +222,7 @@ export default memo(function PreviewPanel({
               <iframe
                 ref={iframeRef}
                 title="Store Preview"
+                sandbox="allow-scripts allow-same-origin"
                 style={{
                   ...iframeStyle,
                   width: "100%",

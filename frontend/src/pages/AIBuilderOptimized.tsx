@@ -150,7 +150,7 @@ export default function AIBuilderOptimized() {
   );
 
   // Initial history
-  useMemo(() => {
+  useEffect(() => {
     if (!existingStoreId) {
       pushHistory(currentHTML, "تصميم أولي");
     }
@@ -483,6 +483,7 @@ export default function AIBuilderOptimized() {
         onCodeToggle={() => setShowCode(!showCode)}
         onDownload={downloadHTML}
         onPublish={handlePublish}
+        isPublishing={isPublishing}
       />
 
       {/* Mobile Toggle */}

@@ -19,7 +19,7 @@ import {
 import toast from "react-hot-toast";
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [fullName, setFullName] = useState(user?.full_name || "");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -42,6 +42,7 @@ export default function Profile() {
     setSavingProfile(true);
     try {
       await authApi.updateProfile({ full_name: fullName.trim() });
+      await refreshUser();
       toast.success("تم تحديث الملف الشخصي");
       setProfileSaved(true);
       setTimeout(() => setProfileSaved(false), 2000);

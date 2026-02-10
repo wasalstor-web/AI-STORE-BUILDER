@@ -22,7 +22,7 @@ from app.schemas.store import (
     StoreResponse,
     StoreUpdateRequest,
 )
-from app.services.store_generator import create_store_and_job, generate_store
+from app.services.store_generator import create_store_and_job, generate_store as run_store_generation
 
 router = APIRouter()
 
@@ -127,7 +127,7 @@ async def generate_store(
                     merged_config["store_type"] = request_data["store_type"]
                     merged_config["language"] = request_data.get("language", "ar")
 
-                    _steps, result = await generate_store(job_id, store_id, merged_config)
+                    _steps, result = await run_store_generation(job_id, store_id, merged_config)
 
                     await session.execute(
                         update(Store).where(Store.id == store_id).values(

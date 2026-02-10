@@ -13,7 +13,8 @@ import {
   Crown,
   UserCog,
 } from "lucide-react";
-import { useState, useEffect, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { tenantsApi } from "../../lib/api";
 import AppBackdrop from "../graphics/AppBackdrop";
 
@@ -34,14 +35,13 @@ export default function Layout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const isBuilder = location.pathname.startsWith("/stores/ai-builder");
 
-  // Fetch tenant plan dynamically
-  const [tenantPlan, setTenantPlan] = useState<string>("free");
-  useEffect(() => {
-    tenantsApi
-      .current()
-      .then((res) => setTenantPlan(res.data?.plan || "free"))
-      .catch(() => {});
-  }, []);
+  // Fetch tenant plan dynamically (cached via React Query)
+  const { data: tenantData } = useQuery({
+    queryKey: ["tenant"],
+    queryFn: async () => (await tenantsApi.current()).data,
+    staleTime: 5 * 60 * 1000,
+  });
+  const tenantPlan = tenantData?.plan || "free";
 
   const planLabels: Record<string, string> = {
     free: "الخطة المجانية",
