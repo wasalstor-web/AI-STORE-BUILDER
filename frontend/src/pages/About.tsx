@@ -42,7 +42,9 @@ const values = [
 ];
 
 export default function About() {
-  useEffect(() => { document.title = "من نحن | ويب فلو" }, []);
+  useEffect(() => {
+    document.title = "من نحن | ويب فلو";
+  }, []);
 
   return (
     <div className="min-h-screen bg-dark-bg text-text-primary">

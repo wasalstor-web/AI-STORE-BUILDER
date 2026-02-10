@@ -1,11 +1,13 @@
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Home, ArrowRight, SearchX, Sparkles } from 'lucide-react';
-import AppBackdrop from '../components/graphics/AppBackdrop';
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Home, ArrowRight, SearchX, Sparkles } from "lucide-react";
+import AppBackdrop from "../components/graphics/AppBackdrop";
 import { useEffect } from "react";
 
 export default function NotFound() {
-  useEffect(() => { document.title = "الصفحة غير موجودة | ويب فلو" }, []);
+  useEffect(() => {
+    document.title = "الصفحة غير موجودة | ويب فلو";
+  }, []);
 
   return (
     <div className="app-shell min-h-screen bg-dark-bg flex items-center justify-center px-6">
@@ -18,12 +20,14 @@ export default function NotFound() {
       >
         {/* 404 Number */}
         <div className="relative mb-8">
-          <span className="text-[140px] md:text-[180px] font-bold gradient-text leading-none select-none opacity-20">404</span>
+          <span className="text-[140px] md:text-[180px] font-bold gradient-text leading-none select-none opacity-20">
+            404
+          </span>
           <div className="absolute inset-0 flex items-center justify-center">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ delay: 0.3, type: 'spring', stiffness: 200 }}
+              transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
               className="w-24 h-24 rounded-3xl bg-linear-to-br from-primary/20 to-accent/20 border border-primary/20 flex items-center justify-center backdrop-blur-sm"
             >
               <SearchX className="w-12 h-12 text-primary-light" />

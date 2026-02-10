@@ -362,7 +362,9 @@ function TemplateShowcase() {
    MAIN LANDING PAGE
    ═══════════════════════════════════════ */
 export default function Landing() {
-  useEffect(() => { document.title = "ويب فلو | بناء المواقع بالذكاء الاصطناعي" }, []);
+  useEffect(() => {
+    document.title = "ويب فلو | بناء المواقع بالذكاء الاصطناعي";
+  }, []);
 
   return (
     <div className="min-h-screen bg-dark-bg">

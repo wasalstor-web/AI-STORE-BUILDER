@@ -27,7 +27,12 @@ import {
   Code2,
   ChevronLeft,
 } from "lucide-react";
-import type { Store as StoreType, StoreListResponse, Tenant, OrderSummary } from "../types";
+import type {
+  Store as StoreType,
+  StoreListResponse,
+  Tenant,
+  OrderSummary,
+} from "../types";
 
 const storeTypeLabels: Record<string, string> = {
   fashion: "أزياء",
@@ -172,8 +177,10 @@ export default function Dashboard() {
       if (activeIds.length === 0) return 0;
       const results = await Promise.all(
         activeIds.map((id: string) =>
-          productsApi.list(id, { page: 1, page_size: 1 }).then((r) => r.data?.total || 0)
-        )
+          productsApi
+            .list(id, { page: 1, page_size: 1 })
+            .then((r) => r.data?.total || 0),
+        ),
       );
       return results.reduce((sum: number, v: number) => sum + v, 0);
     },
@@ -181,7 +188,11 @@ export default function Dashboard() {
   });
 
   // Aggregate orders data across all active stores
-  const { data: aggregateOrders } = useQuery<{ total: number; revenue: number; pending: number }>({
+  const { data: aggregateOrders } = useQuery<{
+    total: number;
+    revenue: number;
+    pending: number;
+  }>({
     queryKey: ["aggregate-orders", stores.map((s: StoreType) => s.id)],
     queryFn: async () => {
       const activeIds = stores
@@ -190,13 +201,16 @@ export default function Dashboard() {
       if (activeIds.length === 0) return { total: 0, revenue: 0, pending: 0 };
       const results = await Promise.all(
         activeIds.map((id: string) =>
-          ordersApi.summary(id).then((r) => r.data as OrderSummary).catch(() => ({
-            total_orders: 0,
-            total_revenue: 0,
-            pending_orders: 0,
-            completed_orders: 0,
-          }))
-        )
+          ordersApi
+            .summary(id)
+            .then((r) => r.data as OrderSummary)
+            .catch(() => ({
+              total_orders: 0,
+              total_revenue: 0,
+              pending_orders: 0,
+              completed_orders: 0,
+            })),
+        ),
       );
       return {
         total: results.reduce((sum, r) => sum + r.total_orders, 0),

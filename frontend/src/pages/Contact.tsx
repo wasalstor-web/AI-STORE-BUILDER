@@ -38,7 +38,9 @@ export default function Contact() {
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
 
-  useEffect(() => { document.title = "تواصل معنا | ويب فلو" }, []);
+  useEffect(() => {
+    document.title = "تواصل معنا | ويب فلو";
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

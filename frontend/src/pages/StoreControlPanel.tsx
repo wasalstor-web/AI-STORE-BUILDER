@@ -1,7 +1,13 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
-import { storesApi, productsApi, categoriesApi, ordersApi, uploadsApi } from "../lib/api";
+import {
+  storesApi,
+  productsApi,
+  categoriesApi,
+  ordersApi,
+  uploadsApi,
+} from "../lib/api";
 import { getTemplateHTML } from "../data/templates";
 import type { Store, Product, Category, Order, OrderSummary } from "../types";
 import {
@@ -85,7 +91,9 @@ export default function StoreControlPanel() {
   });
 
   useEffect(() => {
-    document.title = store ? `${store.name} | ويب فلو` : "لوحة تحكم المتجر | ويب فلو";
+    document.title = store
+      ? `${store.name} | ويب فلو`
+      : "لوحة تحكم المتجر | ويب فلو";
   }, [store]);
 
   if (isLoading) {
@@ -627,11 +635,17 @@ function ProductFormModal({
                 {uploading ? (
                   <Loader2 className="w-6 h-6 animate-spin text-primary-light" />
                 ) : imageUrl ? (
-                  <img src={imageUrl} alt="" className="w-full h-full object-cover" />
+                  <img
+                    src={imageUrl}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   <div className="text-center">
                     <Upload className="w-5 h-5 text-text-muted mx-auto mb-1" />
-                    <span className="text-[10px] text-text-muted">رفع صورة</span>
+                    <span className="text-[10px] text-text-muted">
+                      رفع صورة
+                    </span>
                   </div>
                 )}
               </div>
@@ -883,10 +897,30 @@ function CategoriesTab({ storeId }: { storeId: string }) {
    TAB: Orders
    ══════════════════════════════════════════════════════════ */
 const ORDER_STATUSES = [
-  { value: "pending", label: "قيد الانتظار", class: "badge-warning", next: "confirmed" },
-  { value: "confirmed", label: "مؤكد", class: "badge-primary", next: "shipped" },
-  { value: "shipped", label: "تم الشحن", class: "badge-info", next: "delivered" },
-  { value: "delivered", label: "تم التوصيل", class: "badge-success", next: null },
+  {
+    value: "pending",
+    label: "قيد الانتظار",
+    class: "badge-warning",
+    next: "confirmed",
+  },
+  {
+    value: "confirmed",
+    label: "مؤكد",
+    class: "badge-primary",
+    next: "shipped",
+  },
+  {
+    value: "shipped",
+    label: "تم الشحن",
+    class: "badge-info",
+    next: "delivered",
+  },
+  {
+    value: "delivered",
+    label: "تم التوصيل",
+    class: "badge-success",
+    next: null,
+  },
   { value: "cancelled", label: "ملغي", class: "badge-neutral", next: null },
 ] as const;
 
@@ -920,9 +954,10 @@ function OrdersTab({ storeId }: { storeId: string }) {
 
   const orders: Order[] = data?.items || [];
 
-  const statusLabels: Record<string, { label: string; class: string }> = Object.fromEntries(
-    ORDER_STATUSES.map((s) => [s.value, { label: s.label, class: s.class }])
-  );
+  const statusLabels: Record<string, { label: string; class: string }> =
+    Object.fromEntries(
+      ORDER_STATUSES.map((s) => [s.value, { label: s.label, class: s.class }]),
+    );
 
   const getNextStatus = (current: string) =>
     ORDER_STATUSES.find((s) => s.value === current)?.next || null;
@@ -987,7 +1022,9 @@ function OrdersTab({ storeId }: { storeId: string }) {
                   <>
                     <tr
                       key={order.id}
-                      onClick={() => setExpandedOrder(isExpanded ? null : order.id)}
+                      onClick={() =>
+                        setExpandedOrder(isExpanded ? null : order.id)
+                      }
                       className={`border-b border-dark-border/50 hover:bg-dark-hover/30 transition-colors cursor-pointer ${isExpanded ? "bg-dark-hover/20" : ""}`}
                     >
                       <td className="p-3 text-text-muted">
@@ -1002,7 +1039,9 @@ function OrdersTab({ storeId }: { storeId: string }) {
                         {order.order_number}
                       </td>
                       <td className="p-3">
-                        <p className="text-sm font-medium">{order.customer_name}</p>
+                        <p className="text-sm font-medium">
+                          {order.customer_name}
+                        </p>
                         <p className="text-[11px] text-text-muted">
                           {order.customer_email}
                         </p>
@@ -1020,7 +1059,10 @@ function OrdersTab({ storeId }: { storeId: string }) {
                       <td className="p-3 text-xs text-text-muted">
                         {new Date(order.created_at).toLocaleDateString("ar-SA")}
                       </td>
-                      <td className="p-3 text-center" onClick={(e) => e.stopPropagation()}>
+                      <td
+                        className="p-3 text-center"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         {nextStatus && nextLabel ? (
                           <button
                             onClick={() =>
@@ -1039,9 +1081,13 @@ function OrdersTab({ storeId }: { storeId: string }) {
                             )}
                           </button>
                         ) : order.status === "cancelled" ? (
-                          <span className="text-[10px] text-text-muted">ملغي</span>
+                          <span className="text-[10px] text-text-muted">
+                            ملغي
+                          </span>
                         ) : (
-                          <span className="text-[10px] text-success">✓ مكتمل</span>
+                          <span className="text-[10px] text-success">
+                            ✓ مكتمل
+                          </span>
                         )}
                       </td>
                     </tr>
@@ -1058,22 +1104,34 @@ function OrdersTab({ storeId }: { storeId: string }) {
                             <div className="p-4 grid md:grid-cols-3 gap-4">
                               {/* Order Items */}
                               <div className="md:col-span-2">
-                                <p className="text-xs font-medium text-text-muted mb-2">المنتجات</p>
+                                <p className="text-xs font-medium text-text-muted mb-2">
+                                  المنتجات
+                                </p>
                                 {order.items && order.items.length > 0 ? (
                                   <div className="space-y-2">
                                     {order.items.map((item) => (
-                                      <div key={item.id} className="flex items-center gap-3 bg-dark-bg/50 rounded-lg p-2.5">
+                                      <div
+                                        key={item.id}
+                                        className="flex items-center gap-3 bg-dark-bg/50 rounded-lg p-2.5"
+                                      >
                                         <div className="w-9 h-9 rounded-lg bg-dark-hover border border-dark-border flex items-center justify-center shrink-0 overflow-hidden">
                                           {item.product_image ? (
-                                            <img src={item.product_image} alt="" className="w-full h-full object-cover" />
+                                            <img
+                                              src={item.product_image}
+                                              alt=""
+                                              className="w-full h-full object-cover"
+                                            />
                                           ) : (
                                             <Package className="w-3.5 h-3.5 text-text-muted" />
                                           )}
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                          <p className="text-sm truncate">{item.product_name}</p>
+                                          <p className="text-sm truncate">
+                                            {item.product_name}
+                                          </p>
                                           <p className="text-[11px] text-text-muted">
-                                            {item.quantity} × {item.unit_price} {order.currency}
+                                            {item.quantity} × {item.unit_price}{" "}
+                                            {order.currency}
                                           </p>
                                         </div>
                                         <span className="text-sm font-medium shrink-0">
@@ -1083,63 +1141,98 @@ function OrdersTab({ storeId }: { storeId: string }) {
                                     ))}
                                   </div>
                                 ) : (
-                                  <p className="text-xs text-text-muted">لا توجد تفاصيل</p>
+                                  <p className="text-xs text-text-muted">
+                                    لا توجد تفاصيل
+                                  </p>
                                 )}
                               </div>
                               {/* Order Info */}
                               <div className="space-y-3">
                                 <div>
-                                  <p className="text-xs text-text-muted mb-1">ملخص الطلب</p>
+                                  <p className="text-xs text-text-muted mb-1">
+                                    ملخص الطلب
+                                  </p>
                                   <div className="bg-dark-bg/50 rounded-lg p-3 space-y-1.5 text-sm">
                                     <div className="flex justify-between">
-                                      <span className="text-text-muted">المجموع الفرعي</span>
-                                      <span>{order.subtotal} {order.currency}</span>
+                                      <span className="text-text-muted">
+                                        المجموع الفرعي
+                                      </span>
+                                      <span>
+                                        {order.subtotal} {order.currency}
+                                      </span>
                                     </div>
                                     {order.shipping_cost > 0 && (
                                       <div className="flex justify-between">
-                                        <span className="text-text-muted">الشحن</span>
-                                        <span>{order.shipping_cost} {order.currency}</span>
+                                        <span className="text-text-muted">
+                                          الشحن
+                                        </span>
+                                        <span>
+                                          {order.shipping_cost} {order.currency}
+                                        </span>
                                       </div>
                                     )}
                                     {order.tax_amount > 0 && (
                                       <div className="flex justify-between">
-                                        <span className="text-text-muted">الضريبة</span>
-                                        <span>{order.tax_amount} {order.currency}</span>
+                                        <span className="text-text-muted">
+                                          الضريبة
+                                        </span>
+                                        <span>
+                                          {order.tax_amount} {order.currency}
+                                        </span>
                                       </div>
                                     )}
                                     {order.discount_amount > 0 && (
                                       <div className="flex justify-between text-success">
                                         <span>خصم</span>
-                                        <span>-{order.discount_amount} {order.currency}</span>
+                                        <span>
+                                          -{order.discount_amount}{" "}
+                                          {order.currency}
+                                        </span>
                                       </div>
                                     )}
                                     <div className="flex justify-between font-bold pt-1.5 border-t border-dark-border">
                                       <span>الإجمالي</span>
-                                      <span>{order.total} {order.currency}</span>
+                                      <span>
+                                        {order.total} {order.currency}
+                                      </span>
                                     </div>
                                   </div>
                                 </div>
                                 {order.customer_phone && (
                                   <div>
-                                    <p className="text-xs text-text-muted">الهاتف</p>
-                                    <p className="text-sm" dir="ltr">{order.customer_phone}</p>
+                                    <p className="text-xs text-text-muted">
+                                      الهاتف
+                                    </p>
+                                    <p className="text-sm" dir="ltr">
+                                      {order.customer_phone}
+                                    </p>
                                   </div>
                                 )}
                                 {order.tracking_number && (
                                   <div>
-                                    <p className="text-xs text-text-muted">رقم التتبع</p>
-                                    <p className="text-sm font-mono" dir="ltr">{order.tracking_number}</p>
+                                    <p className="text-xs text-text-muted">
+                                      رقم التتبع
+                                    </p>
+                                    <p className="text-sm font-mono" dir="ltr">
+                                      {order.tracking_number}
+                                    </p>
                                   </div>
                                 )}
                                 {order.customer_notes && (
                                   <div>
-                                    <p className="text-xs text-text-muted">ملاحظات العميل</p>
-                                    <p className="text-sm text-text-secondary">{order.customer_notes}</p>
+                                    <p className="text-xs text-text-muted">
+                                      ملاحظات العميل
+                                    </p>
+                                    <p className="text-sm text-text-secondary">
+                                      {order.customer_notes}
+                                    </p>
                                   </div>
                                 )}
                                 {/* Status change dropdown */}
                                 <div>
-                                  <p className="text-xs text-text-muted mb-1.5">تغيير الحالة</p>
+                                  <p className="text-xs text-text-muted mb-1.5">
+                                    تغيير الحالة
+                                  </p>
                                   <select
                                     value={order.status}
                                     onChange={(e) =>

@@ -115,8 +115,11 @@ export const authApi = {
   refresh: (refresh_token: string) =>
     api.post("/auth/refresh", { refresh_token }),
 
-  updateProfile: (data: { full_name?: string; current_password?: string; new_password?: string }) =>
-    api.patch("/auth/me", data),
+  updateProfile: (data: {
+    full_name?: string;
+    current_password?: string;
+    new_password?: string;
+  }) => api.patch("/auth/me", data),
 };
 
 // ══════ Stores API ══════

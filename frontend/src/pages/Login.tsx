@@ -14,7 +14,9 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => { document.title = "تسجيل الدخول | ويب فلو" }, []);
+  useEffect(() => {
+    document.title = "تسجيل الدخول | ويب فلو";
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
