@@ -461,6 +461,7 @@ docs: description     # Documentation
 ## Continuation Guide (for resuming work)
 
 ### How to Resume Development
+
 ```bash
 # 1. Start backend
 powershell -ExecutionPolicy Bypass -File start_backend.ps1
@@ -477,6 +478,7 @@ git checkout main && git merge feature/your-task
 ```
 
 ### Key Architecture Decisions
+
 - **AI Chat Flow:** User chats freely → says "نفّذ" → HTML is generated from conversation context
 - **Two editing modes:** AI Builder (chat-based HTML) vs Visual Editor (drag-drop sections)
 - **Multi-provider AI chain:** Anthropic → OpenAI → Gemini → Local fallback
@@ -484,6 +486,7 @@ git checkout main && git merge feature/your-task
 - **Schemas location:** ALL Pydantic models in `app/schemas/` (including `ai_chat.py`)
 
 ### What to Build Next (Phase 2)
+
 1. Products CRUD frontend pages
 2. Categories + filtering UI
 3. Image upload (S3/local)
