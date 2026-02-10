@@ -950,14 +950,18 @@ export default function Landing() {
                 الشركة
               </h4>
               <div className="space-y-3 text-[13px] text-text-secondary">
-                {["من نحن", "تواصل معنا", "سياسة الخصوصية"].map((l) => (
-                  <a
-                    key={l}
-                    href="#"
+                {[
+                  { l: "من نحن", h: "/about" },
+                  { l: "تواصل معنا", h: "/contact" },
+                  { l: "سياسة الخصوصية", h: "/privacy" },
+                ].map((link) => (
+                  <Link
+                    key={link.l}
+                    to={link.h}
                     className="block hover:text-text-primary transition-colors duration-200"
                   >
-                    {l}
-                  </a>
+                    {link.l}
+                  </Link>
                 ))}
               </div>
             </div>

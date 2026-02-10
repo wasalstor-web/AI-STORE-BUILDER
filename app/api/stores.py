@@ -1,16 +1,19 @@
 """Store endpoints — generate, list, get, update."""
 
+import asyncio
 import uuid
+from datetime import UTC, datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
-from sqlalchemy import func, select
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.middleware.auth import OwnerUser
 from app.middleware.rate_limit import limiter
 from app.middleware.tenant import TenantCtx
+from app.models.job import Job
 from app.models.store import Store
 from app.schemas.job import JobCreateResponse
 from app.schemas.store import (
@@ -19,7 +22,7 @@ from app.schemas.store import (
     StoreResponse,
     StoreUpdateRequest,
 )
-from app.services.store_generator import create_store_and_job
+from app.services.store_generator import create_store_and_job, generate_store
 
 router = APIRouter()
 
@@ -72,18 +75,15 @@ async def generate_store(
     store, job = await create_store_and_job(db, ctx.tenant_id, request_data)
     await db.commit()
 
-    # Enqueue ARQ job (fire & forget — worker picks it up)
+    redis_available = False
+    # Try to enqueue ARQ job (production with Redis)
     try:
-        import asyncio
-
         from arq import create_pool
         from arq.connections import RedisSettings
 
         from app.config import get_settings
 
         settings = get_settings()
-
-        # Parse redis URL
         redis_url = settings.REDIS_URL
         host = redis_url.split("://")[1].split(":")[0]
         port = int(redis_url.split(":")[2].split("/")[0])
@@ -99,9 +99,73 @@ async def generate_store(
             store.config or {},
         )
         await pool.close()
+        redis_available = True
     except Exception as e:
-        # If Redis/ARQ not available, job stays queued — worker will pick up later
-        print(f"⚠️ Could not enqueue job (Redis unavailable): {e}")
+        print(f"⚠️ Redis unavailable, using inline generation: {e}")
+
+    # Inline fallback: generate directly without Redis/ARQ
+    if not redis_available:
+        async def _run_inline_generation(
+            job_id: str, store_id: str, config: dict
+        ):
+            from app.database import async_session_factory
+
+            async with async_session_factory() as session:
+                try:
+                    await session.execute(
+                        update(Job)
+                        .where(Job.id == job_id)
+                        .values(status="running", started_at=datetime.now(UTC), progress=10)
+                    )
+                    await session.commit()
+
+                    merged_config = dict(config or {})
+                    merged_config["name"] = request_data["name"]
+                    merged_config["store_type"] = request_data["store_type"]
+                    merged_config["language"] = request_data.get("language", "ar")
+
+                    _steps, result = await generate_store(job_id, store_id, merged_config)
+
+                    await session.execute(
+                        update(Store).where(Store.id == store_id).values(
+                            status="active",
+                            config=func.json_patch(Store.config, result.get("ai_content", {}))
+                            if hasattr(func, "json_patch")
+                            else result.get("ai_content", {}),
+                        )
+                    )
+
+                    # Update store config properly
+                    store_res = await session.execute(select(Store).where(Store.id == store_id))
+                    s = store_res.scalar_one_or_none()
+                    if s:
+                        new_config = dict(s.config or {})
+                        new_config["ai_content"] = result.get("ai_content", {})
+                        s.config = new_config
+                        s.status = "active"
+
+                    await session.execute(
+                        update(Job)
+                        .where(Job.id == job_id)
+                        .values(
+                            status="done", progress=100,
+                            result=result,
+                            completed_at=datetime.now(UTC),
+                        )
+                    )
+                    await session.commit()
+                    print(f"✅ Inline store generation complete: {store_id}")
+                except Exception as ex:
+                    await session.execute(
+                        update(Job)
+                        .where(Job.id == job_id)
+                        .values(status="failed", error=str(ex), completed_at=datetime.now(UTC))
+                    )
+                    await session.commit()
+                    print(f"❌ Inline generation failed: {ex}")
+
+        # Fire as background task
+        asyncio.create_task(_run_inline_generation(str(job.id), str(store.id), store.config or {}))
 
     return JobCreateResponse(
         job_id=job.id,

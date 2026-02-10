@@ -34,14 +34,37 @@ export default function AIBuilderOptimized() {
   const [storeId, setStoreId] = useState<string>(existingStoreId);
   const [isPublishing, setIsPublishing] = useState(false);
   const [mobileView, setMobileView] = useState<"chat" | "preview">("chat");
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: "welcome",
-      role: "system",
-      content: `مرحباً! 👋 أنا WebFlow AI — مطورك الشخصي لبناء "${storeName}".\n\nأخبرني عن مشروعك وأنا أبنيه لك بمستوى احترافي:\n• وش نوع المحتوى أو المنتجات؟\n• وش الألوان والستايل المفضل؟ (فاخر، بسيط، عصري، داكن)\n• هل تبي أقسام معينة؟ (عروض، تقييمات، عنّا، FAQ)\n\n🚀 لما تكون جاهز، قول "نفّذ" وأنا أبني لك الموقع من الصفر!`,
-      timestamp: new Date(),
-    },
-  ]);
+
+  // ══ Conversation Memory — restore from localStorage ══
+  const conversationKey = `webflow_chat_${existingStoreId || storeType}_${storeName}`;
+  const savedMessages = (() => {
+    try {
+      const raw = localStorage.getItem(conversationKey);
+      if (raw) {
+        const parsed = JSON.parse(raw) as ChatMessage[];
+        return parsed.map((m) => ({ ...m, timestamp: new Date(m.timestamp) }));
+      }
+    } catch { /* ignore */ }
+    return null;
+  })();
+
+  const [messages, setMessages] = useState<ChatMessage[]>(
+    savedMessages || [
+      {
+        id: "welcome",
+        role: "system",
+        content: `مرحباً! 👋 أنا WebFlow AI — مطورك الشخصي لبناء "${storeName}".\n\nأخبرني عن مشروعك وأنا أبنيه لك بمستوى احترافي:\n• وش نوع المحتوى أو المنتجات؟\n• وش الألوان والستايل المفضل؟ (فاخر، بسيط، عصري، داكن)\n• هل تبي أقسام معينة؟ (عروض، تقييمات، عنّا، FAQ)\n\n🚀 لما تكون جاهز، قول "نفّذ" وأنا أبني لك الموقع من الصفر!`,
+        timestamp: new Date(),
+      },
+    ],
+  );
+
+  // Auto-save conversation to localStorage
+  useEffect(() => {
+    if (messages.length > 1) {
+      localStorage.setItem(conversationKey, JSON.stringify(messages));
+    }
+  }, [messages, conversationKey]);
   const [input, setInput] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentHTML, setCurrentHTML] = useState(() => {

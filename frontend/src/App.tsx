@@ -14,6 +14,9 @@ const CreateStore = lazy(() => import("./pages/CreateStore"));
 const AIBuilder = lazy(() => import("./pages/AIBuilderOptimized")); // ✅ Optimized version
 const StoreControlPanel = lazy(() => import("./pages/StoreControlPanel"));
 const EditStore = lazy(() => import("./pages/EditStore"));
+const About = lazy(() => import("./pages/About"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Contact = lazy(() => import("./pages/Contact"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 /* ── Loading Spinner ── */
@@ -120,6 +123,11 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* صفحات عامة إضافية */}
+          <Route path="/about" element={<About />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/contact" element={<Contact />} />
 
           {/* 404 */}
           <Route path="*" element={<NotFound />} />
