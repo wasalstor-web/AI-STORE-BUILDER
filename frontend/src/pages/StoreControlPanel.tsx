@@ -1152,7 +1152,12 @@ function MiniActivityChart({
   const seed = totalOrders + Math.floor(totalRevenue);
   const bars = days.map((day, i) => {
     const factor = [0.4, 0.7, 1.0, 0.6, 0.8, 0.9, 0.5][i];
-    const value = Math.max(1, Math.round(((totalOrders || 3) / 7) * factor * (1 + (seed % (i + 2)) * 0.1)));
+    const value = Math.max(
+      1,
+      Math.round(
+        ((totalOrders || 3) / 7) * factor * (1 + (seed % (i + 2)) * 0.1),
+      ),
+    );
     return { day, value };
   });
   const maxVal = Math.max(...bars.map((b) => b.value), 1);
@@ -1161,11 +1166,17 @@ function MiniActivityChart({
     <div>
       <div className="flex items-end gap-2 h-32">
         {bars.map((bar) => (
-          <div key={bar.day} className="flex-1 flex flex-col items-center gap-1">
+          <div
+            key={bar.day}
+            className="flex-1 flex flex-col items-center gap-1"
+          >
             <span className="text-[10px] text-text-muted">{bar.value}</span>
             <div
               className="w-full rounded-t-md bg-gradient-to-t from-primary/60 to-primary transition-all duration-500"
-              style={{ height: `${(bar.value / maxVal) * 100}%`, minHeight: "4px" }}
+              style={{
+                height: `${(bar.value / maxVal) * 100}%`,
+                minHeight: "4px",
+              }}
             />
             <span className="text-[10px] text-text-muted">{bar.day}</span>
           </div>

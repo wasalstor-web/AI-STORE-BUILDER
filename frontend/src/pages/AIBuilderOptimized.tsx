@@ -44,7 +44,9 @@ export default function AIBuilderOptimized() {
         const parsed = JSON.parse(raw) as ChatMessage[];
         return parsed.map((m) => ({ ...m, timestamp: new Date(m.timestamp) }));
       }
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     return null;
   })();
 

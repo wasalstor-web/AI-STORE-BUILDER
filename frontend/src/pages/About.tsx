@@ -128,7 +128,9 @@ export default function About() {
       {/* CTA */}
       <section className="py-16 px-6 text-center">
         <h2 className="text-2xl font-bold mb-4">جاهز لبناء موقعك؟</h2>
-        <p className="text-text-secondary mb-8">ابدأ مجاناً — بدون بطاقة ائتمان</p>
+        <p className="text-text-secondary mb-8">
+          ابدأ مجاناً — بدون بطاقة ائتمان
+        </p>
         <Link
           to="/register"
           className="btn-primary inline-flex items-center gap-2 text-base px-8 py-3"
