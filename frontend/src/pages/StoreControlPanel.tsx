@@ -44,6 +44,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useState, useRef, useEffect } from "react";
+import ConfirmDialog from "../components/ConfirmDialog";
 
 /* ── Debounce Hook ── */
 function useDebounce<T>(value: T, delay: number): T {
@@ -322,6 +323,7 @@ function OverviewTab({ store, storeId }: { store: Store; storeId: string }) {
       <div className="glass-card p-5">
         <h3 className="font-semibold mb-4 flex items-center gap-2">
           <TrendingUp className="w-4 h-4 text-success" /> نشاط الأسبوع
+          <span className="mr-auto text-[10px] font-normal text-text-muted bg-dark-hover px-2 py-0.5 rounded-full">تقريبي</span>
         </h3>
         <MiniActivityChart
           totalOrders={orderSummary?.total_orders || 0}
@@ -364,6 +366,7 @@ function ProductsTab({ storeId }: { storeId: string }) {
   const PAGE_SIZE = 20;
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [deleteProductId, setDeleteProductId] = useState<string | null>(null);
 
   // Reset page when search changes
   useEffect(() => {
@@ -504,10 +507,7 @@ function ProductsTab({ storeId }: { storeId: string }) {
                         <Edit3 className="w-3.5 h-3.5 text-text-muted" />
                       </button>
                       <button
-                        onClick={() => {
-                          if (confirm("حذف هذا المنتج؟"))
-                            deleteMutation.mutate(p.id);
-                        }}
+                        onClick={() => setDeleteProductId(p.id)}
                         className="p-1.5 hover:bg-error/10 rounded-lg transition-colors"
                       >
                         <Trash2 className="w-3.5 h-3.5 text-error/60" />
@@ -563,6 +563,18 @@ function ProductsTab({ storeId }: { storeId: string }) {
           }}
         />
       )}
+
+      <ConfirmDialog
+        open={!!deleteProductId}
+        title="حذف المنتج"
+        message="هل أنت متأكد من حذف هذا المنتج؟ لا يمكن التراجع عن هذا الإجراء."
+        confirmLabel="حذف"
+        onConfirm={() => {
+          if (deleteProductId) deleteMutation.mutate(deleteProductId);
+          setDeleteProductId(null);
+        }}
+        onCancel={() => setDeleteProductId(null)}
+      />
     </div>
   );
 }
@@ -838,6 +850,7 @@ function CategoriesTab({ storeId }: { storeId: string }) {
   const [editingCat, setEditingCat] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editDesc, setEditDesc] = useState("");
+  const [deleteCatId, setDeleteCatId] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["categories", storeId],
@@ -858,8 +871,13 @@ function CategoriesTab({ storeId }: { storeId: string }) {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ catId, data }: { catId: string; data: Record<string, unknown> }) =>
-      categoriesApi.update(catId, data),
+    mutationFn: ({
+      catId,
+      data,
+    }: {
+      catId: string;
+      data: Record<string, unknown>;
+    }) => categoriesApi.update(catId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
       setEditingCat(null);
@@ -947,10 +965,7 @@ function CategoriesTab({ storeId }: { storeId: string }) {
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {categories.map((cat) => (
-            <div
-              key={cat.id}
-              className="glass-card p-4 group"
-            >
+            <div key={cat.id} className="glass-card p-4 group">
               {editingCat === cat.id ? (
                 <div className="space-y-2">
                   <input
@@ -974,7 +989,10 @@ function CategoriesTab({ storeId }: { storeId: string }) {
                         editName &&
                         updateMutation.mutate({
                           catId: cat.id,
-                          data: { name: editName, description: editDesc || null },
+                          data: {
+                            name: editName,
+                            description: editDesc || null,
+                          },
                         })
                       }
                       disabled={!editName || updateMutation.isPending}
@@ -1017,10 +1035,7 @@ function CategoriesTab({ storeId }: { storeId: string }) {
                       <Edit3 className="w-3.5 h-3.5 text-primary-light/60" />
                     </button>
                     <button
-                      onClick={() => {
-                        if (confirm("حذف هذا التصنيف؟"))
-                          deleteMutation.mutate(cat.id);
-                      }}
+                      onClick={() => setDeleteCatId(cat.id)}
                       className="p-1.5 hover:bg-error/10 rounded-lg transition-all"
                     >
                       <Trash2 className="w-3.5 h-3.5 text-error/60" />
@@ -1032,6 +1047,18 @@ function CategoriesTab({ storeId }: { storeId: string }) {
           ))}
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!deleteCatId}
+        title="حذف التصنيف"
+        message="هل أنت متأكد من حذف هذا التصنيف؟ سيتم إزالته من جميع المنتجات المرتبطة."
+        confirmLabel="حذف"
+        onConfirm={() => {
+          if (deleteCatId) deleteMutation.mutate(deleteCatId);
+          setDeleteCatId(null);
+        }}
+        onCancel={() => setDeleteCatId(null)}
+      />
     </div>
   );
 }
@@ -1425,11 +1452,14 @@ function OrdersTab({ storeId }: { storeId: string }) {
                   السابق
                 </button>
                 <span className="text-xs text-text-secondary">
-                  {orderPage} / {Math.ceil((data?.total || 0) / ORDER_PAGE_SIZE)}
+                  {orderPage} /{" "}
+                  {Math.ceil((data?.total || 0) / ORDER_PAGE_SIZE)}
                 </span>
                 <button
                   onClick={() => setOrderPage((p) => p + 1)}
-                  disabled={orderPage >= Math.ceil((data?.total || 0) / ORDER_PAGE_SIZE)}
+                  disabled={
+                    orderPage >= Math.ceil((data?.total || 0) / ORDER_PAGE_SIZE)
+                  }
                   className="px-3 py-1.5 rounded-lg text-xs bg-dark-surface border border-dark-border hover:border-dark-hover disabled:opacity-40 transition-all"
                 >
                   التالي
@@ -1529,7 +1559,15 @@ function DesignTab({ store, storeId }: { store: Store; storeId: string }) {
 function SettingsTab({ store, storeId }: { store: Store; storeId: string }) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const storeConfig = (store.config || {}) as Record<string, string>;
   const [storeName, setStoreName] = useState(store.name);
+  const [currency, setCurrency] = useState(storeConfig.currency || "SAR");
+  const [metaTitle, setMetaTitle] = useState(storeConfig.meta_title || "");
+  const [metaDesc, setMetaDesc] = useState(storeConfig.meta_description || "");
+  const [contactEmail, setContactEmail] = useState(storeConfig.contact_email || "");
+  const [contactPhone, setContactPhone] = useState(storeConfig.contact_phone || "");
+  const [socialTwitter, setSocialTwitter] = useState(storeConfig.social_twitter || "");
+  const [socialInstagram, setSocialInstagram] = useState(storeConfig.social_instagram || "");
   const [showDelete, setShowDelete] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -1537,7 +1575,19 @@ function SettingsTab({ store, storeId }: { store: Store; storeId: string }) {
     if (!storeName) return;
     setSaving(true);
     try {
-      await storesApi.update(storeId, { name: storeName });
+      await storesApi.update(storeId, {
+        name: storeName,
+        config: {
+          ...store.config,
+          currency,
+          meta_title: metaTitle,
+          meta_description: metaDesc,
+          contact_email: contactEmail,
+          contact_phone: contactPhone,
+          social_twitter: socialTwitter,
+          social_instagram: socialInstagram,
+        },
+      });
       queryClient.invalidateQueries({ queryKey: ["store", storeId] });
       toast.success("تم حفظ الإعدادات");
     } catch {
@@ -1577,42 +1627,160 @@ function SettingsTab({ store, storeId }: { store: Store; storeId: string }) {
               className="input-field"
             />
           </div>
-          <div>
-            <label className="text-sm font-medium text-text-secondary mb-1.5 block">
-              نوع المشروع
-            </label>
-            <input
-              type="text"
-              value={store.store_type}
-              disabled
-              className="input-field opacity-60 cursor-not-allowed"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-text-secondary mb-1.5 block">
+                نوع المشروع
+              </label>
+              <input
+                type="text"
+                value={store.store_type}
+                disabled
+                className="input-field opacity-60 cursor-not-allowed"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-text-secondary mb-1.5 block">
+                العملة
+              </label>
+              <select
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+                className="input-field"
+              >
+                <option value="SAR">ر.س — ريال سعودي</option>
+                <option value="AED">د.إ — درهم إماراتي</option>
+                <option value="KWD">د.ك — دينار كويتي</option>
+                <option value="QAR">ر.ق — ريال قطري</option>
+                <option value="BHD">د.ب — دينار بحريني</option>
+                <option value="OMR">ر.ع — ريال عماني</option>
+                <option value="EGP">ج.م — جنيه مصري</option>
+                <option value="USD">$ — دولار</option>
+              </select>
+            </div>
           </div>
-          <div>
-            <label className="text-sm font-medium text-text-secondary mb-1.5 block">
-              اللغة
-            </label>
-            <input
-              type="text"
-              value={store.language || "ar"}
-              disabled
-              className="input-field opacity-60 cursor-not-allowed"
-            />
-          </div>
-          <button
-            onClick={handleSave}
-            disabled={saving || storeName === store.name}
-            className="btn-primary flex items-center gap-2 text-sm disabled:opacity-50"
-          >
-            {saving ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Save className="w-4 h-4" />
-            )}{" "}
-            حفظ الإعدادات
-          </button>
         </div>
       </div>
+
+      {/* SEO */}
+      <div className="glass-card p-6">
+        <h3 className="font-semibold mb-4 flex items-center gap-2">
+          <Globe className="w-4 h-4 text-primary-light" /> تحسين محركات البحث (SEO)
+        </h3>
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm font-medium text-text-secondary mb-1.5 block">
+              عنوان الصفحة (Meta Title)
+            </label>
+            <input
+              type="text"
+              value={metaTitle}
+              onChange={(e) => setMetaTitle(e.target.value)}
+              className="input-field"
+              placeholder={store.name}
+              maxLength={60}
+            />
+            <p className="text-[11px] text-text-muted mt-1">{metaTitle.length}/60 حرف</p>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-text-secondary mb-1.5 block">
+              وصف الصفحة (Meta Description)
+            </label>
+            <textarea
+              value={metaDesc}
+              onChange={(e) => setMetaDesc(e.target.value)}
+              className="input-field min-h-20 resize-none"
+              placeholder="وصف مختصر لمتجرك يظهر في نتائج البحث..."
+              maxLength={160}
+            />
+            <p className="text-[11px] text-text-muted mt-1">{metaDesc.length}/160 حرف</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Contact Info */}
+      <div className="glass-card p-6">
+        <h3 className="font-semibold mb-4 flex items-center gap-2">
+          <Package className="w-4 h-4 text-primary-light" /> معلومات التواصل
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-medium text-text-secondary mb-1.5 block">
+              البريد الإلكتروني
+            </label>
+            <input
+              type="email"
+              value={contactEmail}
+              onChange={(e) => setContactEmail(e.target.value)}
+              className="input-field"
+              placeholder="info@example.com"
+              dir="ltr"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-text-secondary mb-1.5 block">
+              رقم الهاتف
+            </label>
+            <input
+              type="tel"
+              value={contactPhone}
+              onChange={(e) => setContactPhone(e.target.value)}
+              className="input-field"
+              placeholder="+966 5x xxx xxxx"
+              dir="ltr"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Social Links */}
+      <div className="glass-card p-6">
+        <h3 className="font-semibold mb-4 flex items-center gap-2">
+          <Layers className="w-4 h-4 text-primary-light" /> روابط التواصل الاجتماعي
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-medium text-text-secondary mb-1.5 block">
+              Instagram
+            </label>
+            <input
+              type="text"
+              value={socialInstagram}
+              onChange={(e) => setSocialInstagram(e.target.value)}
+              className="input-field"
+              placeholder="@username"
+              dir="ltr"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-text-secondary mb-1.5 block">
+              X (Twitter)
+            </label>
+            <input
+              type="text"
+              value={socialTwitter}
+              onChange={(e) => setSocialTwitter(e.target.value)}
+              className="input-field"
+              placeholder="@username"
+              dir="ltr"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Save Button */}
+      <button
+        onClick={handleSave}
+        disabled={saving}
+        className="btn-primary flex items-center gap-2 text-sm disabled:opacity-50 w-full justify-center py-3"
+      >
+        {saving ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
+          <Save className="w-4 h-4" />
+        )}{" "}
+        حفظ جميع الإعدادات
+      </button>
 
       {/* Danger Zone */}
       <div className="glass-card p-6 border-error/20">

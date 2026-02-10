@@ -109,6 +109,7 @@ from app.api.categories import router as categories_router  # noqa: E402
 from app.api.orders import router as orders_router  # noqa: E402
 from app.api.payments import router as payments_router  # noqa: E402
 from app.api.uploads import router as uploads_router  # noqa: E402
+from app.api.dashboard import router as dashboard_router  # noqa: E402
 
 # ── Public routes ──
 app.include_router(health_router)
@@ -135,6 +136,9 @@ app.include_router(payments_router, prefix=f"{settings.API_V1_PREFIX}", tags=["P
 
 # ── Media ──
 app.include_router(uploads_router, prefix=f"{settings.API_V1_PREFIX}", tags=["Uploads"])
+
+# ── Dashboard ──
+app.include_router(dashboard_router, prefix=f"{settings.API_V1_PREFIX}/dashboard", tags=["Dashboard"])
 
 
 @app.exception_handler(Exception)

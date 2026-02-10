@@ -22,6 +22,8 @@ import {
   Package,
   ArrowUpRight,
   Play,
+  Menu,
+  X,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import {
@@ -362,6 +364,8 @@ function TemplateShowcase() {
    MAIN LANDING PAGE
    ═══════════════════════════════════════ */
 export default function Landing() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   useEffect(() => {
     document.title = "ويب فلو | بناء المواقع بالذكاء الاصطناعي";
   }, []);
@@ -408,9 +412,17 @@ export default function Landing() {
             </a>
           </nav>
           <div className="flex items-center gap-2.5">
+            {/* Hamburger button – mobile only */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-1.5 rounded-lg text-white/60 hover:text-white hover:bg-white/5 transition-colors"
+              aria-label="القائمة"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
             <Link
               to="/login"
-              className="text-[13px] text-white/50 hover:text-white/80 transition-colors px-3 py-1.5"
+              className="hidden sm:inline text-[13px] text-white/50 hover:text-white/80 transition-colors px-3 py-1.5"
             >
               تسجيل الدخول
             </Link>
@@ -422,6 +434,42 @@ export default function Landing() {
             </Link>
           </div>
         </div>
+
+        {/* ── Mobile Nav Menu ── */}
+        <motion.div
+          initial={false}
+          animate={{
+            height: mobileMenuOpen ? "auto" : 0,
+            opacity: mobileMenuOpen ? 1 : 0,
+          }}
+          transition={{ duration: 0.25, ease: "easeInOut" }}
+          className="md:hidden overflow-hidden border-t border-white/5"
+        >
+          <nav className="flex flex-col gap-1 px-6 py-4 text-sm">
+            {[
+              { href: "#features", label: "المميزات" },
+              { href: "#templates", label: "القوالب" },
+              { href: "#pricing", label: "الأسعار" },
+              { href: "#reviews", label: "آراء العملاء" },
+            ].map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2.5 px-3 rounded-lg text-text-secondary hover:text-white hover:bg-white/5 transition-colors"
+              >
+                {item.label}
+              </a>
+            ))}
+            <Link
+              to="/login"
+              onClick={() => setMobileMenuOpen(false)}
+              className="sm:hidden py-2.5 px-3 rounded-lg text-text-secondary hover:text-white hover:bg-white/5 transition-colors"
+            >
+              تسجيل الدخول
+            </Link>
+          </nav>
+        </motion.div>
       </header>
 
       {/* ── Hero Section (Apple + Stripe inspired) ── */}
@@ -447,7 +495,7 @@ export default function Landing() {
               className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/4 border border-white/6 text-[13px] text-text-secondary mb-10 backdrop-blur-sm"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-              منصة بناء المواقع والمتاجر بالذكاء الاصطناعي — v2.0
+              منصة بناء المواقع والمتاجر بالذكاء الاصطناعي — v2.4
             </motion.div>
 
             {/* Main Title */}

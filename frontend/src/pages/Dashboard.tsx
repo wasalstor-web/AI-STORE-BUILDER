@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { storesApi, tenantsApi, productsApi, ordersApi } from "../lib/api";
+import { storesApi, tenantsApi, dashboardApi } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 import { useEffect } from "react";
 import {
@@ -31,7 +31,6 @@ import type {
   Store as StoreType,
   StoreListResponse,
   Tenant,
-  OrderSummary,
 } from "../types";
 
 const storeTypeLabels: Record<string, string> = {
@@ -167,58 +166,17 @@ export default function Dashboard() {
     (s: StoreType) => s.status === "active",
   ).length;
 
-  // Aggregate products count across all active stores
-  const { data: aggregateProducts } = useQuery({
-    queryKey: ["aggregate-products", stores.map((s: StoreType) => s.id)],
-    queryFn: async () => {
-      const activeIds = stores
-        .filter((s: StoreType) => s.status === "active")
-        .map((s: StoreType) => s.id);
-      if (activeIds.length === 0) return 0;
-      const results = await Promise.all(
-        activeIds.map((id: string) =>
-          productsApi
-            .list(id, { page: 1, page_size: 1 })
-            .then((r) => r.data?.total || 0),
-        ),
-      );
-      return results.reduce((sum: number, v: number) => sum + v, 0);
-    },
-    enabled: stores.length > 0,
-  });
-
-  // Aggregate orders data across all active stores
-  const { data: aggregateOrders } = useQuery<{
-    total: number;
-    revenue: number;
-    pending: number;
+  // Single aggregate API call instead of N+1 per-store queries
+  const { data: dashStats } = useQuery<{
+    total_stores: number;
+    active_stores: number;
+    total_products: number;
+    total_orders: number;
+    pending_orders: number;
+    total_revenue: number;
   }>({
-    queryKey: ["aggregate-orders", stores.map((s: StoreType) => s.id)],
-    queryFn: async () => {
-      const activeIds = stores
-        .filter((s: StoreType) => s.status === "active")
-        .map((s: StoreType) => s.id);
-      if (activeIds.length === 0) return { total: 0, revenue: 0, pending: 0 };
-      const results = await Promise.all(
-        activeIds.map((id: string) =>
-          ordersApi
-            .summary(id)
-            .then((r) => r.data as OrderSummary)
-            .catch(() => ({
-              total_orders: 0,
-              total_revenue: 0,
-              pending_orders: 0,
-              completed_orders: 0,
-            })),
-        ),
-      );
-      return {
-        total: results.reduce((sum, r) => sum + r.total_orders, 0),
-        revenue: results.reduce((sum, r) => sum + r.total_revenue, 0),
-        pending: results.reduce((sum, r) => sum + r.pending_orders, 0),
-      };
-    },
-    enabled: stores.length > 0,
+    queryKey: ["dashboard-stats"],
+    queryFn: async () => (await dashboardApi.stats()).data,
   });
 
   const hour = new Date().getHours();
@@ -226,9 +184,9 @@ export default function Dashboard() {
     hour < 12 ? "صباح الخير" : hour < 18 ? "مساء الخير" : "مساء النور";
   const emoji = hour < 12 ? "☀️" : hour < 18 ? "🌤️" : "🌙";
 
-  const totalProducts = aggregateProducts ?? 0;
-  const totalOrders = aggregateOrders?.total ?? 0;
-  const totalRevenue = aggregateOrders?.revenue ?? 0;
+  const totalProducts = dashStats?.total_products ?? 0;
+  const totalOrders = dashStats?.total_orders ?? 0;
+  const totalRevenue = dashStats?.total_revenue ?? 0;
 
   const stats = [
     {
@@ -272,12 +230,12 @@ export default function Dashboard() {
       up: totalRevenue > 0,
     },
     {
-      label: "الزيارات",
-      value: "قريباً",
-      icon: Eye,
+      label: "طلبات معلقة",
+      value: dashStats?.pending_orders ?? 0,
+      icon: Bell,
       gradient: "from-blue-400 to-blue-600",
-      trend: "—",
-      up: true,
+      trend: (dashStats?.pending_orders ?? 0) > 0 ? "تحتاج متابعة" : "لا يوجد",
+      up: (dashStats?.pending_orders ?? 0) === 0,
     },
   ];
 

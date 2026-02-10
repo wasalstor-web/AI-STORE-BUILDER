@@ -293,3 +293,8 @@ export const uploadsApi = {
   deleteImage: (url: string) =>
     api.delete("/upload/image", { params: { url } }),
 };
+
+// ══════ Dashboard API ══════
+export const dashboardApi = {
+  stats: () => api.get("/dashboard/stats"),
+};
