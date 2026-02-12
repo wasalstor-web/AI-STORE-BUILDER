@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { Sparkles, ArrowRight, Shield } from "lucide-react";
+import { Shield } from "lucide-react";
 import { useEffect } from "react";
+import PublicLayout from "../components/layout/PublicLayout";
 
 const sections = [
   {
@@ -46,27 +47,7 @@ export default function Privacy() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-dark-bg text-text-primary">
-      {/* Header */}
-      <header className="border-b border-dark-border">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-linear-to-br from-primary to-accent flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-lg font-bold gradient-text-static">
-              ويب فلو
-            </span>
-          </Link>
-          <Link
-            to="/"
-            className="text-sm text-text-muted hover:text-text-primary flex items-center gap-1 transition-colors"
-          >
-            <ArrowRight className="w-4 h-4" /> الرئيسية
-          </Link>
-        </div>
-      </header>
-
+    <PublicLayout>
       {/* Content */}
       <div className="max-w-3xl mx-auto px-6 py-16">
         <div className="flex items-center gap-4 mb-10">
@@ -109,6 +90,6 @@ export default function Privacy() {
           </Link>
         </div>
       </div>
-    </div>
+    </PublicLayout>
   );
 }

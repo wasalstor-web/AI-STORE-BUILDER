@@ -89,7 +89,10 @@ export default function Layout({ children }: { children: ReactNode }) {
               القائمة
             </p>
             {navItems.map((item) => {
-              const active = location.pathname === item.path;
+              const active =
+                location.pathname === item.path ||
+                (item.path !== "/dashboard" &&
+                  location.pathname.startsWith(item.path));
               return (
                 <Link
                   key={item.path}
@@ -181,11 +184,13 @@ export default function Layout({ children }: { children: ReactNode }) {
             <button
               onClick={() => setSidebarOpen(true)}
               className="text-white/40 hover:text-white/70 transition-colors"
+              aria-expanded={sidebarOpen}
+              aria-label="فتح القائمة"
             >
               <Menu className="w-5 h-5" />
             </button>
             <span className="font-bold text-sm bg-linear-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">
-              AI Builder
+              ويب فلو
             </span>
             <div className="w-5" />
           </header>
@@ -200,6 +205,9 @@ export default function Layout({ children }: { children: ReactNode }) {
                   exit={{ opacity: 0 }}
                   className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 lg:hidden"
                   onClick={() => setSidebarOpen(false)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") setSidebarOpen(false);
+                  }}
                 />
                 <motion.aside
                   initial={{ x: 100 }}
@@ -207,21 +215,31 @@ export default function Layout({ children }: { children: ReactNode }) {
                   exit={{ x: 100 }}
                   transition={{ type: "spring", damping: 25 }}
                   className="fixed top-0 right-0 bottom-0 w-64 bg-[#0e1015] z-50 lg:hidden flex flex-col border-l border-white/6"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label="قائمة التنقل"
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") setSidebarOpen(false);
+                  }}
                 >
                   <div className="flex items-center justify-between px-4 py-3 border-b border-white/6">
                     <span className="font-bold text-sm bg-linear-to-r from-violet-400 to-blue-400 bg-clip-text text-transparent">
-                      AI Builder
+                      ويب فلو
                     </span>
                     <button
                       onClick={() => setSidebarOpen(false)}
                       className="text-white/40 hover:text-white/70 transition-colors"
+                      aria-label="إغلاق القائمة"
                     >
                       <X className="w-4 h-4" />
                     </button>
                   </div>
                   <nav className="flex-1 p-3 space-y-0.5">
                     {navItems.map((item) => {
-                      const active = location.pathname === item.path;
+                      const active =
+                        location.pathname === item.path ||
+                        (item.path !== "/dashboard" &&
+                          location.pathname.startsWith(item.path));
                       return (
                         <Link
                           key={item.path}

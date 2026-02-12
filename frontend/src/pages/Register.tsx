@@ -133,12 +133,16 @@ export default function Register() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {fields.map((f) => (
               <div key={f.key}>
-                <label className="text-sm text-text-secondary mb-2 block">
+                <label
+                  htmlFor={`reg-${f.key}`}
+                  className="text-sm text-text-secondary mb-2 block"
+                >
                   {f.label}
                 </label>
                 <div className="relative">
                   <f.icon className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
                   <input
+                    id={`reg-${f.key}`}
                     type={f.type}
                     value={form[f.key as keyof typeof form]}
                     onChange={(e) => update(f.key, e.target.value)}
@@ -153,12 +157,16 @@ export default function Register() {
             ))}
 
             <div>
-              <label className="text-sm text-text-secondary mb-2 block">
+              <label
+                htmlFor="reg-password"
+                className="text-sm text-text-secondary mb-2 block"
+              >
                 كلمة المرور
               </label>
               <div className="relative">
                 <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
                 <input
+                  id="reg-password"
                   type={showPassword ? "text" : "password"}
                   value={form.password}
                   onChange={(e) => update("password", e.target.value)}
@@ -168,6 +176,7 @@ export default function Register() {
                   className="input-field pr-12 pl-12"
                   dir="ltr"
                   style={{ textAlign: "left" }}
+                  aria-describedby="password-strength"
                 />
                 <button
                   type="button"
@@ -184,7 +193,12 @@ export default function Register() {
 
               {/* Password Strength Indicator */}
               {form.password.length > 0 && (
-                <div className="mt-2.5 space-y-2">
+                <div
+                  className="mt-2.5 space-y-2"
+                  id="password-strength"
+                  role="status"
+                  aria-live="polite"
+                >
                   <div className="flex items-center gap-2">
                     <div className="flex-1 h-1.5 bg-white/6 rounded-full overflow-hidden flex gap-0.5">
                       {[0, 1, 2].map((i) => (
@@ -249,7 +263,13 @@ export default function Register() {
             </button>
 
             <p className="text-[11px] text-white/25 text-center mt-3">
-              بإنشاء حسابك، أنت توافق على شروط الاستخدام وسياسة الخصوصية
+              بإنشاء حسابك، أنت توافق على{" "}
+              <Link
+                to="/privacy"
+                className="text-violet-400 hover:text-violet-300 underline"
+              >
+                شروط الاستخدام وسياسة الخصوصية
+              </Link>
             </p>
           </form>
 

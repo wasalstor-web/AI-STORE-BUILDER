@@ -18,10 +18,13 @@ from app.config import get_settings
 from app.database import engine
 from app.middleware.rate_limit import limiter
 
-# Fix Windows console encoding for emoji/arabic
-if sys.platform == "win32":
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+# Fix Windows console encoding for emoji/arabic (skip during tests — breaks pytest capture)
+if sys.platform == "win32" and "pytest" not in sys.modules:
+    try:
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+        sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
+    except (AttributeError, ValueError):
+        pass  # already wrapped or no buffer available
 
 logger = logging.getLogger(__name__)
 

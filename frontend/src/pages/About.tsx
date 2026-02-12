@@ -1,15 +1,8 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import {
-  Sparkles,
-  Bot,
-  Shield,
-  Zap,
-  Globe,
-  Users,
-  ArrowRight,
-} from "lucide-react";
+import { Bot, Shield, Zap, Globe, Users, Sparkles } from "lucide-react";
 import { useEffect } from "react";
+import PublicLayout from "../components/layout/PublicLayout";
 
 const stats = [
   { value: "16+", label: "نوع مشروع" },
@@ -47,27 +40,7 @@ export default function About() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-dark-bg text-text-primary">
-      {/* Header */}
-      <header className="border-b border-dark-border">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-linear-to-br from-primary to-accent flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-lg font-bold gradient-text-static">
-              ويب فلو
-            </span>
-          </Link>
-          <Link
-            to="/"
-            className="text-sm text-text-muted hover:text-text-primary flex items-center gap-1 transition-colors"
-          >
-            <ArrowRight className="w-4 h-4" /> الرئيسية
-          </Link>
-        </div>
-      </header>
-
+    <PublicLayout>
       {/* Hero */}
       <section className="py-20 px-6 text-center">
         <motion.div
@@ -143,13 +116,6 @@ export default function About() {
           ابدأ الآن <Sparkles className="w-4 h-4" />
         </Link>
       </section>
-
-      {/* Footer */}
-      <footer className="border-t border-dark-border py-8 px-6 text-center">
-        <p className="text-xs text-text-muted">
-          &copy; {new Date().getFullYear()} منشئ ويب فلو. جميع الحقوق محفوظة.
-        </p>
-      </footer>
-    </div>
+    </PublicLayout>
   );
 }

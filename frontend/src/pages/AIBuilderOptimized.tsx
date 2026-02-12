@@ -403,7 +403,7 @@ export default function AIBuilderOptimized() {
                 throw new Error(job.error || "فشل إنشاء المتجر");
               }
               // Still processing — continue polling
-            } catch (_pollErr) {
+            } catch {
               // If job endpoint fails, fallback to store search
               if (attempts >= 3) {
                 const storesRes = await storesApi.list(0, 50);

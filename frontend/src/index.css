@@ -1482,18 +1482,6 @@
   transform: translateY(0);
 }
 
-/* Animated Counter */
-@keyframes count-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 /* Marquee */
 @keyframes marquee-scroll {
   0% {
@@ -1525,31 +1513,9 @@
   }
 }
 .typing-cursor {
-  border-left: 2px solid var(--color-primary);
+  border-inline-start: 2px solid var(--color-primary);
   animation: blink-cursor 1s step-end infinite;
-  padding-left: 2px;
-}
-
-/* Gradient Text */
-.gradient-text {
-  background: linear-gradient(
-    135deg,
-    var(--color-primary-light),
-    var(--color-accent-light)
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Shimmer Loading */
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
+  padding-inline-start: 2px;
 }
 .shimmer {
   background: linear-gradient(

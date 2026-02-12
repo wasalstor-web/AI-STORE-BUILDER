@@ -31,6 +31,7 @@ import {
   getTemplateHTML,
   type StoreTemplate,
 } from "../data/templates";
+import Modal from "../components/Modal";
 import AppBackdrop from "../components/graphics/AppBackdrop";
 
 /* ═══════════════════════════════════════
@@ -282,22 +283,15 @@ function TemplateShowcase() {
       </div>
 
       {/* Live Preview Modal */}
-      {activeTemplate && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/85 backdrop-blur-md z-[100] flex items-center justify-center p-4"
-          onClick={() => setActiveTemplate(null)}
-        >
-          <motion.div
-            initial={{ scale: 0.95, opacity: 0, y: 20 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="bg-dark-surface rounded-2xl overflow-hidden w-full max-w-5xl max-h-[90vh] flex flex-col border border-dark-border"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between p-4 border-b border-dark-border shrink-0">
+      <Modal
+        open={!!activeTemplate}
+        onClose={() => setActiveTemplate(null)}
+        ariaLabel="معاينة القالب"
+        className="w-full max-w-5xl max-h-[90vh] flex flex-col"
+      >
+        {activeTemplate && (
+          <>
+            <div className="flex items-center justify-between p-4 border-b border-dark-border shrink-0 flex-wrap gap-3">
               <div className="flex items-center gap-3">
                 <div
                   className="w-10 h-10 rounded-xl shrink-0"
@@ -315,12 +309,14 @@ function TemplateShowcase() {
                   <button
                     onClick={() => setPreviewDevice("desktop")}
                     className={`p-1.5 rounded-md transition-all ${previewDevice === "desktop" ? "bg-primary text-white shadow-sm" : "text-text-muted hover:text-text-secondary"}`}
+                    aria-label="معاينة على الكمبيوتر"
                   >
                     <Monitor className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => setPreviewDevice("mobile")}
                     className={`p-1.5 rounded-md transition-all ${previewDevice === "mobile" ? "bg-primary text-white shadow-sm" : "text-text-muted hover:text-text-secondary"}`}
+                    aria-label="معاينة على الجوال"
                   >
                     <Smartphone className="w-3.5 h-3.5" />
                   </button>
@@ -334,13 +330,14 @@ function TemplateShowcase() {
                 </Link>
                 <button
                   onClick={() => setActiveTemplate(null)}
-                  className="p-2 rounded-lg hover:bg-dark-hover text-text-muted transition-colors text-lg leading-none"
+                  className="p-2 rounded-lg hover:bg-dark-hover text-text-muted transition-colors"
+                  aria-label="إغلاق المعاينة"
                 >
-                  &times;
+                  <X className="w-5 h-5" />
                 </button>
               </div>
             </div>
-            <div className="flex-1 overflow-hidden bg-neutral-100 flex items-start justify-center p-6">
+            <div className="flex-1 overflow-hidden bg-neutral-100 flex items-start justify-center p-4 md:p-6">
               <div
                 className="bg-white rounded-xl overflow-hidden shadow-2xl h-full transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
                 style={{ width: previewDevice === "mobile" ? "375px" : "100%" }}
@@ -353,9 +350,9 @@ function TemplateShowcase() {
                 />
               </div>
             </div>
-          </motion.div>
-        </motion.div>
-      )}
+          </>
+        )}
+      </Modal>
     </>
   );
 }

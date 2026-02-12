@@ -8,7 +8,6 @@ import {
   Store,
   PlusCircle,
   Package,
-  Eye,
   Sparkles,
   ArrowUpLeft,
   Clock,
@@ -134,7 +133,7 @@ const proFeatures = [
   { icon: Palette, label: "12 قالب احترافي", available: true },
   { icon: Bot, label: "بناء بالذكاء الاصطناعي", available: true },
   { icon: Code2, label: "تصدير HTML كامل", available: true },
-  { icon: BarChart3, label: "نطاق مخصص", available: false },
+  { icon: Crown, label: "نطاق مخصص", available: false },
   { icon: BarChart3, label: "تحليلات متقدمة", available: false },
 ];
 
@@ -145,11 +144,15 @@ export default function Dashboard() {
     document.title = "لوحة التحكم | ويب فلو";
   }, []);
 
-  const { data: storesData, isLoading: storesLoading } =
-    useQuery<StoreListResponse>({
-      queryKey: ["stores"],
-      queryFn: async () => (await storesApi.list()).data,
-    });
+  const {
+    data: storesData,
+    isLoading: storesLoading,
+    isError: storesError,
+    refetch: refetchStores,
+  } = useQuery<StoreListResponse>({
+    queryKey: ["stores"],
+    queryFn: async () => (await storesApi.list()).data,
+  });
 
   const { data: tenant } = useQuery<Tenant>({
     queryKey: ["tenant"],
@@ -163,7 +166,12 @@ export default function Dashboard() {
   ).length;
 
   // Single aggregate API call instead of N+1 per-store queries
-  const { data: dashStats, isLoading: statsLoading } = useQuery<{
+  const {
+    data: dashStats,
+    isLoading: statsLoading,
+    isError: statsError,
+    refetch: refetchStats,
+  } = useQuery<{
     total_stores: number;
     active_stores: number;
     total_products: number;
@@ -183,6 +191,13 @@ export default function Dashboard() {
   const totalProducts = dashStats?.total_products ?? 0;
   const totalOrders = dashStats?.total_orders ?? 0;
   const totalRevenue = dashStats?.total_revenue ?? 0;
+
+  const planLimits: Record<string, { maxStores: number; label: string }> = {
+    free: { maxStores: 3, label: "مجانية" },
+    pro: { maxStores: 10, label: "احترافية" },
+    business: { maxStores: 999, label: "أعمال" },
+  };
+  const currentPlan = planLimits[tenant?.plan || "free"] ?? planLimits.free;
 
   const stats = [
     {
@@ -295,6 +310,39 @@ export default function Dashboard() {
       </motion.div>
 
       {/* ── Stats Grid ── */}
+      {(statsError || storesError) && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="glass-card p-5 border-red-500/20 bg-red-500/5"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
+                <Activity className="w-5 h-5 text-red-400" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm">
+                  حدث خطأ في تحميل البيانات
+                </p>
+                <p className="text-xs text-text-muted">
+                  تأكد من اتصالك بالإنترنت وحاول مرة أخرى
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                refetchStores();
+                refetchStats();
+              }}
+              className="btn-outline text-xs px-4 py-2 flex items-center gap-1.5"
+            >
+              <Activity className="w-3.5 h-3.5" />
+              إعادة المحاولة
+            </button>
+          </div>
+        </motion.div>
+      )}
       {statsLoading ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -426,7 +474,7 @@ export default function Dashboard() {
                 {stores.map((store: StoreType, i: number) => (
                   <motion.div
                     key={store.id}
-                    initial={{ opacity: 0, x: -10 }}
+                    initial={{ opacity: 0, x: 10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.05 }}
                   >
@@ -504,7 +552,7 @@ export default function Dashboard() {
               {buildActivity(stores).map((item, i) => (
                 <motion.div
                   key={i}
-                  initial={{ opacity: 0, x: -10 }}
+                  initial={{ opacity: 0, x: 10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.4 + i * 0.05 }}
                   className="glass-card p-3.5 flex items-center gap-3"
@@ -541,23 +589,23 @@ export default function Dashboard() {
                 <h3 className="font-bold text-sm">خطتك الحالية</h3>
               </div>
               <div className="flex items-baseline gap-2 mb-1">
-                <span className="text-2xl font-bold">
-                  {tenant?.plan === "free" ? "مجانية" : "احترافية"}
-                </span>
+                <span className="text-2xl font-bold">{currentPlan.label}</span>
                 {tenant?.plan === "free" && (
-                  <span className="text-xs text-text-muted">3 متاجر</span>
+                  <span className="text-xs text-text-muted">
+                    {currentPlan.maxStores} متاجر
+                  </span>
                 )}
               </div>
               <div className="w-full h-2 bg-dark-hover/50 rounded-full overflow-hidden mt-3">
                 <div
                   className="h-full bg-linear-to-l from-violet-600 to-blue-500 rounded-full transition-all"
                   style={{
-                    width: `${Math.min((totalStores / 3) * 100, 100)}%`,
+                    width: `${Math.min((totalStores / currentPlan.maxStores) * 100, 100)}%`,
                   }}
                 />
               </div>
               <p className="text-xs text-text-muted mt-2">
-                {totalStores} / 3 متاجر مستخدمة
+                {totalStores} / {currentPlan.maxStores} متاجر مستخدمة
               </p>
             </div>
             <div className="p-4">

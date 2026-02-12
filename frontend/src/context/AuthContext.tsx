@@ -1,12 +1,23 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { authApi } from '../lib/api';
-import type { User, TokenResponse } from '../types';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
+import { authApi } from "../lib/api";
+import type { User, TokenResponse } from "../types";
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, fullName: string, tenantName: string) => Promise<void>;
+  register: (
+    email: string,
+    password: string,
+    fullName: string,
+    tenantName: string,
+  ) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
 }
@@ -19,13 +30,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // تحميل بيانات المستخدم عند بدء التطبيق
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem("access_token");
     if (token) {
-      authApi.me()
+      authApi
+        .me()
         .then((res) => setUser(res.data))
         .catch(() => {
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('refresh_token');
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
         })
         .finally(() => setLoading(false));
     } else {
@@ -34,8 +46,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const saveTokens = (data: TokenResponse) => {
-    localStorage.setItem('access_token', data.access_token);
-    localStorage.setItem('refresh_token', data.refresh_token);
+    localStorage.setItem("access_token", data.access_token);
+    localStorage.setItem("refresh_token", data.refresh_token);
   };
 
   const login = async (email: string, password: string) => {
@@ -45,7 +57,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(meRes.data);
   };
 
-  const register = async (email: string, password: string, fullName: string, tenantName: string) => {
+  const register = async (
+    email: string,
+    password: string,
+    fullName: string,
+    tenantName: string,
+  ) => {
     const res = await authApi.register({
       email,
       password,
@@ -61,17 +78,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const res = await authApi.me();
       setUser(res.data);
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   };
 
   const logout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, refreshUser }}>
+    <AuthContext.Provider
+      value={{ user, loading, login, register, logout, refreshUser }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -80,6 +101,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 // eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }

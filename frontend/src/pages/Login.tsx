@@ -58,12 +58,16 @@ export default function Login() {
         <div className="glass-card-glow p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="text-sm text-text-secondary mb-2 block">
+              <label
+                htmlFor="login-email"
+                className="text-sm text-text-secondary mb-2 block"
+              >
                 البريد الإلكتروني
               </label>
               <div className="relative">
                 <Mail className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
                 <input
+                  id="login-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -77,12 +81,16 @@ export default function Login() {
             </div>
 
             <div>
-              <label className="text-sm text-text-secondary mb-2 block">
+              <label
+                htmlFor="login-password"
+                className="text-sm text-text-secondary mb-2 block"
+              >
                 كلمة المرور
               </label>
               <div className="relative">
                 <Lock className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
                 <input
+                  id="login-password"
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

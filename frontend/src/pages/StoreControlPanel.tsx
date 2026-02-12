@@ -373,7 +373,7 @@ function ProductsTab({ storeId }: { storeId: string }) {
 
   // Reset page when search changes
   useEffect(() => {
-    setPage(1);
+    queueMicrotask(() => setPage(1));
   }, [debouncedSearch]);
 
   const { data, isLoading } = useQuery({
@@ -607,10 +607,10 @@ function ProductFormModal({
     product?.compare_at_price?.toString() || "",
   );
   const [weight, setWeight] = useState(product?.weight?.toString() || "");
-  const [weightUnit, setWeightUnit] = useState(
-    product?.weight_unit || "kg",
+  const [weightUnit, setWeightUnit] = useState(product?.weight_unit || "kg");
+  const [sku, setSku] = useState(
+    ((product as Record<string, unknown>)?.sku as string) || "",
   );
-  const [sku, setSku] = useState((product as Record<string, unknown>)?.sku as string || "");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -1206,7 +1206,7 @@ function OrdersTab({ storeId }: { storeId: string }) {
 
   // Reset page when filter changes
   useEffect(() => {
-    setOrderPage(1);
+    queueMicrotask(() => setOrderPage(1));
   }, [statusFilter]);
 
   const { data, isLoading } = useQuery({

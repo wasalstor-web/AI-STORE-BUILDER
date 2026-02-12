@@ -10,6 +10,7 @@ import {
   type StoreTemplate,
 } from "../data/templates";
 import toast from "react-hot-toast";
+import Modal from "../components/Modal";
 import {
   Sparkles,
   ArrowRight,
@@ -333,6 +334,18 @@ export default function CreateStore() {
                       ? "ring-2 ring-primary border-primary"
                       : "hover:border-dark-hover hover:-translate-y-1"
                   }`}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`قالب ${template.name}`}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") setPreviewTemplate(template);
+                    if (e.key === " ") {
+                      e.preventDefault();
+                      setSelectedTemplate(
+                        selectedTemplate?.id === template.id ? null : template,
+                      );
+                    }
+                  }}
                 >
                   {/* Thumbnail */}
                   <div
@@ -492,23 +505,16 @@ export default function CreateStore() {
 
       {/* ═══════ Live Template Preview Modal ═══════ */}
       <AnimatePresence>
-        {previewTemplate && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4"
-            onClick={() => setPreviewTemplate(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-dark-surface rounded-2xl overflow-hidden w-full max-w-6xl max-h-[92vh] flex flex-col"
-              onClick={(e) => e.stopPropagation()}
-            >
+        <Modal
+          open={!!previewTemplate}
+          onClose={() => setPreviewTemplate(null)}
+          ariaLabel="معاينة القالب"
+          className="w-full max-w-6xl max-h-[92vh] flex flex-col"
+        >
+          {previewTemplate && (
+            <>
               {/* Modal Header */}
-              <div className="flex items-center justify-between p-4 border-b border-dark-border shrink-0">
+              <div className="flex items-center justify-between p-4 border-b border-dark-border shrink-0 flex-wrap gap-3">
                 <div className="flex items-center gap-4">
                   <div
                     className="w-10 h-10 rounded-xl shrink-0"
@@ -538,6 +544,7 @@ export default function CreateStore() {
                         key={d}
                         onClick={() => setPreviewDevice(d)}
                         className={`p-1.5 rounded-md transition-colors ${previewDevice === d ? "bg-primary text-white" : "text-text-muted hover:text-text-primary"}`}
+                        aria-label={`معاينة على ${d === "desktop" ? "الكمبيوتر" : d === "tablet" ? "التابلت" : "الجوال"}`}
                       >
                         <Icon className="w-3.5 h-3.5" />
                       </button>
@@ -553,6 +560,7 @@ export default function CreateStore() {
                   <button
                     onClick={() => setPreviewTemplate(null)}
                     className="p-2 rounded-lg hover:bg-dark-hover transition-colors"
+                    aria-label="إغلاق المعاينة"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -593,7 +601,7 @@ export default function CreateStore() {
               </div>
 
               {/* Template Info Bar */}
-              <div className="flex items-center justify-between px-4 py-3 border-t border-dark-border bg-dark-card shrink-0">
+              <div className="flex items-center justify-between px-4 py-3 border-t border-dark-border bg-dark-card shrink-0 flex-wrap gap-2">
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-1.5">
                     <div
@@ -617,9 +625,9 @@ export default function CreateStore() {
                   {previewTemplate.style}
                 </span>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
+            </>
+          )}
+        </Modal>
       </AnimatePresence>
     </div>
   );

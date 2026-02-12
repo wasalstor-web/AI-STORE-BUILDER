@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { authApi, tenantsApi } from "../lib/api";
@@ -15,6 +15,8 @@ import {
   Crown,
   Calendar,
   CheckCircle,
+  Check,
+  X as XIcon,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -27,6 +29,34 @@ export default function Profile() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
   const [profileSaved, setProfileSaved] = useState(false);
+
+  // Password strength checker
+  const passwordChecks = useMemo(() => {
+    const pw = newPassword;
+    return [
+      { label: "8 أحرف على الأقل", met: pw.length >= 8 },
+      { label: "حرف واحد على الأقل", met: /[a-zA-Zأ-ي]/.test(pw) },
+      { label: "رقم واحد على الأقل", met: /\d/.test(pw) },
+    ];
+  }, [newPassword]);
+
+  const strengthScore = passwordChecks.filter((c) => c.met).length;
+  const strengthColor =
+    strengthScore === 3
+      ? "bg-emerald-500"
+      : strengthScore === 2
+        ? "bg-amber-500"
+        : strengthScore >= 1
+          ? "bg-red-500"
+          : "bg-white/10";
+  const strengthLabel =
+    strengthScore === 3
+      ? "قوية"
+      : strengthScore === 2
+        ? "متوسطة"
+        : strengthScore >= 1
+          ? "ضعيفة"
+          : "";
 
   const { data: tenant } = useQuery<Tenant>({
     queryKey: ["tenant"],
@@ -125,10 +155,14 @@ export default function Profile() {
 
         <div className="p-6 space-y-5">
           <div>
-            <label className="text-sm font-medium text-text-secondary mb-1.5 block flex items-center gap-1.5">
+            <label
+              htmlFor="prof-name"
+              className="text-sm font-medium text-text-secondary mb-1.5 flex items-center gap-1.5"
+            >
               <User className="w-3.5 h-3.5" /> الاسم الكامل
             </label>
             <input
+              id="prof-name"
               type="text"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
@@ -138,10 +172,14 @@ export default function Profile() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-text-secondary mb-1.5 block flex items-center gap-1.5">
+            <label
+              htmlFor="prof-email"
+              className="text-sm font-medium text-text-secondary mb-1.5 flex items-center gap-1.5"
+            >
               <Mail className="w-3.5 h-3.5" /> البريد الإلكتروني
             </label>
             <input
+              id="prof-email"
               type="email"
               value={user?.email || ""}
               disabled
@@ -181,10 +219,14 @@ export default function Profile() {
         </h3>
         <div className="space-y-4 max-w-md">
           <div>
-            <label className="text-sm font-medium text-text-secondary mb-1.5 block">
+            <label
+              htmlFor="prof-cur-pw"
+              className="text-sm font-medium text-text-secondary mb-1.5 block"
+            >
               كلمة المرور الحالية
             </label>
             <input
+              id="prof-cur-pw"
               type="password"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
@@ -193,22 +235,84 @@ export default function Profile() {
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-text-secondary mb-1.5 block">
+            <label
+              htmlFor="prof-new-pw"
+              className="text-sm font-medium text-text-secondary mb-1.5 block"
+            >
               كلمة المرور الجديدة
             </label>
             <input
+              id="prof-new-pw"
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               className="input-field"
               placeholder="8 أحرف على الأقل"
+              aria-describedby="prof-pw-strength"
             />
+            {newPassword.length > 0 && (
+              <div
+                className="mt-2 space-y-1.5"
+                id="prof-pw-strength"
+                role="status"
+                aria-live="polite"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-1.5 bg-white/6 rounded-full overflow-hidden flex gap-0.5">
+                    {[0, 1, 2].map((i) => (
+                      <div
+                        key={i}
+                        className={`flex-1 rounded-full transition-all duration-300 ${
+                          i < strengthScore ? strengthColor : "bg-white/6"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span
+                    className={`text-[10px] font-medium ${
+                      strengthScore === 3
+                        ? "text-emerald-400"
+                        : strengthScore === 2
+                          ? "text-amber-400"
+                          : "text-red-400"
+                    }`}
+                  >
+                    {strengthLabel}
+                  </span>
+                </div>
+                <div className="space-y-0.5">
+                  {passwordChecks.map((check) => (
+                    <div
+                      key={check.label}
+                      className="flex items-center gap-1.5 text-[11px]"
+                    >
+                      {check.met ? (
+                        <Check className="w-3 h-3 text-emerald-400" />
+                      ) : (
+                        <XIcon className="w-3 h-3 text-white/20" />
+                      )}
+                      <span
+                        className={
+                          check.met ? "text-white/60" : "text-white/30"
+                        }
+                      >
+                        {check.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
           <div>
-            <label className="text-sm font-medium text-text-secondary mb-1.5 block">
+            <label
+              htmlFor="prof-confirm-pw"
+              className="text-sm font-medium text-text-secondary mb-1.5 block"
+            >
               تأكيد كلمة المرور الجديدة
             </label>
             <input
+              id="prof-confirm-pw"
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}

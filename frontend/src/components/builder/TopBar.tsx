@@ -136,7 +136,9 @@ export default memo(function TopBar({
           ) : (
             <Rocket className="w-3.5 h-3.5" />
           )}
-          <span className="hidden sm:inline">{isPublishing ? "جاري النشر..." : "نشر"}</span>
+          <span className="hidden sm:inline">
+            {isPublishing ? "جاري النشر..." : "نشر"}
+          </span>
         </button>
       </div>
     </div>

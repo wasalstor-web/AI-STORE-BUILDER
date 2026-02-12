@@ -1,15 +1,8 @@
-import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import {
-  Sparkles,
-  ArrowRight,
-  Mail,
-  MessageSquare,
-  MapPin,
-  Send,
-} from "lucide-react";
+import { Mail, MessageSquare, MapPin, Send } from "lucide-react";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
+import PublicLayout from "../components/layout/PublicLayout";
 
 const contactMethods = [
   {
@@ -59,27 +52,7 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen bg-dark-bg text-text-primary">
-      {/* Header */}
-      <header className="border-b border-dark-border">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-linear-to-br from-primary to-accent flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-lg font-bold gradient-text-static">
-              ويب فلو
-            </span>
-          </Link>
-          <Link
-            to="/"
-            className="text-sm text-text-muted hover:text-text-primary flex items-center gap-1 transition-colors"
-          >
-            <ArrowRight className="w-4 h-4" /> الرئيسية
-          </Link>
-        </div>
-      </header>
-
+    <PublicLayout>
       <div className="max-w-5xl mx-auto px-6 py-16">
         {/* Title */}
         <motion.div
@@ -121,10 +94,14 @@ export default function Contact() {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium text-text-secondary mb-1.5 block">
+                <label
+                  htmlFor="contact-name"
+                  className="text-sm font-medium text-text-secondary mb-1.5 block"
+                >
                   الاسم *
                 </label>
                 <input
+                  id="contact-name"
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -133,10 +110,14 @@ export default function Contact() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-text-secondary mb-1.5 block">
+                <label
+                  htmlFor="contact-email"
+                  className="text-sm font-medium text-text-secondary mb-1.5 block"
+                >
                   البريد الإلكتروني *
                 </label>
                 <input
+                  id="contact-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -147,13 +128,17 @@ export default function Contact() {
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium text-text-secondary mb-1.5 block">
+              <label
+                htmlFor="contact-message"
+                className="text-sm font-medium text-text-secondary mb-1.5 block"
+              >
                 الرسالة *
               </label>
               <textarea
+                id="contact-message"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="input-field min-h-[140px] resize-none"
+                className="w-full bg-dark-elevated border border-dark-border rounded-xl px-4 py-3 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all min-h-[140px] resize-none"
                 placeholder="كيف يمكننا مساعدتك؟"
               />
             </div>
@@ -172,13 +157,6 @@ export default function Contact() {
           </form>
         </motion.div>
       </div>
-
-      {/* Footer */}
-      <footer className="border-t border-dark-border py-8 px-6 text-center">
-        <p className="text-xs text-text-muted">
-          &copy; {new Date().getFullYear()} منشئ ويب فلو. جميع الحقوق محفوظة.
-        </p>
-      </footer>
-    </div>
+    </PublicLayout>
   );
 }
