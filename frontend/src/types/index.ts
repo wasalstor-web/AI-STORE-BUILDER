@@ -7,6 +7,7 @@ export interface User {
   role: string;
   tenant_id: string;
   is_active: boolean;
+  email_verified: boolean;
 }
 
 export interface TokenResponse {

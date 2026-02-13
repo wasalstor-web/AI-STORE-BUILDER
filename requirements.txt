@@ -46,6 +46,7 @@ aiofiles>=24.1.0
 python-slugify>=8.0.0
 python-dotenv>=1.0.1
 uuid7>=0.1.0
+aiosmtplib>=3.0.0
 
 # ── Development ──
 pytest>=8.3.4

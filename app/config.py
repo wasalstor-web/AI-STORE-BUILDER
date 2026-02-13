@@ -78,6 +78,17 @@ class Settings(BaseSettings):
     AI_LEARNING_MODE: bool = True
     STORE_AI_CONVERSATIONS: bool = True
 
+    # ── Email ──
+    EMAIL_PROVIDER: str = "console"  # "resend" | "smtp" | "console"
+    RESEND_API_KEY: str = ""
+    EMAIL_FROM_NAME: str = "\u0648\u064a\u0628 \u0641\u0644\u0648"
+    EMAIL_FROM_ADDRESS: str = "noreply@webflow.sa"
+    SMTP_HOST: str = ""
+    SMTP_PORT: int = 587
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+    FRONTEND_URL: str = "http://localhost:3000"
+
     # ── Payment (Phase 3) ──
     MOYASAR_API_KEY: str = ""
     TAP_SECRET_KEY: str = ""

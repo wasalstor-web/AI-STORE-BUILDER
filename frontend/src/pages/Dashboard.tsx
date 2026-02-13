@@ -252,6 +252,33 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6 max-w-[1400px]">
+      {/* ── Email Verification Banner ── */}
+      {user && !user.email_verified && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative overflow-hidden rounded-xl border border-amber-500/20 bg-amber-500/5 p-4"
+        >
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
+                <Bell className="w-5 h-5 text-amber-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-amber-200">بريدك الإلكتروني غير مؤكد</p>
+                <p className="text-xs text-amber-200/60">أكد بريدك للاستفادة من جميع المميزات</p>
+              </div>
+            </div>
+            <Link
+              to={`/verify-email?email=${encodeURIComponent(user.email)}`}
+              className="text-xs font-semibold px-4 py-2 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 transition-colors border border-amber-500/20"
+            >
+              تأكيد البريد ←
+            </Link>
+          </div>
+        </motion.div>
+      )}
+
       {/* ── Hero Welcome ── */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}

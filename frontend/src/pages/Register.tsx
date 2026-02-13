@@ -44,8 +44,8 @@ export default function Register() {
     setLoading(true);
     try {
       await register(form.email, form.password, form.fullName, form.tenantName);
-      toast.success("تم إنشاء حسابك بنجاح! 🎉");
-      navigate("/dashboard");
+      toast.success("تم إنشاء حسابك! تحقق من بريدك الإلكتروني 📧");
+      navigate(`/verify-email?email=${encodeURIComponent(form.email)}`);
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { detail?: string } } })?.response?.data
