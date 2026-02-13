@@ -1,0 +1,43 @@
+# ═══════════════════════════════════════════════════════════
+#  AI Store Builder — API Service (systemd)
+#  Install: sudo cp infra/ai-store-builder-api.service /etc/systemd/system/
+#  Enable:  sudo systemctl enable --now ai-store-builder-api
+# ═══════════════════════════════════════════════════════════
+
+[Unit]
+Description=AI Store Builder API
+After=network.target postgresql.service redis-server.service
+Wants=postgresql.service redis-server.service
+
+[Service]
+Type=exec
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/ai-store-builder
+EnvironmentFile=/opt/ai-store-builder/.env
+ExecStart=/opt/ai-store-builder/.venv/bin/uvicorn app.main:app \
+    --host 127.0.0.1 \
+    --port 8000 \
+    --workers 2 \
+    --loop uvloop \
+    --access-log \
+    --log-level info
+
+# Security hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/opt/ai-store-builder
+PrivateTmp=yes
+
+# Restart policy
+Restart=always
+RestartSec=5
+
+# Limits
+LimitNOFILE=65535
+TimeoutStartSec=30
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

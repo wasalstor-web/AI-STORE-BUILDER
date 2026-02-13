@@ -1,0 +1,35 @@
+# ═══════════════════════════════════════════════════════════
+#  AI Store Builder — Background Worker Service (systemd)
+#  Install: sudo cp infra/ai-store-builder-worker.service /etc/systemd/system/
+#  Enable:  sudo systemctl enable --now ai-store-builder-worker
+# ═══════════════════════════════════════════════════════════
+
+[Unit]
+Description=AI Store Builder Background Worker
+After=network.target postgresql.service redis-server.service
+Wants=postgresql.service redis-server.service
+
+[Service]
+Type=exec
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/ai-store-builder
+EnvironmentFile=/opt/ai-store-builder/.env
+ExecStart=/opt/ai-store-builder/.venv/bin/python -m app.workers.store_worker
+
+# Security hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/opt/ai-store-builder
+PrivateTmp=yes
+
+# Restart policy
+Restart=always
+RestartSec=10
+
+# Limits
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
