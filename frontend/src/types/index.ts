@@ -269,16 +269,141 @@ export interface PublicOrderTracking {
   status: string;
   payment_status: string;
   customer_name: string;
-  total: number;
+  total_amount: number;
+  subtotal: number;
+  tax_amount: number;
+  shipping_cost: number;
   currency: string;
   items: Array<{
-    name: string;
+    product_name: string;
     quantity: number;
-    price: number;
-    total: number;
-    image: string | null;
+    unit_price: number;
+    image_url: string | null;
   }>;
   tracking_number: string | null;
   shipping_method: string | null;
   created_at: string | null;
+}
+
+// ── Customer ──
+export interface Customer {
+  id: string;
+  store_id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  total_orders: number;
+  total_spent: number;
+  last_order_date: string | null;
+  addresses: Array<Record<string, string>> | null;
+  tags: string[] | null;
+  notes: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CustomerListResponse {
+  customers: Customer[];
+  total: number;
+  page: number;
+  per_page: number;
+  total_pages: number;
+}
+
+export interface CustomerStats {
+  total_customers: number;
+  new_customers_this_month: number;
+  returning_customers: number;
+  average_order_value: number;
+}
+
+// ── Coupon ──
+export interface Coupon {
+  id: string;
+  store_id: string;
+  code: string;
+  description: string | null;
+  discount_type: "percentage" | "fixed";
+  discount_value: number;
+  min_order_amount: number | null;
+  max_discount_amount: number | null;
+  max_uses: number | null;
+  used_count: number;
+  max_uses_per_customer: number | null;
+  starts_at: string | null;
+  expires_at: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CouponListResponse {
+  coupons: Coupon[];
+  total: number;
+}
+
+// ── Review ──
+export interface Review {
+  id: string;
+  store_id: string;
+  product_id: string;
+  customer_name: string;
+  customer_email: string;
+  rating: number;
+  title: string | null;
+  comment: string | null;
+  is_approved: boolean;
+  is_featured: boolean;
+  created_at: string;
+}
+
+export interface ReviewListResponse {
+  reviews: Review[];
+  total: number;
+  page: number;
+  per_page: number;
+}
+
+// ── Analytics ──
+export interface RevenuePoint {
+  date: string;
+  revenue: number;
+  orders: number;
+}
+
+export interface TopProduct {
+  product_id: string;
+  product_name: string;
+  product_image: string | null;
+  total_sold: number;
+  total_revenue: number;
+}
+
+export interface OrderStatusBreakdown {
+  pending: number;
+  confirmed: number;
+  processing: number;
+  shipped: number;
+  delivered: number;
+  cancelled: number;
+}
+
+export interface AnalyticsOverview {
+  total_revenue: number;
+  total_orders: number;
+  total_customers: number;
+  total_products: number;
+  avg_order_value: number;
+  conversion_rate: number;
+  revenue_change: number;
+  orders_change: number;
+}
+
+export interface FullAnalytics {
+  overview: AnalyticsOverview;
+  revenue_chart: RevenuePoint[];
+  top_products: TopProduct[];
+  order_status: OrderStatusBreakdown;
+  recent_orders_count: number;
 }

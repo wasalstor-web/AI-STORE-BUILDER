@@ -68,6 +68,9 @@ class Product(Base, TimestampMixin):
     store: Mapped[Store] = relationship("Store", back_populates="products")
     category: Mapped[Category | None] = relationship("Category", back_populates="products")
     order_items: Mapped[list[OrderItem]] = relationship("OrderItem", back_populates="product")
+    reviews: Mapped[list[Review]] = relationship(
+        "Review", back_populates="product", cascade="all, delete-orphan"
+    )
 
     def __repr__(self) -> str:
         return f"<Product {self.slug} — {self.price} {self.currency}>"

@@ -116,6 +116,10 @@ from app.api.payments import router as payments_router  # noqa: E402
 from app.api.uploads import router as uploads_router  # noqa: E402
 from app.api.dashboard import router as dashboard_router  # noqa: E402
 from app.api.storefront import router as storefront_router  # noqa: E402
+from app.api.customers import router as customers_router  # noqa: E402
+from app.api.coupons import router as coupons_router  # noqa: E402
+from app.api.reviews import router as reviews_router  # noqa: E402
+from app.api.analytics import router as analytics_router  # noqa: E402
 
 # ── Public routes ──
 app.include_router(health_router)
@@ -146,6 +150,12 @@ app.include_router(uploads_router, prefix=f"{settings.API_V1_PREFIX}", tags=["Up
 
 # ── Dashboard ──
 app.include_router(dashboard_router, prefix=f"{settings.API_V1_PREFIX}/dashboard", tags=["Dashboard"])
+
+# ── Customers, Coupons, Reviews, Analytics ──
+app.include_router(customers_router, prefix=f"{settings.API_V1_PREFIX}", tags=["Customers"])
+app.include_router(coupons_router, prefix=f"{settings.API_V1_PREFIX}", tags=["Coupons"])
+app.include_router(reviews_router, prefix=f"{settings.API_V1_PREFIX}", tags=["Reviews"])
+app.include_router(analytics_router, prefix=f"{settings.API_V1_PREFIX}", tags=["Analytics"])
 
 
 @app.exception_handler(Exception)

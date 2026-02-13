@@ -38,6 +38,15 @@ class Store(Base, TimestampMixin):
     orders: Mapped[list[Order]] = relationship(
         "Order", back_populates="store", cascade="all, delete-orphan"
     )
+    customers: Mapped[list[Customer]] = relationship(
+        "Customer", back_populates="store", cascade="all, delete-orphan"
+    )
+    coupons: Mapped[list[Coupon]] = relationship(
+        "Coupon", back_populates="store", cascade="all, delete-orphan"
+    )
+    reviews: Mapped[list[Review]] = relationship(
+        "Review", back_populates="store", cascade="all, delete-orphan"
+    )
 
     def __repr__(self) -> str:
         return f"<Store {self.slug}>"

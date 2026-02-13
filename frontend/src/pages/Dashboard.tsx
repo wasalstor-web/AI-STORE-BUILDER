@@ -1,803 +1,401 @@
+/**
+ * Dashboard — Professional merchant admin panel.
+ * Upgraded: real analytics, charts, recent orders, store health, top products.
+ */
+
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { storesApi, tenantsApi, dashboardApi } from "../lib/api";
+import { storesApi, dashboardApi, analyticsApi } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
-import { useEffect } from "react";
 import {
-  Store,
-  PlusCircle,
-  Package,
-  Sparkles,
-  ArrowUpLeft,
-  Clock,
-  Zap,
-  LayoutGrid,
-  Palette,
-  Bot,
-  BarChart3,
-  ShoppingCart,
-  Star,
-  Activity,
-  Bell,
-  Layers,
-  Rocket,
-  Crown,
-  Code2,
-  ChevronLeft,
+  Store as StoreIcon, PlusCircle, Package, Sparkles,
+  ArrowUpRight, ArrowDownRight,
+  LayoutGrid, Bot, ShoppingCart, TrendingUp,
+  Crown, ChevronLeft, Users, Ticket,
+  Eye, Megaphone, BarChart3,
+  CheckCircle2, Circle, AlertCircle,
+  ShoppingBag, RefreshCw, Wallet, Star,
 } from "lucide-react";
-import type { Store as StoreType, StoreListResponse, Tenant } from "../types";
+import type { Store as StoreType, StoreListResponse, FullAnalytics } from "../types";
 
-const storeTypeLabels: Record<string, string> = {
-  fashion: "أزياء",
-  electronics: "إلكترونيات",
-  beauty: "تجميل",
-  food: "أغذية",
-  general: "عام",
-  jewelry: "مجوهرات",
-  sports: "رياضة",
-  kids: "أطفال",
-  home: "ديكور",
-  perfume: "عطور",
-  health: "صحة",
-  auto: "سيارات",
+/* ── Helpers ── */
+const storeTypeConfig: Record<string, { label: string; emoji: string; color: string }> = {
+  fashion: { label: "أزياء", emoji: "👗", color: "from-pink-500 to-rose-500" },
+  electronics: { label: "إلكترونيات", emoji: "📱", color: "from-blue-500 to-cyan-500" },
+  beauty: { label: "تجميل", emoji: "💄", color: "from-fuchsia-500 to-pink-500" },
+  food: { label: "أغذية", emoji: "🍔", color: "from-orange-500 to-amber-500" },
+  general: { label: "عام", emoji: "🏪", color: "from-violet-500 to-purple-500" },
+  jewelry: { label: "مجوهرات", emoji: "💎", color: "from-amber-500 to-yellow-500" },
+  sports: { label: "رياضة", emoji: "⚽", color: "from-emerald-500 to-green-500" },
+  kids: { label: "أطفال", emoji: "🧸", color: "from-teal-500 to-cyan-500" },
+  home: { label: "ديكور", emoji: "🏠", color: "from-indigo-500 to-violet-500" },
+  perfume: { label: "عطور", emoji: "🌸", color: "from-rose-500 to-pink-500" },
+  health: { label: "صحة", emoji: "💊", color: "from-green-500 to-emerald-500" },
+  auto: { label: "سيارات", emoji: "🚗", color: "from-slate-500 to-gray-500" },
+  restaurant: { label: "مطعم", emoji: "🍽️", color: "from-red-500 to-orange-500" },
+  portfolio: { label: "معرض أعمال", emoji: "🎨", color: "from-purple-500 to-violet-500" },
+  blog: { label: "مدونة", emoji: "✍️", color: "from-sky-500 to-blue-500" },
+  realestate: { label: "عقارات", emoji: "🏢", color: "from-stone-500 to-amber-500" },
 };
 
-const storeTypeEmojis: Record<string, string> = {
-  fashion: "👗",
-  electronics: "📱",
-  beauty: "💄",
-  food: "🍽️",
-  general: "🏪",
-  jewelry: "💎",
-  sports: "⚽",
-  kids: "🧸",
-  home: "🏠",
-  perfume: "🌹",
-  health: "🌿",
-  auto: "🚗",
-};
-
-const storeTypeColors: Record<string, string> = {
-  fashion: "from-amber-500/20 to-yellow-600/20",
-  electronics: "from-cyan-500/20 to-blue-600/20",
-  beauty: "from-pink-500/20 to-rose-600/20",
-  food: "from-orange-500/20 to-red-500/20",
-  general: "from-violet-500/20 to-purple-600/20",
-  jewelry: "from-yellow-500/20 to-amber-600/20",
-  sports: "from-green-500/20 to-emerald-600/20",
-  kids: "from-indigo-400/20 to-purple-500/20",
-  home: "from-amber-600/20 to-orange-700/20",
-  perfume: "from-purple-600/20 to-fuchsia-600/20",
-  health: "from-green-500/20 to-teal-600/20",
-  auto: "from-red-500/20 to-rose-600/20",
-};
-
-// Activity feed — dynamically generated from stores data
-function buildActivity(stores: StoreType[]) {
-  const items: Array<{
-    icon: typeof Bell;
-    text: string;
-    time: string;
-    color: string;
-    bg: string;
-  }> = [];
-
-  // Recent stores
-  const sorted = [...stores].sort(
-    (a, b) =>
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-  );
-  for (const store of sorted.slice(0, 3)) {
-    const date = new Date(store.created_at);
-    const diffMs = Date.now() - date.getTime();
-    const diffHours = Math.floor(diffMs / 3600000);
-    const time =
-      diffHours < 1
-        ? "الآن"
-        : diffHours < 24
-          ? `منذ ${diffHours} ساعة`
-          : date.toLocaleDateString("ar-SA");
-    items.push({
-      icon: Store,
-      text: `تم إنشاء متجر "${store.name}"`,
-      time,
-      color: store.status === "active" ? "text-success" : "text-primary-light",
-      bg: store.status === "active" ? "bg-success/10" : "bg-primary/10",
-    });
-  }
-
-  // System activity (always show)
-  items.push(
-    {
-      icon: Bell,
-      text: "نظام AI Builder جاهز للعمل",
-      time: "الآن",
-      color: "text-primary-light",
-      bg: "bg-primary/10",
-    },
-    {
-      icon: Palette,
-      text: "12 قالب احترافي متاح",
-      time: "النظام",
-      color: "text-success",
-      bg: "bg-success/10",
-    },
-  );
-
-  return items.slice(0, 5);
+function formatPrice(n: number) {
+  return new Intl.NumberFormat("ar-SA", { style: "currency", currency: "SAR", maximumFractionDigits: 0 }).format(n);
 }
 
-const proFeatures = [
-  { icon: Layers, label: "21+ قسم للسحب والإفلات", available: true },
-  { icon: Palette, label: "12 قالب احترافي", available: true },
-  { icon: Bot, label: "بناء بالذكاء الاصطناعي", available: true },
-  { icon: Code2, label: "تصدير HTML كامل", available: true },
-  { icon: Crown, label: "نطاق مخصص", available: false },
-  { icon: BarChart3, label: "تحليلات متقدمة", available: false },
-];
+function formatNum(n: number) {
+  return new Intl.NumberFormat("ar-SA").format(n);
+}
+
+function getGreeting() {
+  const h = new Date().getHours();
+  if (h < 12) return "صباح الخير";
+  if (h < 17) return "مساء الخير";
+  return "مساء النور";
+}
+
+/* ── Animation Variants ── */
+const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 } };
+const stagger = { animate: { transition: { staggerChildren: 0.06 } } };
 
 export default function Dashboard() {
   const { user } = useAuth();
 
-  useEffect(() => {
-    document.title = "لوحة التحكم | ويب فلو";
-  }, []);
-
-  const {
-    data: storesData,
-    isLoading: storesLoading,
-    isError: storesError,
-    refetch: refetchStores,
-  } = useQuery<StoreListResponse>({
+  const { data: storesData } = useQuery<StoreListResponse>({
     queryKey: ["stores"],
-    queryFn: async () => (await storesApi.list()).data,
+    queryFn: () => storesApi.list().then((r) => r.data),
   });
 
-  const { data: tenant } = useQuery<Tenant>({
-    queryKey: ["tenant"],
-    queryFn: async () => (await tenantsApi.current()).data,
+  const { data: stats } = useQuery({
+    queryKey: ["dashboard-stats"],
+    queryFn: () => dashboardApi.stats().then((r) => r.data),
+  });
+
+  const firstStore = storesData?.stores?.[0];
+  const { data: analytics } = useQuery<FullAnalytics>({
+    queryKey: ["analytics", firstStore?.id],
+    queryFn: () => analyticsApi.get(firstStore!.id, "30d").then((r) => r.data),
+    enabled: !!firstStore?.id,
   });
 
   const stores = storesData?.stores || [];
-  const totalStores = storesData?.total || 0;
-  const activeStores = stores.filter(
-    (s: StoreType) => s.status === "active",
-  ).length;
+  const hasStores = stores.length > 0;
 
-  // Single aggregate API call instead of N+1 per-store queries
-  const {
-    data: dashStats,
-    isLoading: statsLoading,
-    isError: statsError,
-    refetch: refetchStats,
-  } = useQuery<{
-    total_stores: number;
-    active_stores: number;
-    total_products: number;
-    total_orders: number;
-    pending_orders: number;
-    total_revenue: number;
-  }>({
-    queryKey: ["dashboard-stats"],
-    queryFn: async () => (await dashboardApi.stats()).data,
-  });
-
-  const hour = new Date().getHours();
-  const greeting =
-    hour < 12 ? "صباح الخير" : hour < 18 ? "مساء الخير" : "مساء النور";
-  const emoji = hour < 12 ? "☀️" : hour < 18 ? "🌤️" : "🌙";
-
-  const totalProducts = dashStats?.total_products ?? 0;
-  const totalOrders = dashStats?.total_orders ?? 0;
-  const totalRevenue = dashStats?.total_revenue ?? 0;
-
-  const planLimits: Record<string, { maxStores: number; label: string }> = {
-    free: { maxStores: 3, label: "مجانية" },
-    pro: { maxStores: 10, label: "احترافية" },
-    business: { maxStores: 999, label: "أعمال" },
-  };
-  const currentPlan = planLimits[tenant?.plan || "free"] ?? planLimits.free;
-
-  const stats = [
-    {
-      label: "إجمالي المتاجر",
-      value: totalStores,
-      icon: Store,
-      gradient: "from-primary to-primary-dark",
-      trend: totalStores > 0 ? `${activeStores} نشط` : "جديد",
-      up: true,
-    },
-    {
-      label: "متاجر نشطة",
-      value: activeStores,
-      icon: Zap,
-      gradient: "from-success to-emerald-600",
-      trend: `${activeStores}/${totalStores}`,
-      up: true,
-    },
-    {
-      label: "المنتجات",
-      value: totalProducts,
-      icon: Package,
-      gradient: "from-accent to-orange-600",
-      trend: totalProducts > 0 ? `${totalProducts} منتج` : "—",
-      up: totalProducts > 0,
-    },
-    {
-      label: "الطلبات",
-      value: totalOrders,
-      icon: ShoppingCart,
-      gradient: "from-violet-500 to-purple-600",
-      trend: totalOrders > 0 ? `${totalOrders} طلب` : "—",
-      up: totalOrders > 0,
-    },
-    {
-      label: "الإيرادات",
-      value: totalRevenue > 0 ? `${totalRevenue.toFixed(0)}` : "0",
-      icon: Star,
-      gradient: "from-yellow-500 to-amber-600",
-      trend: totalRevenue > 0 ? "ر.س" : "—",
-      up: totalRevenue > 0,
-    },
-    {
-      label: "طلبات معلقة",
-      value: dashStats?.pending_orders ?? 0,
-      icon: Bell,
-      gradient: "from-blue-400 to-blue-600",
-      trend: (dashStats?.pending_orders ?? 0) > 0 ? "تحتاج متابعة" : "لا يوجد",
-      up: (dashStats?.pending_orders ?? 0) === 0,
-    },
-  ];
+  const healthChecks = firstStore
+    ? [
+        { label: "إنشاء المتجر", done: true },
+        { label: "إضافة المنتجات", done: (stats?.total_products || 0) > 0 },
+        { label: "استقبال أول طلب", done: (stats?.total_orders || 0) > 0 },
+        { label: "تفعيل بوابة الدفع", done: !!firstStore.config?.payment_gateway },
+        { label: "ربط الدومين", done: !!firstStore.config?.custom_domain },
+      ]
+    : [];
+  const healthScore = healthChecks.filter((c) => c.done).length;
 
   return (
-    <div className="space-y-6 max-w-[1400px]">
+    <div className="space-y-6">
       {/* ── Email Verification Banner ── */}
       {user && !user.email_verified && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-xl border border-amber-500/20 bg-amber-500/5 p-4"
-        >
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
-                <Bell className="w-5 h-5 text-amber-400" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-amber-200">بريدك الإلكتروني غير مؤكد</p>
-                <p className="text-xs text-amber-200/60">أكد بريدك للاستفادة من جميع المميزات</p>
-              </div>
-            </div>
-            <Link
-              to={`/verify-email?email=${encodeURIComponent(user.email)}`}
-              className="text-xs font-semibold px-4 py-2 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 transition-colors border border-amber-500/20"
-            >
-              تأكيد البريد ←
-            </Link>
+        <motion.div {...fadeUp} className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm text-amber-200 font-medium">يرجى تفعيل بريدك الإلكتروني</p>
+            <p className="text-xs text-amber-300/60 mt-0.5">تحقق من بريدك لتفعيل جميع الميزات</p>
           </div>
+          <Link to="/verify-email" className="text-xs font-semibold text-amber-400 hover:text-amber-300 whitespace-nowrap">
+            تفعيل الآن ←
+          </Link>
         </motion.div>
       )}
 
-      {/* ── Hero Welcome ── */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl border border-white/6 bg-[#0e1015]"
-      >
-        {/* Gradient BG */}
-        <div className="absolute inset-0 bg-linear-to-bl from-violet-600/10 via-transparent to-blue-600/5" />
-        <div className="absolute top-0 left-0 w-72 h-72 bg-violet-600/8 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-56 h-56 bg-blue-500/8 rounded-full translate-x-1/3 translate-y-1/3 blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-violet-500/3 rounded-full blur-[100px]" />
-
-        <div className="relative p-6 lg:p-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-2xl">{emoji}</span>
-                <h1 className="text-2xl lg:text-3xl font-bold">
-                  {greeting}، {user?.full_name?.split(" ")[0]}
-                </h1>
-              </div>
-              <p className="text-text-secondary text-sm lg:text-base max-w-lg">
-                {totalStores === 0
-                  ? "ابدأ رحلتك — أنشئ أول متجر لك بالذكاء الاصطناعي واختر من 12 قالب احترافي 🚀"
-                  : `عندك ${totalStores} متجر • ${activeStores} نشط — استمر في البناء والتطوير`}
-              </p>
-              <div className="flex items-center gap-2 mt-3">
-                <span className="text-[10px] flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                  <span className="dot-live" />
-                  النظام يعمل
-                </span>
-                <span className="text-[10px] flex items-center gap-1.5 px-2 py-1 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20">
-                  <Zap className="w-3 h-3" />
-                  AI Builder Pro
-                </span>
-              </div>
-            </div>
-            <div className="flex gap-2.5 shrink-0">
-              <Link
-                to="/stores/create"
-                className="bg-linear-to-l from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 text-white text-sm px-5 py-3 rounded-xl flex items-center gap-2 transition-all font-semibold shadow-lg shadow-violet-600/20 hover:shadow-xl hover:shadow-violet-500/30 hover:-translate-y-0.5"
-              >
-                <PlusCircle className="w-4 h-4" />
-                إنشاء متجر
-              </Link>
-              <Link
-                to="/stores/ai-builder"
-                className="bg-white/6 hover:bg-white/10 text-white text-sm px-5 py-3 rounded-xl flex items-center gap-2 transition-all font-semibold border border-white/8 hover:-translate-y-0.5"
-              >
-                <Bot className="w-4 h-4" />
-                بناء بالـ AI
-              </Link>
-            </div>
-          </div>
+      {/* ── Welcome ── */}
+      <motion.div {...fadeUp} className="flex flex-col lg:flex-row gap-6">
+        <div className="flex-1">
+          <h1 className="text-2xl lg:text-3xl font-bold text-white">
+            {getGreeting()}، <span className="text-primary">{user?.full_name?.split(" ")[0]}</span>
+          </h1>
+          <p className="text-text-muted text-sm mt-1">
+            {hasStores ? `لديك ${stores.length} متجر — إليك ملخص أداءك` : "ابدأ بإنشاء متجرك الأول بالذكاء الاصطناعي"}
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Link
+            to="/stores/ai-builder"
+            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-accent rounded-xl text-white text-sm font-bold hover:opacity-90 transition-all shadow-lg shadow-primary/20"
+          >
+            <Sparkles className="w-4 h-4" />
+            بناء بالذكاء الاصطناعي
+          </Link>
+          <Link
+            to="/stores/create"
+            className="flex items-center gap-2 px-5 py-2.5 bg-dark-card border border-dark-border rounded-xl text-white text-sm font-medium hover:bg-dark-border/50 transition-all"
+          >
+            <PlusCircle className="w-4 h-4" />
+            متجر جديد
+          </Link>
         </div>
       </motion.div>
 
-      {/* ── Stats Grid ── */}
-      {(statsError || storesError) && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="glass-card p-5 border-red-500/20 bg-red-500/5"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
-                <Activity className="w-5 h-5 text-red-400" />
+      {/* ── Stats Cards ── */}
+      <motion.div variants={stagger} initial="initial" animate="animate" className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: "الإيرادات", value: formatPrice(stats?.total_revenue || 0), change: analytics?.overview?.revenue_change || 0, icon: Wallet, color: "text-emerald-400", bg: "bg-emerald-500/10" },
+          { label: "الطلبات", value: formatNum(stats?.total_orders || 0), change: analytics?.overview?.orders_change || 0, icon: ShoppingCart, color: "text-blue-400", bg: "bg-blue-500/10" },
+          { label: "المنتجات", value: formatNum(stats?.total_products || 0), change: null, icon: Package, color: "text-violet-400", bg: "bg-violet-500/10" },
+          { label: "العملاء", value: formatNum(analytics?.overview?.total_customers || 0), change: null, icon: Users, color: "text-amber-400", bg: "bg-amber-500/10" },
+        ].map((stat) => (
+          <motion.div key={stat.label} variants={fadeUp} className="bg-dark-card border border-dark-border rounded-2xl p-5 hover:border-dark-border/80 transition-all">
+            <div className="flex items-center justify-between mb-3">
+              <div className={`w-10 h-10 rounded-xl ${stat.bg} flex items-center justify-center`}>
+                <stat.icon className={`w-5 h-5 ${stat.color}`} />
               </div>
-              <div>
-                <p className="font-semibold text-sm">
-                  حدث خطأ في تحميل البيانات
-                </p>
-                <p className="text-xs text-text-muted">
-                  تأكد من اتصالك بالإنترنت وحاول مرة أخرى
-                </p>
-              </div>
+              {stat.change !== null && stat.change !== 0 && (
+                <span className={`flex items-center gap-0.5 text-xs font-semibold ${Number(stat.change) > 0 ? "text-emerald-400" : "text-red-400"}`}>
+                  {Number(stat.change) > 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                  {Math.abs(Number(stat.change))}%
+                </span>
+              )}
             </div>
-            <button
-              onClick={() => {
-                refetchStores();
-                refetchStats();
-              }}
-              className="btn-outline text-xs px-4 py-2 flex items-center gap-1.5"
-            >
-              <Activity className="w-3.5 h-3.5" />
-              إعادة المحاولة
-            </button>
+            <p className="text-xl font-bold text-white">{stat.value}</p>
+            <p className="text-xs text-text-muted mt-1">{stat.label}</p>
+          </motion.div>
+        ))}
+      </motion.div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* ── Revenue Chart ── */}
+        <motion.div {...fadeUp} className="lg:col-span-2 bg-dark-card border border-dark-border rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-white font-bold">الإيرادات</h3>
+              <p className="text-xs text-text-muted mt-0.5">آخر 30 يوم</p>
+            </div>
+            <div className="flex items-center gap-1 text-xs">
+              <div className="w-2 h-2 rounded-full bg-primary" />
+              <span className="text-text-muted">الإيرادات</span>
+            </div>
+          </div>
+          <div className="h-48 flex items-end gap-1">
+            {(analytics?.revenue_chart || Array.from({ length: 30 }, () => ({ revenue: 0, orders: 0, date: "" }))).map((point, i) => {
+              const maxRev = Math.max(...(analytics?.revenue_chart?.map((p) => Number(p.revenue)) || [1]), 1);
+              const height = Number(point.revenue) > 0 ? Math.max((Number(point.revenue) / maxRev) * 100, 4) : 2;
+              return (
+                <div key={i} className="flex-1 flex flex-col items-center justify-end group relative">
+                  <div
+                    className="w-full bg-gradient-to-t from-primary/80 to-primary rounded-t-sm transition-all hover:from-primary hover:to-accent cursor-pointer min-h-[2px]"
+                    style={{ height: `${height}%` }}
+                  />
+                  {Number(point.revenue) > 0 && (
+                    <div className="absolute bottom-full mb-2 hidden group-hover:block bg-dark-bg border border-dark-border rounded-lg px-2 py-1 text-xs text-white whitespace-nowrap z-10 shadow-xl">
+                      {formatPrice(Number(point.revenue))}
+                      <br />
+                      <span className="text-text-muted">{point.orders} طلب</span>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex justify-between mt-2 text-[10px] text-text-muted">
+            <span>قبل 30 يوم</span>
+            <span>اليوم</span>
           </div>
         </motion.div>
-      )}
-      {statsLoading ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="glass-card p-4 animate-pulse">
-              <div className="flex items-center justify-between mb-3">
-                <div className="w-9 h-9 rounded-xl bg-dark-hover" />
-                <div className="h-4 w-10 bg-dark-hover rounded" />
-              </div>
-              <div className="h-6 w-12 bg-dark-hover rounded mb-1" />
-              <div className="h-3 w-16 bg-dark-hover rounded" />
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          {stats.map((stat, i) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.06 }}
-              className="glass-card p-4 group hover:border-violet-500/20 transition-all hover:-translate-y-0.5"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div
-                  className={`w-9 h-9 rounded-xl bg-linear-to-br ${stat.gradient} flex items-center justify-center`}
-                >
-                  <stat.icon className="w-4 h-4 text-white" />
-                </div>
-                <span
-                  className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${stat.up ? "text-success bg-success/10" : "text-danger bg-danger/10"}`}
-                >
-                  {stat.trend}
-                </span>
-              </div>
-              <p className="text-xl font-bold tracking-tight">{stat.value}</p>
-              <p className="text-[11px] text-text-muted mt-0.5">{stat.label}</p>
-            </motion.div>
-          ))}
-        </div>
-      )}
 
-      {/* ── Main Content Grid ── */}
-      <div className="grid lg:grid-cols-[1fr_320px] gap-6">
-        {/* Left: Stores + Activity */}
-        <div className="space-y-6">
-          {/* Stores List */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <LayoutGrid className="w-4 h-4 text-violet-400" />
-                <h2 className="text-lg font-bold">متاجرك</h2>
-                {totalStores > 0 && (
-                  <span className="text-[10px] text-text-muted bg-dark-hover px-2 py-0.5 rounded-full">
-                    {totalStores}
-                  </span>
-                )}
-              </div>
-              <Link
-                to="/stores/create"
-                className="text-primary-light text-sm hover:underline flex items-center gap-1 font-medium"
-              >
-                <PlusCircle className="w-3.5 h-3.5" />
-                إضافة متجر
-              </Link>
+        {/* ── Store Health ── */}
+        <motion.div {...fadeUp} className="bg-dark-card border border-dark-border rounded-2xl p-6">
+          <h3 className="text-white font-bold mb-1">صحة المتجر</h3>
+          <p className="text-xs text-text-muted mb-4">
+            {healthChecks.length > 0 ? `${healthScore}/${healthChecks.length} مكتمل` : "أنشئ متجراً للبدء"}
+          </p>
+          {healthChecks.length > 0 && (
+            <div className="relative w-24 h-24 mx-auto mb-5">
+              <svg className="w-24 h-24 -rotate-90" viewBox="0 0 36 36">
+                <circle cx="18" cy="18" r="15.5" fill="none" className="stroke-dark-border" strokeWidth="3" />
+                <circle cx="18" cy="18" r="15.5" fill="none" className="stroke-primary" strokeWidth="3" strokeDasharray={`${(healthScore / healthChecks.length) * 97.4} 97.4`} strokeLinecap="round" />
+              </svg>
+              <span className="absolute inset-0 flex items-center justify-center text-lg font-bold text-white">
+                {Math.round((healthScore / healthChecks.length) * 100)}%
+              </span>
             </div>
-
-            {storesLoading ? (
-              <div className="space-y-3">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="glass-card p-5 animate-pulse">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-dark-hover rounded-xl" />
-                      <div className="flex-1">
-                        <div className="h-4 bg-dark-hover rounded w-2/5 mb-2" />
-                        <div className="h-3 bg-dark-hover rounded w-1/4" />
-                      </div>
-                    </div>
-                  </div>
-                ))}
+          )}
+          <div className="space-y-3">
+            {healthChecks.map((check) => (
+              <div key={check.label} className="flex items-center gap-2.5">
+                {check.done ? <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" /> : <Circle className="w-4 h-4 text-dark-border flex-shrink-0" />}
+                <span className={`text-sm ${check.done ? "text-text-muted line-through" : "text-white"}`}>{check.label}</span>
               </div>
-            ) : stores.length === 0 ? (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.98 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="glass-card p-10 text-center relative overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-linear-to-br from-violet-600/3 to-blue-600/3" />
-                <div className="relative z-10">
-                  <div className="w-20 h-20 rounded-3xl bg-linear-to-br from-violet-500/20 to-blue-500/20 flex items-center justify-center mx-auto mb-5">
-                    <Rocket className="w-10 h-10 text-violet-400" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-2">ابدأ رحلتك الآن</h3>
-                  <p className="text-text-secondary text-sm mb-6 max-w-sm mx-auto">
-                    أنشئ متجرك الأول بثوانٍ — اختر من 12 قالب احترافي جاهز أو دع
-                    الذكاء الاصطناعي يبنيه لك ✨
-                  </p>
-                  <div className="flex items-center justify-center gap-3">
-                    <Link
-                      to="/stores/create"
-                      className="btn-primary px-6 py-3 flex items-center gap-2 text-sm font-semibold"
-                    >
-                      <Palette className="w-4 h-4" />
-                      اختر قالب
-                    </Link>
-                    <Link
-                      to="/stores/ai-builder"
-                      className="btn-outline px-6 py-3 flex items-center gap-2 text-sm font-semibold"
-                    >
-                      <Bot className="w-4 h-4" />
-                      بناء بالـ AI
-                    </Link>
-                  </div>
-                  <div className="flex items-center justify-center gap-4 mt-6 text-xs text-text-muted">
-                    <span className="flex items-center gap-1">
-                      <Layers className="w-3 h-3" /> 21+ قسم
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Palette className="w-3 h-3" /> 12 قالب
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Sparkles className="w-3 h-3" /> AI مدمج
-                    </span>
-                  </div>
-                </div>
-              </motion.div>
-            ) : (
-              <div className="space-y-3">
-                {stores.map((store: StoreType, i: number) => (
-                  <motion.div
-                    key={store.id}
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.05 }}
-                  >
-                    <Link
-                      to={`/stores/${store.id}`}
-                      className="glass-card p-4 flex items-center gap-4 hover:border-violet-500/20 transition-all group hover:-translate-y-0.5"
-                    >
-                      <div
-                        className={`w-12 h-12 rounded-xl bg-linear-to-br ${storeTypeColors[store.store_type] || storeTypeColors.general} flex items-center justify-center text-2xl shrink-0`}
-                      >
-                        {storeTypeEmojis[store.store_type] || "🏪"}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <h3 className="font-semibold truncate group-hover:text-violet-400 transition-colors">
-                            {store.name}
-                          </h3>
-                          <span
-                            className={`badge text-[10px] ${
-                              store.status === "active"
-                                ? "badge-success"
-                                : store.status === "pending"
-                                  ? "badge-warning"
-                                  : store.status === "generating"
-                                    ? "badge-accent"
-                                    : "badge-neutral"
-                            }`}
-                          >
-                            {store.status === "active"
-                              ? "نشط"
-                              : store.status === "pending"
-                                ? "معلّق"
-                                : store.status === "generating"
-                                  ? "جاري الإنشاء"
-                                  : store.status}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-3 text-xs text-text-muted">
-                          <span>
-                            {storeTypeLabels[store.store_type] ||
-                              store.store_type}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {new Date(store.created_at).toLocaleDateString(
-                              "ar-SA",
-                            )}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-[10px] text-text-muted">
-                          إدارة
-                        </span>
-                        <ChevronLeft className="w-4 h-4 text-text-muted group-hover:text-violet-400 transition-colors" />
-                      </div>
-                    </Link>
-                  </motion.div>
-                ))}
-              </div>
-            )}
+            ))}
           </div>
+          {!hasStores && (
+            <Link to="/stores/ai-builder" className="flex items-center justify-center gap-2 w-full mt-5 py-2.5 bg-gradient-to-r from-primary to-accent rounded-xl text-white text-sm font-bold hover:opacity-90 transition-all">
+              <Sparkles className="w-4 h-4" /> ابدأ الآن
+            </Link>
+          )}
+        </motion.div>
+      </div>
 
-          {/* Activity Feed */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
-            <div className="flex items-center gap-2 mb-4">
-              <Activity className="w-4 h-4 text-blue-400" />
-              <h2 className="text-lg font-bold">آخر التحديثات</h2>
-            </div>
-            <div className="space-y-2">
-              {buildActivity(stores).map((item, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: 10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.4 + i * 0.05 }}
-                  className="glass-card p-3.5 flex items-center gap-3"
-                >
-                  <div
-                    className={`w-8 h-8 rounded-lg ${item.bg} flex items-center justify-center shrink-0`}
-                  >
-                    <item.icon className={`w-4 h-4 ${item.color}`} />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* ── Top Products ── */}
+        <motion.div {...fadeUp} className="bg-dark-card border border-dark-border rounded-2xl p-6">
+          <h3 className="text-white font-bold mb-4 flex items-center gap-2"><TrendingUp className="w-4 h-4 text-primary" /> الأكثر مبيعاً</h3>
+          {analytics?.top_products?.length ? (
+            <div className="space-y-3">
+              {analytics.top_products.map((p, i) => (
+                <div key={p.product_id} className="flex items-center gap-3">
+                  <span className="w-5 h-5 rounded-full bg-dark-border flex items-center justify-center text-[10px] font-bold text-text-muted flex-shrink-0">{i + 1}</span>
+                  <div className="w-8 h-8 rounded-lg bg-dark-border overflow-hidden flex-shrink-0">
+                    {p.product_image ? <img src={p.product_image} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><Package className="w-3 h-3 text-text-muted" /></div>}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm truncate">{item.text}</p>
+                    <p className="text-sm text-white truncate">{p.product_name}</p>
+                    <p className="text-[10px] text-text-muted">{p.total_sold} مبيع</p>
                   </div>
-                  <span className="text-[10px] text-text-muted shrink-0">
-                    {item.time}
-                  </span>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Right Sidebar */}
-        <div className="space-y-4">
-          {/* Plan Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="glass-card overflow-hidden"
-          >
-            <div className="bg-linear-to-br from-violet-600/10 to-blue-600/10 p-5 border-b border-white/6">
-              <div className="flex items-center gap-2 mb-3">
-                <Crown className="w-5 h-5 text-violet-400" />
-                <h3 className="font-bold text-sm">خطتك الحالية</h3>
-              </div>
-              <div className="flex items-baseline gap-2 mb-1">
-                <span className="text-2xl font-bold">{currentPlan.label}</span>
-                {tenant?.plan === "free" && (
-                  <span className="text-xs text-text-muted">
-                    {currentPlan.maxStores} متاجر
-                  </span>
-                )}
-              </div>
-              <div className="w-full h-2 bg-dark-hover/50 rounded-full overflow-hidden mt-3">
-                <div
-                  className="h-full bg-linear-to-l from-violet-600 to-blue-500 rounded-full transition-all"
-                  style={{
-                    width: `${Math.min((totalStores / currentPlan.maxStores) * 100, 100)}%`,
-                  }}
-                />
-              </div>
-              <p className="text-xs text-text-muted mt-2">
-                {totalStores} / {currentPlan.maxStores} متاجر مستخدمة
-              </p>
-            </div>
-            <div className="p-4">
-              <p className="text-xs text-text-muted mb-3">مميزاتك:</p>
-              <div className="space-y-2">
-                {proFeatures.map((f, i) => (
-                  <div key={i} className="flex items-center gap-2 text-xs">
-                    <f.icon
-                      className={`w-3.5 h-3.5 ${f.available ? "text-success" : "text-text-muted"}`}
-                    />
-                    <span
-                      className={
-                        f.available ? "" : "text-text-muted line-through"
-                      }
-                    >
-                      {f.label}
-                    </span>
-                    {!f.available && (
-                      <span className="text-[9px] text-violet-400 bg-violet-500/10 px-1.5 py-0.5 rounded mr-auto">
-                        Pro
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Quick Links */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="glass-card p-5"
-          >
-            <h3 className="font-bold text-sm mb-3 flex items-center gap-2">
-              <ArrowUpLeft className="w-4 h-4 text-violet-400" />
-              إجراءات سريعة
-            </h3>
-            <div className="space-y-1.5">
-              {[
-                {
-                  label: "إنشاء متجر جديد",
-                  icon: PlusCircle,
-                  to: "/stores/create",
-                  color: "text-violet-400",
-                },
-                {
-                  label: "بناء بالذكاء الاصطناعي",
-                  icon: Bot,
-                  to: "/stores/ai-builder",
-                  color: "text-blue-400",
-                },
-                {
-                  label: "معرض القوالب",
-                  icon: Palette,
-                  to: "/stores/create",
-                  color: "text-amber-400",
-                },
-              ].map((link) => (
-                <Link
-                  key={link.label}
-                  to={link.to}
-                  className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-dark-hover transition-colors text-sm group"
-                >
-                  <link.icon className={`w-4 h-4 ${link.color}`} />
-                  <span className="group-hover:text-text-primary transition-colors">
-                    {link.label}
-                  </span>
-                  <ChevronLeft className="w-3.5 h-3.5 text-text-muted mr-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-                </Link>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* AI Tip */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="rounded-2xl border border-violet-500/15 bg-linear-to-br from-violet-600/5 to-blue-600/5 p-5 relative overflow-hidden"
-          >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-violet-500/5 rounded-full translate-x-1/3 -translate-y-1/3 blur-2xl" />
-            <div className="relative z-10">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 rounded-lg bg-violet-500/15 flex items-center justify-center">
-                  <Zap className="w-4 h-4 text-violet-400" />
+                  <span className="text-xs font-semibold text-emerald-400">{formatPrice(Number(p.total_revenue))}</span>
                 </div>
-                <span className="text-sm font-bold text-violet-400">
-                  نصيحة اليوم
-                </span>
-              </div>
-              <p className="text-xs text-text-secondary leading-relaxed mb-3">
-                جرّب كتابة "أبي متجر أزياء فاخر بألوان ذهبية مع عروض وتقييمات
-                عملاء" في AI Builder — شوف كيف يبني لك متجر كامل في ثوانٍ! ✨
-              </p>
-              <Link
-                to="/stores/ai-builder"
-                className="text-violet-400 text-xs font-semibold hover:underline flex items-center gap-1"
-              >
-                جرّب الآن
-                <ChevronLeft className="w-3 h-3" />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8"><Package className="w-8 h-8 text-dark-border mx-auto mb-2" /><p className="text-xs text-text-muted">لا توجد مبيعات بعد</p></div>
+          )}
+        </motion.div>
+
+        {/* ── Order Status ── */}
+        <motion.div {...fadeUp} className="bg-dark-card border border-dark-border rounded-2xl p-6">
+          <h3 className="text-white font-bold mb-4 flex items-center gap-2"><BarChart3 className="w-4 h-4 text-blue-400" /> حالة الطلبات</h3>
+          {analytics?.order_status ? (
+            <div className="space-y-3">
+              {[
+                { key: "pending", label: "قيد الانتظار", color: "bg-amber-500", count: analytics.order_status.pending },
+                { key: "confirmed", label: "مؤكد", color: "bg-blue-500", count: analytics.order_status.confirmed },
+                { key: "processing", label: "جاري التحضير", color: "bg-violet-500", count: analytics.order_status.processing },
+                { key: "shipped", label: "تم الشحن", color: "bg-indigo-500", count: analytics.order_status.shipped },
+                { key: "delivered", label: "تم التوصيل", color: "bg-emerald-500", count: analytics.order_status.delivered },
+                { key: "cancelled", label: "ملغي", color: "bg-red-500", count: analytics.order_status.cancelled },
+              ].map((s) => {
+                const total = Object.values(analytics.order_status).reduce((a, b) => a + b, 0);
+                const pct = total > 0 ? (s.count / total) * 100 : 0;
+                return (
+                  <div key={s.key} className="flex items-center gap-3">
+                    <div className={`w-2 h-2 rounded-full ${s.color} flex-shrink-0`} />
+                    <span className="text-xs text-text-muted flex-1">{s.label}</span>
+                    <span className="text-xs font-semibold text-white">{s.count}</span>
+                    <div className="w-16 h-1.5 bg-dark-border rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full ${s.color}`} style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-8"><ShoppingCart className="w-8 h-8 text-dark-border mx-auto mb-2" /><p className="text-xs text-text-muted">لا توجد طلبات بعد</p></div>
+          )}
+        </motion.div>
+
+        {/* ── Quick Actions ── */}
+        <motion.div {...fadeUp} className="bg-dark-card border border-dark-border rounded-2xl p-6">
+          <h3 className="text-white font-bold mb-4">إجراءات سريعة</h3>
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { label: "بناء بالـ AI", icon: Bot, to: "/stores/ai-builder", gradient: "from-primary to-accent" },
+              { label: "متجر جديد", icon: PlusCircle, to: "/stores/create", gradient: "from-blue-500 to-cyan-500" },
+              { label: "المنتجات", icon: Package, to: firstStore ? `/stores/${firstStore.id}` : "/stores/create", gradient: "from-violet-500 to-purple-500" },
+              { label: "الطلبات", icon: ShoppingBag, to: firstStore ? `/stores/${firstStore.id}` : "/stores/create", gradient: "from-emerald-500 to-green-500" },
+              { label: "العملاء", icon: Users, to: firstStore ? `/stores/${firstStore.id}` : "/stores/create", gradient: "from-amber-500 to-orange-500" },
+              { label: "التسويق", icon: Megaphone, to: firstStore ? `/stores/${firstStore.id}` : "/stores/create", gradient: "from-pink-500 to-rose-500" },
+            ].map((action) => (
+              <Link key={action.label} to={action.to} className="flex flex-col items-center gap-2 p-3 rounded-xl bg-dark-bg/50 hover:bg-dark-border/30 border border-transparent hover:border-dark-border transition-all group">
+                <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${action.gradient} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                  <action.icon className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-[11px] text-text-muted group-hover:text-white transition-colors">{action.label}</span>
+              </Link>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+
+      {/* ── Store List ── */}
+      <motion.div {...fadeUp}>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-white flex items-center gap-2"><LayoutGrid className="w-5 h-5 text-primary" /> متاجرك</h2>
+        </div>
+        {stores.length === 0 ? (
+          <div className="bg-dark-card border border-dark-border rounded-2xl p-12 text-center">
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center mb-4">
+              <StoreIcon className="w-8 h-8 text-primary" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">أنشئ متجرك الأول</h3>
+            <p className="text-sm text-text-muted mb-6 max-w-md mx-auto">استخدم الذكاء الاصطناعي لبناء متجر إلكتروني احترافي في دقائق</p>
+            <div className="flex items-center justify-center gap-3">
+              <Link to="/stores/ai-builder" className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-accent rounded-xl text-white text-sm font-bold hover:opacity-90 transition-all shadow-lg shadow-primary/20">
+                <Sparkles className="w-4 h-4" /> بناء بالـ AI
+              </Link>
+              <Link to="/stores/create" className="flex items-center gap-2 px-6 py-3 bg-dark-border/50 rounded-xl text-white text-sm font-medium hover:bg-dark-border transition-all">
+                <LayoutGrid className="w-4 h-4" /> اختر قالب
               </Link>
             </div>
-          </motion.div>
-
-          {/* Builder Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="glass-card p-5"
-          >
-            <h3 className="font-bold text-sm mb-3 flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-violet-400" />
-              إحصائيات البلدر
-            </h3>
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                {
-                  value: "12",
-                  label: "قالب جاهز",
-                  Icon: Palette,
-                  color: "text-violet-400",
-                  bg: "bg-violet-500/10",
-                },
-                {
-                  value: "21+",
-                  label: "قسم متاح",
-                  Icon: Layers,
-                  color: "text-blue-400",
-                  bg: "bg-blue-500/10",
-                },
-                {
-                  value: "12",
-                  label: "نوع متجر",
-                  Icon: Store,
-                  color: "text-success",
-                  bg: "bg-success/10",
-                },
-                {
-                  value: "∞",
-                  label: "تخصيص AI",
-                  Icon: Bot,
-                  color: "text-warning",
-                  bg: "bg-warning/10",
-                },
-              ].map((item, i) => (
-                <div
-                  key={i}
-                  className="bg-dark-hover/50 rounded-xl p-3 text-center"
-                >
-                  <div
-                    className={`w-8 h-8 rounded-lg ${item.bg} flex items-center justify-center mx-auto mb-1`}
-                  >
-                    <item.Icon className={`w-4 h-4 ${item.color}`} />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {stores.map((store: StoreType) => {
+              const cfg = storeTypeConfig[store.store_type] || storeTypeConfig.general;
+              const isActive = store.status === "published" || store.status === "active";
+              return (
+                <Link key={store.id} to={`/stores/${store.id}`} className="bg-dark-card border border-dark-border rounded-2xl p-5 hover:border-primary/30 transition-all group">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${cfg.color} flex items-center justify-center text-lg`}>{cfg.emoji}</div>
+                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${isActive ? "bg-emerald-500/10 text-emerald-400" : store.status === "generating" ? "bg-amber-500/10 text-amber-400" : "bg-gray-500/10 text-gray-400"}`}>
+                      {isActive ? "نشط" : store.status === "generating" ? "جاري الإنشاء" : "مسودة"}
+                    </span>
                   </div>
-                  <p className="text-lg font-bold">{item.value}</p>
-                  <p className="text-[10px] text-text-muted">{item.label}</p>
-                </div>
-              ))}
-            </div>
-          </motion.div>
+                  <h3 className="text-white font-bold truncate group-hover:text-primary transition-colors">{store.name}</h3>
+                  <p className="text-xs text-text-muted mt-0.5">{cfg.label}</p>
+                  <div className="flex items-center justify-between mt-4 pt-3 border-t border-dark-border">
+                    <span className="text-xs text-text-muted flex items-center gap-1"><Eye className="w-3 h-3" /> {store.slug}</span>
+                    <ChevronLeft className="w-4 h-4 text-text-muted group-hover:text-primary transition-colors" />
+                  </div>
+                </Link>
+              );
+            })}
+            <Link to="/stores/ai-builder" className="bg-dark-card border-2 border-dashed border-dark-border rounded-2xl p-5 hover:border-primary/30 transition-all flex flex-col items-center justify-center gap-3 min-h-[160px] group">
+              <div className="w-11 h-11 rounded-xl bg-dark-border/50 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                <PlusCircle className="w-5 h-5 text-text-muted group-hover:text-primary transition-colors" />
+              </div>
+              <span className="text-sm text-text-muted group-hover:text-white transition-colors font-medium">إضافة متجر جديد</span>
+            </Link>
+          </div>
+        )}
+      </motion.div>
+
+      {/* ── Platform Features ── */}
+      <motion.div {...fadeUp} className="bg-gradient-to-br from-primary/5 to-accent/5 border border-primary/10 rounded-2xl p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center"><Crown className="w-5 h-5 text-white" /></div>
+          <div>
+            <h3 className="text-white font-bold">ويب فلو — منصة بناء المتاجر بالذكاء الاصطناعي</h3>
+            <p className="text-xs text-text-muted">كل ما تحتاجه لإطلاق متجرك الإلكتروني</p>
+          </div>
         </div>
-      </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[
+            { icon: Bot, label: "بناء بالـ AI", desc: "تصميم ذكي فوري" },
+            { icon: ShoppingCart, label: "إدارة الطلبات", desc: "تتبع كامل" },
+            { icon: Users, label: "إدارة العملاء", desc: "قاعدة بيانات ذكية" },
+            { icon: Ticket, label: "كوبونات خصم", desc: "تسويق فعال" },
+            { icon: Star, label: "التقييمات", desc: "آراء العملاء" },
+            { icon: BarChart3, label: "تحليلات متقدمة", desc: "رسوم بيانية" },
+            { icon: Megaphone, label: "التسويق", desc: "حملات ذكية" },
+            { icon: RefreshCw, label: "تحديثات مستمرة", desc: "ميزات جديدة" },
+          ].map((f) => (
+            <div key={f.label} className="bg-dark-card/50 rounded-xl p-3 border border-dark-border/50">
+              <f.icon className="w-4 h-4 text-primary mb-1.5" />
+              <p className="text-xs font-semibold text-white">{f.label}</p>
+              <p className="text-[10px] text-text-muted mt-0.5">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </motion.div>
     </div>
   );
 }

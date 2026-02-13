@@ -8,9 +8,13 @@ import {
   categoriesApi,
   ordersApi,
   uploadsApi,
+  customersApi,
+  couponsApi,
+  reviewsApi,
+  analyticsApi,
 } from "../lib/api";
 import { getTemplateHTML } from "../data/templates";
-import type { Store, Product, Category, Order, OrderSummary } from "../types";
+import type { Store, Product, Category, Order, OrderSummary, Customer, Coupon, Review, FullAnalytics } from "../types";
 import {
   ArrowRight,
   Globe,
@@ -42,6 +46,19 @@ import {
   Image,
   Upload,
   ChevronDown,
+  Users,
+  Megaphone,
+  Star,
+  Ticket,
+  ThumbsUp,
+  ThumbsDown,
+  Mail,
+  Phone,
+  Tag,
+  Calendar,
+  Percent,
+  Hash,
+  Filter,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useState, useRef, useEffect } from "react";
@@ -63,6 +80,10 @@ type TabId =
   | "products"
   | "categories"
   | "orders"
+  | "customers"
+  | "marketing"
+  | "analytics"
+  | "reviews"
   | "design"
   | "settings";
 
@@ -71,6 +92,10 @@ const TABS: { id: TabId; label: string; icon: typeof BarChart3 }[] = [
   { id: "products", label: "المنتجات", icon: Package },
   { id: "categories", label: "التصنيفات", icon: Layers },
   { id: "orders", label: "الطلبات", icon: ShoppingCart },
+  { id: "customers", label: "العملاء", icon: Users },
+  { id: "marketing", label: "التسويق", icon: Megaphone },
+  { id: "analytics", label: "التحليلات", icon: TrendingUp },
+  { id: "reviews", label: "التقييمات", icon: Star },
   { id: "design", label: "التصميم", icon: Palette },
   { id: "settings", label: "الإعدادات", icon: Settings },
 ];
@@ -215,6 +240,10 @@ export default function StoreControlPanel() {
           {activeTab === "products" && <ProductsTab storeId={id!} />}
           {activeTab === "categories" && <CategoriesTab storeId={id!} />}
           {activeTab === "orders" && <OrdersTab storeId={id!} />}
+          {activeTab === "customers" && <CustomersTab storeId={id!} />}
+          {activeTab === "marketing" && <MarketingTab storeId={id!} />}
+          {activeTab === "analytics" && <StoreAnalyticsTab storeId={id!} />}
+          {activeTab === "reviews" && <ReviewsTab storeId={id!} />}
           {activeTab === "design" && <DesignTab store={store} storeId={id!} />}
           {activeTab === "settings" && (
             <SettingsTab store={store} storeId={id!} />
@@ -1990,6 +2019,539 @@ function SettingsTab({ store, storeId }: { store: Store; storeId: string }) {
         onConfirm={handleDelete}
         onCancel={() => setShowDelete(false)}
       />
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════
+   TAB: Customers
+   ══════════════════════════════════════════════════════════ */
+function CustomersTab({ storeId }: { storeId: string }) {
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 300);
+  const [page, setPage] = useState(1);
+  const [sort, setSort] = useState("newest");
+
+  useEffect(() => { queueMicrotask(() => setPage(1)); }, [debouncedSearch]);
+
+  const { data: statsData } = useQuery({
+    queryKey: ["customer-stats", storeId],
+    queryFn: () => customersApi.stats(storeId).then((r) => r.data),
+  });
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["customers", storeId, debouncedSearch, page, sort],
+    queryFn: () => customersApi.list(storeId, { search: debouncedSearch || undefined, page, page_size: 20, sort_by: sort }).then((r) => r.data),
+  });
+
+  const customers: Customer[] = data?.customers || [];
+
+  return (
+    <div className="space-y-6">
+      {/* Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: "إجمالي العملاء", value: statsData?.total_customers || 0, icon: Users, color: "text-blue-400", bg: "bg-blue-500/10" },
+          { label: "عملاء جدد (هذا الشهر)", value: statsData?.new_this_month || 0, icon: Plus, color: "text-emerald-400", bg: "bg-emerald-500/10" },
+          { label: "عملاء متكررون", value: statsData?.returning_customers || 0, icon: TrendingUp, color: "text-violet-400", bg: "bg-violet-500/10" },
+          { label: "متوسط قيمة الطلب", value: `${(statsData?.average_order_value || 0).toFixed(0)} ر.س`, icon: DollarSign, color: "text-amber-400", bg: "bg-amber-500/10" },
+        ].map((stat) => (
+          <div key={stat.label} className="glass-card p-5">
+            <div className={`w-10 h-10 rounded-xl ${stat.bg} flex items-center justify-center mb-3`}>
+              <stat.icon className={`w-5 h-5 ${stat.color}`} />
+            </div>
+            <p className="text-xl font-bold">{typeof stat.value === "number" ? stat.value.toLocaleString("ar-SA") : stat.value}</p>
+            <p className="text-xs text-text-muted mt-1">{stat.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Search & Sort */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="بحث بالاسم أو البريد..." className="input-field pr-10 text-sm py-2.5" />
+        </div>
+        <select value={sort} onChange={(e) => setSort(e.target.value)} className="input-field w-auto text-sm py-2.5">
+          <option value="newest">الأحدث</option>
+          <option value="most_orders">الأكثر طلباً</option>
+          <option value="most_spent">الأكثر إنفاقاً</option>
+        </select>
+      </div>
+
+      {/* Table */}
+      {isLoading ? (
+        <div className="flex items-center justify-center h-40 text-text-muted"><Loader2 className="w-5 h-5 animate-spin" /></div>
+      ) : customers.length === 0 ? (
+        <div className="glass-card p-12 text-center">
+          <Users className="w-12 h-12 text-text-muted mx-auto mb-4" />
+          <p className="text-text-secondary">لا يوجد عملاء بعد</p>
+          <p className="text-xs text-text-muted mt-1">سيظهر العملاء هنا عند استقبال أول طلب</p>
+        </div>
+      ) : (
+        <div className="glass-card overflow-hidden">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-dark-border text-text-muted text-xs">
+                <th className="text-right p-3 font-medium">العميل</th>
+                <th className="text-right p-3 font-medium">الطلبات</th>
+                <th className="text-right p-3 font-medium">الإنفاق</th>
+                <th className="text-right p-3 font-medium">آخر طلب</th>
+              </tr>
+            </thead>
+            <tbody>
+              {customers.map((c) => (
+                <tr key={c.id} className="border-b border-dark-border/50 hover:bg-dark-hover/30">
+                  <td className="p-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">{c.name?.[0] || "?"}</div>
+                      <div>
+                        <p className="text-sm font-medium">{c.name}</p>
+                        <p className="text-[11px] text-text-muted" dir="ltr">{c.email}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="p-3 text-sm">{c.total_orders}</td>
+                  <td className="p-3 text-sm font-medium text-success">{Number(c.total_spent).toFixed(0)} ر.س</td>
+                  <td className="p-3 text-xs text-text-muted">{c.last_order_date ? new Date(c.last_order_date).toLocaleDateString("ar-SA") : "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {data && data.total_pages > 1 && (
+        <div className="flex items-center justify-center gap-2">
+          <button disabled={page <= 1} onClick={() => setPage(page - 1)} className="btn-outline text-xs py-1.5 px-3 disabled:opacity-30">السابق</button>
+          <span className="text-xs text-text-muted">{page} / {data.total_pages}</span>
+          <button disabled={page >= data.total_pages} onClick={() => setPage(page + 1)} className="btn-outline text-xs py-1.5 px-3 disabled:opacity-30">التالي</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════
+   TAB: Marketing (Coupons)
+   ══════════════════════════════════════════════════════════ */
+function MarketingTab({ storeId }: { storeId: string }) {
+  const queryClient = useQueryClient();
+  const [showForm, setShowForm] = useState(false);
+  const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["coupons", storeId],
+    queryFn: () => couponsApi.list(storeId).then((r) => r.data),
+  });
+
+  const deleteMut = useMutation({
+    mutationFn: (id: string) => couponsApi.delete(id),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["coupons", storeId] }); toast.success("تم حذف الكوبون"); },
+    onError: () => toast.error("فشل الحذف"),
+  });
+
+  const coupons: Coupon[] = data?.coupons || [];
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-bold"> كوبونات الخصم</h3>
+          <p className="text-xs text-text-muted mt-0.5">{coupons.length} كوبون</p>
+        </div>
+        <button onClick={() => { setEditingCoupon(null); setShowForm(true); }} className="btn-primary flex items-center gap-2 text-sm">
+          <Plus className="w-4 h-4" /> إضافة كوبون
+        </button>
+      </div>
+
+      {isLoading ? (
+        <div className="flex items-center justify-center h-40 text-text-muted"><Loader2 className="w-5 h-5 animate-spin" /></div>
+      ) : coupons.length === 0 ? (
+        <div className="glass-card p-12 text-center">
+          <Ticket className="w-12 h-12 text-text-muted mx-auto mb-4" />
+          <p className="text-text-secondary mb-2">لا توجد كوبونات</p>
+          <p className="text-xs text-text-muted mb-4">أنشئ كوبون خصم لجذب المزيد من العملاء</p>
+          <button onClick={() => setShowForm(true)} className="btn-primary inline-flex items-center gap-2 text-sm">
+            <Plus className="w-4 h-4" /> أنشئ أول كوبون
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {coupons.map((coupon) => {
+            const isExpired = coupon.expires_at && new Date(coupon.expires_at) < new Date();
+            const isMaxed = coupon.max_uses && coupon.used_count >= coupon.max_uses;
+            const isDisabled = !coupon.is_active || isExpired || isMaxed;
+            return (
+              <div key={coupon.id} className={`glass-card p-5 ${isDisabled ? "opacity-60" : ""}`}>
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <Ticket className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-bold font-mono text-sm" dir="ltr">{coupon.code}</p>
+                      <p className="text-xs text-text-muted">{coupon.description || "بدون وصف"}</p>
+                    </div>
+                  </div>
+                  <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${isDisabled ? "bg-red-500/10 text-red-400" : "bg-emerald-500/10 text-emerald-400"}`}>
+                    {isExpired ? "منتهي" : isMaxed ? "مستنفد" : !coupon.is_active ? "معطل" : "فعال"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-4 text-xs text-text-muted mb-3">
+                  <span className="flex items-center gap-1"><Percent className="w-3 h-3" /> {coupon.discount_type === "percentage" ? `${coupon.discount_value}%` : `${coupon.discount_value} ر.س`}</span>
+                  <span className="flex items-center gap-1"><Hash className="w-3 h-3" /> {coupon.used_count}{coupon.max_uses ? `/${coupon.max_uses}` : ""} استخدام</span>
+                  {coupon.min_order_amount && <span className="flex items-center gap-1"><DollarSign className="w-3 h-3" /> حد أدنى {coupon.min_order_amount} ر.س</span>}
+                </div>
+                {coupon.expires_at && (
+                  <p className="text-[11px] text-text-muted flex items-center gap-1 mb-3"><Calendar className="w-3 h-3" /> ينتهي: {new Date(coupon.expires_at).toLocaleDateString("ar-SA")}</p>
+                )}
+                <div className="flex items-center gap-2 pt-3 border-t border-dark-border">
+                  <button onClick={() => { setEditingCoupon(coupon); setShowForm(true); }} className="btn-outline text-xs py-1.5 px-3 flex items-center gap-1"><Edit3 className="w-3 h-3" /> تعديل</button>
+                  <button onClick={() => deleteMut.mutate(coupon.id)} className="btn-outline text-xs py-1.5 px-3 flex items-center gap-1 text-error border-error/20 hover:bg-error/10"><Trash2 className="w-3 h-3" /> حذف</button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Coupon Form Modal */}
+      <AnimatePresence>
+        {showForm && <CouponFormModal storeId={storeId} coupon={editingCoupon} onClose={() => { setShowForm(false); setEditingCoupon(null); }} />}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function CouponFormModal({ storeId, coupon, onClose }: { storeId: string; coupon: Coupon | null; onClose: () => void }) {
+  const queryClient = useQueryClient();
+  const [code, setCode] = useState(coupon?.code || "");
+  const [description, setDescription] = useState(coupon?.description || "");
+  const [discountType, setDiscountType] = useState(coupon?.discount_type || "percentage");
+  const [discountValue, setDiscountValue] = useState(coupon?.discount_value?.toString() || "");
+  const [minOrder, setMinOrder] = useState(coupon?.min_order_amount?.toString() || "");
+  const [maxUses, setMaxUses] = useState(coupon?.max_uses?.toString() || "");
+  const [expiresAt, setExpiresAt] = useState(coupon?.expires_at?.split("T")[0] || "");
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (!code || !discountValue) { toast.error("الكود والخصم مطلوبان"); return; }
+    setSaving(true);
+    try {
+      const payload = {
+        code: code.toUpperCase(),
+        description,
+        discount_type: discountType,
+        discount_value: parseFloat(discountValue),
+        min_order_amount: minOrder ? parseFloat(minOrder) : undefined,
+        max_uses: maxUses ? parseInt(maxUses) : undefined,
+        expires_at: expiresAt ? `${expiresAt}T23:59:59` : undefined,
+      };
+      if (coupon) {
+        await couponsApi.update(coupon.id, payload);
+        toast.success("تم تحديث الكوبون");
+      } else {
+        await couponsApi.create(storeId, payload);
+        toast.success("تم إنشاء الكوبون");
+      }
+      queryClient.invalidateQueries({ queryKey: ["coupons", storeId] });
+      onClose();
+    } catch {
+      toast.error("فشل الحفظ");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
+      <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-dark-card border border-dark-border rounded-2xl p-6 w-full max-w-md max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="font-bold text-lg">{coupon ? "تعديل كوبون" : "كوبون جديد"}</h3>
+          <button onClick={onClose} className="p-1 hover:bg-dark-hover rounded-lg"><X className="w-5 h-5" /></button>
+        </div>
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm font-medium text-text-secondary mb-1.5 block">كود الخصم</label>
+            <input type="text" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} className="input-field font-mono" dir="ltr" placeholder="SUMMER20" />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-text-secondary mb-1.5 block">الوصف (اختياري)</label>
+            <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} className="input-field" placeholder="خصم الصيف" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm font-medium text-text-secondary mb-1.5 block">نوع الخصم</label>
+              <select value={discountType} onChange={(e) => setDiscountType(e.target.value)} className="input-field">
+                <option value="percentage">نسبة مئوية %</option>
+                <option value="fixed">مبلغ ثابت ر.س</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-text-secondary mb-1.5 block">قيمة الخصم</label>
+              <input type="number" value={discountValue} onChange={(e) => setDiscountValue(e.target.value)} className="input-field" dir="ltr" placeholder={discountType === "percentage" ? "20" : "50"} />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm font-medium text-text-secondary mb-1.5 block">حد أدنى للطلب</label>
+              <input type="number" value={minOrder} onChange={(e) => setMinOrder(e.target.value)} className="input-field" dir="ltr" placeholder="100" />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-text-secondary mb-1.5 block">الحد الأقصى للاستخدام</label>
+              <input type="number" value={maxUses} onChange={(e) => setMaxUses(e.target.value)} className="input-field" dir="ltr" placeholder="100" />
+            </div>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-text-secondary mb-1.5 block">تاريخ الانتهاء</label>
+            <input type="date" value={expiresAt} onChange={(e) => setExpiresAt(e.target.value)} className="input-field" dir="ltr" />
+          </div>
+        </div>
+        <button onClick={handleSave} disabled={saving} className="btn-primary w-full mt-5 flex items-center justify-center gap-2 py-3 disabled:opacity-50">
+          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+          {coupon ? "حفظ التعديلات" : "إنشاء الكوبون"}
+        </button>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════
+   TAB: Analytics
+   ══════════════════════════════════════════════════════════ */
+function StoreAnalyticsTab({ storeId }: { storeId: string }) {
+  const [period, setPeriod] = useState("30d");
+
+  const { data: analytics, isLoading } = useQuery<FullAnalytics>({
+    queryKey: ["store-analytics", storeId, period],
+    queryFn: () => analyticsApi.get(storeId, period).then((r) => r.data),
+  });
+
+  const overview = analytics?.overview;
+  const maxRev = Math.max(...(analytics?.revenue_chart?.map((p) => Number(p.revenue)) || [1]), 1);
+
+  return (
+    <div className="space-y-6">
+      {/* Period Selector */}
+      <div className="flex items-center gap-2">
+        {[
+          { value: "7d", label: "7 أيام" },
+          { value: "30d", label: "30 يوم" },
+          { value: "90d", label: "3 أشهر" },
+          { value: "12m", label: "12 شهر" },
+        ].map((p) => (
+          <button key={p.value} onClick={() => setPeriod(p.value)} className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all ${period === p.value ? "bg-primary text-white" : "bg-dark-hover text-text-muted hover:text-white"}`}>
+            {p.label}
+          </button>
+        ))}
+      </div>
+
+      {isLoading ? (
+        <div className="flex items-center justify-center h-40 text-text-muted"><Loader2 className="w-5 h-5 animate-spin" /></div>
+      ) : (
+        <>
+          {/* Overview Stats */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { label: "الإيرادات", value: `${(overview?.total_revenue || 0).toFixed(0)} ر.س`, change: overview?.revenue_change, icon: DollarSign, color: "text-emerald-400", bg: "bg-emerald-500/10" },
+              { label: "الطلبات", value: overview?.total_orders || 0, change: overview?.orders_change, icon: ShoppingCart, color: "text-blue-400", bg: "bg-blue-500/10" },
+              { label: "العملاء", value: overview?.total_customers || 0, change: null, icon: Users, color: "text-violet-400", bg: "bg-violet-500/10" },
+              { label: "متوسط الطلب", value: `${(overview?.avg_order_value || 0).toFixed(0)} ر.س`, change: null, icon: TrendingUp, color: "text-amber-400", bg: "bg-amber-500/10" },
+            ].map((stat) => (
+              <div key={stat.label} className="glass-card p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <div className={`w-10 h-10 rounded-xl ${stat.bg} flex items-center justify-center`}><stat.icon className={`w-5 h-5 ${stat.color}`} /></div>
+                  {stat.change !== null && stat.change !== undefined && stat.change !== 0 && (
+                    <span className={`flex items-center gap-0.5 text-xs font-semibold ${Number(stat.change) > 0 ? "text-emerald-400" : "text-red-400"}`}>
+                      {Number(stat.change) > 0 ? "↑" : "↓"} {Math.abs(Number(stat.change)).toFixed(1)}%
+                    </span>
+                  )}
+                </div>
+                <p className="text-xl font-bold">{stat.value}</p>
+                <p className="text-xs text-text-muted mt-1">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Revenue Chart */}
+          <div className="glass-card p-6">
+            <h3 className="font-semibold mb-4 flex items-center gap-2"><BarChart3 className="w-4 h-4 text-primary" /> الإيرادات</h3>
+            <div className="h-48 flex items-end gap-1">
+              {(analytics?.revenue_chart || []).map((point, i) => {
+                const height = Number(point.revenue) > 0 ? Math.max((Number(point.revenue) / maxRev) * 100, 4) : 2;
+                return (
+                  <div key={i} className="flex-1 flex flex-col items-center justify-end group relative">
+                    <div className="w-full bg-linear-to-t from-primary/80 to-primary rounded-t-sm transition-all hover:from-primary hover:to-accent cursor-pointer min-h-[2px]" style={{ height: `${height}%` }} />
+                    {Number(point.revenue) > 0 && (
+                      <div className="absolute bottom-full mb-2 hidden group-hover:block bg-dark-bg border border-dark-border rounded-lg px-2 py-1 text-xs text-white whitespace-nowrap z-10 shadow-xl">
+                        {Number(point.revenue).toFixed(0)} ر.س · {point.orders} طلب
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Top Products + Order Status */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="glass-card p-6">
+              <h3 className="font-semibold mb-4 flex items-center gap-2"><TrendingUp className="w-4 h-4 text-success" /> الأكثر مبيعاً</h3>
+              {analytics?.top_products?.length ? (
+                <div className="space-y-3">
+                  {analytics.top_products.map((p, i) => (
+                    <div key={p.product_id} className="flex items-center gap-3">
+                      <span className="w-6 h-6 rounded-full bg-dark-hover flex items-center justify-center text-xs font-bold text-text-muted">{i + 1}</span>
+                      <div className="flex-1 min-w-0"><p className="text-sm truncate">{p.product_name}</p><p className="text-[10px] text-text-muted">{p.total_sold} مبيع</p></div>
+                      <span className="text-xs font-semibold text-success">{Number(p.total_revenue).toFixed(0)} ر.س</span>
+                    </div>
+                  ))}
+                </div>
+              ) : <p className="text-xs text-text-muted text-center py-6">لا توجد بيانات</p>}
+            </div>
+
+            <div className="glass-card p-6">
+              <h3 className="font-semibold mb-4 flex items-center gap-2"><ShoppingCart className="w-4 h-4 text-accent" /> حالة الطلبات</h3>
+              {analytics?.order_status ? (
+                <div className="space-y-3">
+                  {[
+                    { key: "pending", label: "قيد الانتظار", color: "bg-amber-500" },
+                    { key: "confirmed", label: "مؤكد", color: "bg-blue-500" },
+                    { key: "processing", label: "جاري التحضير", color: "bg-violet-500" },
+                    { key: "shipped", label: "تم الشحن", color: "bg-indigo-500" },
+                    { key: "delivered", label: "تم التوصيل", color: "bg-emerald-500" },
+                    { key: "cancelled", label: "ملغي", color: "bg-red-500" },
+                  ].map((s) => {
+                    const val = (analytics.order_status as Record<string, number>)[s.key] || 0;
+                    const total = Object.values(analytics.order_status).reduce((a, b) => a + b, 0);
+                    const pct = total > 0 ? (val / total) * 100 : 0;
+                    return (
+                      <div key={s.key} className="flex items-center gap-3">
+                        <div className={`w-2 h-2 rounded-full ${s.color}`} />
+                        <span className="text-xs text-text-muted flex-1">{s.label}</span>
+                        <span className="text-xs font-semibold">{val}</span>
+                        <div className="w-16 h-1.5 bg-dark-border rounded-full overflow-hidden"><div className={`h-full rounded-full ${s.color}`} style={{ width: `${pct}%` }} /></div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : <p className="text-xs text-text-muted text-center py-6">لا توجد بيانات</p>}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════
+   TAB: Reviews
+   ══════════════════════════════════════════════════════════ */
+function ReviewsTab({ storeId }: { storeId: string }) {
+  const queryClient = useQueryClient();
+  const [filter, setFilter] = useState<string>("all");
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["reviews", storeId, filter],
+    queryFn: () => reviewsApi.list(storeId, { is_approved: filter === "all" ? undefined : filter === "approved" }).then((r) => r.data),
+  });
+
+  const approveMut = useMutation({
+    mutationFn: ({ id, approved }: { id: string; approved: boolean }) => reviewsApi.update(id, { is_approved: approved }),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["reviews", storeId] }); toast.success("تم التحديث"); },
+  });
+
+  const deleteMut = useMutation({
+    mutationFn: (id: string) => reviewsApi.delete(id),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["reviews", storeId] }); toast.success("تم الحذف"); },
+  });
+
+  const featureMut = useMutation({
+    mutationFn: ({ id, featured }: { id: string; featured: boolean }) => reviewsApi.update(id, { is_featured: featured }),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["reviews", storeId] }); toast.success("تم التحديث"); },
+  });
+
+  const reviews: Review[] = data?.reviews || [];
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-bold">تقييمات العملاء</h3>
+          <p className="text-xs text-text-muted mt-0.5">{reviews.length} تقييم</p>
+        </div>
+        <div className="flex items-center gap-2">
+          {[
+            { value: "all", label: "الكل" },
+            { value: "pending", label: "بانتظار الموافقة" },
+            { value: "approved", label: "معتمدة" },
+          ].map((f) => (
+            <button key={f.value} onClick={() => setFilter(f.value)} className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all ${filter === f.value ? "bg-primary text-white" : "bg-dark-hover text-text-muted hover:text-white"}`}>
+              {f.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {isLoading ? (
+        <div className="flex items-center justify-center h-40 text-text-muted"><Loader2 className="w-5 h-5 animate-spin" /></div>
+      ) : reviews.length === 0 ? (
+        <div className="glass-card p-12 text-center">
+          <Star className="w-12 h-12 text-text-muted mx-auto mb-4" />
+          <p className="text-text-secondary">لا توجد تقييمات</p>
+          <p className="text-xs text-text-muted mt-1">ستظهر تقييمات العملاء هنا</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {reviews.map((review) => (
+            <div key={review.id} className="glass-card p-5">
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
+                    {review.customer_name?.[0] || "?"}
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">{review.customer_name}</p>
+                    <div className="flex items-center gap-1 mt-0.5">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star key={i} className={`w-3 h-3 ${i < review.rating ? "text-amber-400 fill-amber-400" : "text-dark-border"}`} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {review.is_featured && <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400">مميز</span>}
+                  <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${review.is_approved ? "bg-emerald-500/10 text-emerald-400" : "bg-amber-500/10 text-amber-400"}`}>
+                    {review.is_approved ? "معتمد" : "بانتظار الموافقة"}
+                  </span>
+                </div>
+              </div>
+              {review.title && <p className="font-medium text-sm mb-1">{review.title}</p>}
+              {review.comment && <p className="text-sm text-text-muted">{review.comment}</p>}
+              <div className="flex items-center gap-2 mt-3 pt-3 border-t border-dark-border">
+                {!review.is_approved && (
+                  <button onClick={() => approveMut.mutate({ id: review.id, approved: true })} className="btn-outline text-xs py-1.5 px-3 flex items-center gap-1 text-success border-success/20 hover:bg-success/10">
+                    <ThumbsUp className="w-3 h-3" /> قبول
+                  </button>
+                )}
+                {review.is_approved && (
+                  <button onClick={() => approveMut.mutate({ id: review.id, approved: false })} className="btn-outline text-xs py-1.5 px-3 flex items-center gap-1">
+                    <ThumbsDown className="w-3 h-3" /> إلغاء الاعتماد
+                  </button>
+                )}
+                <button onClick={() => featureMut.mutate({ id: review.id, featured: !review.is_featured })} className="btn-outline text-xs py-1.5 px-3 flex items-center gap-1">
+                  <Star className="w-3 h-3" /> {review.is_featured ? "إلغاء التمييز" : "تمييز"}
+                </button>
+                <button onClick={() => deleteMut.mutate(review.id)} className="btn-outline text-xs py-1.5 px-3 flex items-center gap-1 text-error border-error/20 hover:bg-error/10 mr-auto">
+                  <Trash2 className="w-3 h-3" /> حذف
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
