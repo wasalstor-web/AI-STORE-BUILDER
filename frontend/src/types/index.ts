@@ -198,3 +198,87 @@ export interface OrderSummary {
   pending_orders: number;
   completed_orders: number;
 }
+
+// ═══════════════════════════════════════
+//  Storefront (Public) Types
+// ═══════════════════════════════════════
+
+export interface PublicProduct {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  short_description: string | null;
+  price: number;
+  compare_at_price: number | null;
+  currency: string;
+  image_url: string | null;
+  images: string[];
+  is_featured: boolean;
+  in_stock: boolean;
+  category_name: string | null;
+  attributes?: Record<string, unknown> | null;
+  weight?: number | null;
+  weight_unit?: string | null;
+  related_products?: PublicProduct[];
+}
+
+export interface PublicProductListResponse {
+  products: PublicProduct[];
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+}
+
+export interface PublicCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  image_url: string | null;
+  product_count: number;
+}
+
+export interface PublicStore {
+  id: string;
+  name: string;
+  slug: string;
+  store_type: string;
+  language: string;
+  logo_url: string | null;
+  primary_color: string;
+  hero_title: string;
+  hero_subtitle: string;
+  hero_image: string | null;
+  about: Record<string, unknown>;
+  features: Array<Record<string, unknown>>;
+  categories: PublicCategory[];
+  featured_products: PublicProduct[];
+  category_count: number;
+  product_count: number;
+}
+
+export interface CartItem {
+  product: PublicProduct;
+  quantity: number;
+}
+
+export interface PublicOrderTracking {
+  order_number: string;
+  status: string;
+  payment_status: string;
+  customer_name: string;
+  total: number;
+  currency: string;
+  items: Array<{
+    name: string;
+    quantity: number;
+    price: number;
+    total: number;
+    image: string | null;
+  }>;
+  tracking_number: string | null;
+  shipping_method: string | null;
+  created_at: string | null;
+}

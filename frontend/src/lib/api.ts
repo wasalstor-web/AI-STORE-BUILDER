@@ -310,3 +310,40 @@ export const uploadsApi = {
 export const dashboardApi = {
   stats: () => api.get("/dashboard/stats"),
 };
+
+// ══════ Storefront (Public) API ══════
+export const storefrontApi = {
+  getStore: (slug: string) => api.get(`/s/${slug}`),
+
+  listProducts: (
+    slug: string,
+    params?: {
+      page?: number;
+      page_size?: number;
+      category?: string;
+      search?: string;
+      sort?: string;
+      featured?: boolean;
+    },
+  ) => {
+    const q = new URLSearchParams();
+    if (params?.page) q.set("page", String(params.page));
+    if (params?.page_size) q.set("page_size", String(params.page_size));
+    if (params?.category) q.set("category", params.category);
+    if (params?.search) q.set("search", params.search);
+    if (params?.sort) q.set("sort", params.sort);
+    if (params?.featured !== undefined) q.set("featured", String(params.featured));
+    return api.get(`/s/${slug}/products?${q.toString()}`);
+  },
+
+  getProduct: (slug: string, productSlug: string) =>
+    api.get(`/s/${slug}/products/${productSlug}`),
+
+  listCategories: (slug: string) => api.get(`/s/${slug}/categories`),
+
+  checkout: (slug: string, data: Record<string, unknown>) =>
+    api.post(`/s/${slug}/checkout`, data),
+
+  trackOrder: (slug: string, orderNumber: string, email: string) =>
+    api.get(`/s/${slug}/orders/${orderNumber}?email=${encodeURIComponent(email)}`),
+};

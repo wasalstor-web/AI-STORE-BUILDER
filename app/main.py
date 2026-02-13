@@ -115,9 +115,11 @@ from app.api.orders import router as orders_router  # noqa: E402
 from app.api.payments import router as payments_router  # noqa: E402
 from app.api.uploads import router as uploads_router  # noqa: E402
 from app.api.dashboard import router as dashboard_router  # noqa: E402
+from app.api.storefront import router as storefront_router  # noqa: E402
 
 # ── Public routes ──
 app.include_router(health_router)
+app.include_router(storefront_router, prefix=f"{settings.API_V1_PREFIX}/s", tags=["Storefront"])
 
 # ── Auth ──
 app.include_router(auth_router, prefix=f"{settings.API_V1_PREFIX}/auth", tags=["Auth"])

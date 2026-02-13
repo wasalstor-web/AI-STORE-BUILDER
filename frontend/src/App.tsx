@@ -23,6 +23,15 @@ const Contact = lazy(() => import("./pages/Contact"));
 const Profile = lazy(() => import("./pages/Profile"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
+/* ── Storefront (Customer-facing) ── */
+const StorefrontLayout = lazy(() => import("./components/storefront/StorefrontLayout"));
+const StoreHome = lazy(() => import("./pages/storefront/StoreHome"));
+const ProductListing = lazy(() => import("./pages/storefront/ProductListing"));
+const ProductDetail = lazy(() => import("./pages/storefront/ProductDetail"));
+const CartPage = lazy(() => import("./pages/storefront/CartPage"));
+const CheckoutPage = lazy(() => import("./pages/storefront/CheckoutPage"));
+const OrderConfirmation = lazy(() => import("./pages/storefront/OrderConfirmation"));
+
 /* ── Loading Spinner ── */
 function PageLoader() {
   return (
@@ -159,6 +168,17 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* ── واجهة المتجر (العملاء) ── */}
+          <Route path="/store/:slug" element={<StorefrontLayout />}>
+            <Route index element={<StoreHome />} />
+            <Route path="products" element={<ProductListing />} />
+            <Route path="products/:productSlug" element={<ProductDetail />} />
+            <Route path="cart" element={<CartPage />} />
+            <Route path="checkout" element={<CheckoutPage />} />
+            <Route path="order/:orderNumber" element={<OrderConfirmation />} />
+            <Route path="track" element={<OrderConfirmation />} />
+          </Route>
 
           {/* 404 */}
           <Route path="*" element={<NotFound />} />
