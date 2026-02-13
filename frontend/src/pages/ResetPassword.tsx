@@ -174,7 +174,9 @@ export default function ResetPassword() {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-white transition-colors"
-                  aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
+                  aria-label={
+                    showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"
+                  }
                 >
                   {showPassword ? (
                     <EyeOff className="w-5 h-5" />
@@ -239,7 +241,9 @@ export default function ResetPassword() {
 
             <button
               type="submit"
-              disabled={loading || code.length !== 6 || passwordStrength.score < 3}
+              disabled={
+                loading || code.length !== 6 || passwordStrength.score < 3
+              }
               className="btn-primary w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {loading ? (

@@ -130,8 +130,11 @@ export const authApi = {
   forgotPassword: (data: { email: string }) =>
     api.post("/auth/forgot-password", data),
 
-  resetPassword: (data: { email: string; code: string; new_password: string }) =>
-    api.post("/auth/reset-password", data),
+  resetPassword: (data: {
+    email: string;
+    code: string;
+    new_password: string;
+  }) => api.post("/auth/reset-password", data),
 };
 
 // ══════ Stores API ══════
@@ -332,7 +335,8 @@ export const storefrontApi = {
     if (params?.category) q.set("category", params.category);
     if (params?.search) q.set("search", params.search);
     if (params?.sort) q.set("sort", params.sort);
-    if (params?.featured !== undefined) q.set("featured", String(params.featured));
+    if (params?.featured !== undefined)
+      q.set("featured", String(params.featured));
     return api.get(`/s/${slug}/products?${q.toString()}`);
   },
 
@@ -345,12 +349,22 @@ export const storefrontApi = {
     api.post(`/s/${slug}/checkout`, data),
 
   trackOrder: (slug: string, orderNumber: string, email: string) =>
-    api.get(`/s/${slug}/orders/${orderNumber}?email=${encodeURIComponent(email)}`),
+    api.get(
+      `/s/${slug}/orders/${orderNumber}?email=${encodeURIComponent(email)}`,
+    ),
 };
 
 // ── Customers ──
 export const customersApi = {
-  list: (storeId: string, params?: { page?: number; per_page?: number; search?: string; sort?: string }) => {
+  list: (
+    storeId: string,
+    params?: {
+      page?: number;
+      per_page?: number;
+      search?: string;
+      sort?: string;
+    },
+  ) => {
     const q = new URLSearchParams();
     if (params?.page) q.set("page", String(params.page));
     if (params?.per_page) q.set("per_page", String(params.per_page));
@@ -361,8 +375,11 @@ export const customersApi = {
   stats: (storeId: string) => api.get(`/stores/${storeId}/customers/stats`),
   get: (storeId: string, customerId: string) =>
     api.get(`/stores/${storeId}/customers/${customerId}`),
-  update: (storeId: string, customerId: string, data: Record<string, unknown>) =>
-    api.patch(`/stores/${storeId}/customers/${customerId}`, data),
+  update: (
+    storeId: string,
+    customerId: string,
+    data: Record<string, unknown>,
+  ) => api.patch(`/stores/${storeId}/customers/${customerId}`, data),
 };
 
 // ── Coupons ──
@@ -378,17 +395,29 @@ export const couponsApi = {
   delete: (storeId: string, couponId: string) =>
     api.delete(`/stores/${storeId}/coupons/${couponId}`),
   validate: (storeId: string, code: string, orderAmount: number) =>
-    api.post(`/stores/${storeId}/coupons/validate`, { code, order_amount: orderAmount }),
+    api.post(`/stores/${storeId}/coupons/validate`, {
+      code,
+      order_amount: orderAmount,
+    }),
 };
 
 // ── Reviews ──
 export const reviewsApi = {
-  list: (storeId: string, params?: { page?: number; per_page?: number; product_id?: string; is_approved?: boolean }) => {
+  list: (
+    storeId: string,
+    params?: {
+      page?: number;
+      per_page?: number;
+      product_id?: string;
+      is_approved?: boolean;
+    },
+  ) => {
     const q = new URLSearchParams();
     if (params?.page) q.set("page", String(params.page));
     if (params?.per_page) q.set("per_page", String(params.per_page));
     if (params?.product_id) q.set("product_id", params.product_id);
-    if (params?.is_approved !== undefined) q.set("is_approved", String(params.is_approved));
+    if (params?.is_approved !== undefined)
+      q.set("is_approved", String(params.is_approved));
     return api.get(`/stores/${storeId}/reviews?${q.toString()}`);
   },
   update: (storeId: string, reviewId: string, data: Record<string, unknown>) =>

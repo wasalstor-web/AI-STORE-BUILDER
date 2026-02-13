@@ -18,16 +18,29 @@ function formatPrice(price: number, currency = "SAR") {
   }).format(price);
 }
 
-function ProductCard({ product, slug }: { product: PublicProduct; slug: string }) {
+function ProductCard({
+  product,
+  slug,
+}: {
+  product: PublicProduct;
+  slug: string;
+}) {
   const { addItem } = useCartStore();
   const discount = product.compare_at_price
-    ? Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100)
+    ? Math.round(
+        ((product.compare_at_price - product.price) /
+          product.compare_at_price) *
+          100,
+      )
     : 0;
 
   return (
     <div className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
       {/* Image */}
-      <Link to={`/store/${slug}/product/${product.slug}`} className="block relative aspect-square overflow-hidden bg-gray-50">
+      <Link
+        to={`/store/${slug}/product/${product.slug}`}
+        className="block relative aspect-square overflow-hidden bg-gray-50"
+      >
         {product.image_url ? (
           <img
             src={product.image_url}
@@ -47,7 +60,9 @@ function ProductCard({ product, slug }: { product: PublicProduct; slug: string }
         )}
         {!product.in_stock && (
           <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
-            <span className="bg-gray-900 text-white text-sm font-medium px-4 py-2 rounded-lg">نفذت الكمية</span>
+            <span className="bg-gray-900 text-white text-sm font-medium px-4 py-2 rounded-lg">
+              نفذت الكمية
+            </span>
           </div>
         )}
       </Link>
@@ -134,8 +149,18 @@ export default function StoreHome() {
         <div className="relative border-t border-white/15">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex items-center gap-8 text-white/70 text-sm">
-              <span><span className="font-bold text-white">{store.product_count}</span> منتج</span>
-              <span><span className="font-bold text-white">{store.category_count}</span> قسم</span>
+              <span>
+                <span className="font-bold text-white">
+                  {store.product_count}
+                </span>{" "}
+                منتج
+              </span>
+              <span>
+                <span className="font-bold text-white">
+                  {store.category_count}
+                </span>{" "}
+                قسم
+              </span>
               <span className="flex items-center gap-1">
                 <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
                 <span className="font-bold text-white">4.8</span>
@@ -174,13 +199,20 @@ export default function StoreHome() {
                 ) : (
                   <div
                     className="w-16 h-16 mx-auto rounded-xl flex items-center justify-center mb-3 text-white text-2xl font-bold group-hover:scale-110 transition-transform"
-                    style={{ backgroundColor: store.primary_color + "20", color: store.primary_color }}
+                    style={{
+                      backgroundColor: store.primary_color + "20",
+                      color: store.primary_color,
+                    }}
                   >
                     {cat.name.charAt(0)}
                   </div>
                 )}
-                <h3 className="font-semibold text-gray-900 text-sm">{cat.name}</h3>
-                <p className="text-xs text-gray-400 mt-1">{cat.product_count} منتج</p>
+                <h3 className="font-semibold text-gray-900 text-sm">
+                  {cat.name}
+                </h3>
+                <p className="text-xs text-gray-400 mt-1">
+                  {cat.product_count} منتج
+                </p>
               </Link>
             ))}
           </div>
@@ -192,7 +224,10 @@ export default function StoreHome() {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
-              <Sparkles className="w-6 h-6" style={{ color: store.primary_color }} />
+              <Sparkles
+                className="w-6 h-6"
+                style={{ color: store.primary_color }}
+              />
               <h2 className="text-2xl font-bold text-gray-900">منتجات مميزة</h2>
             </div>
             <Link
@@ -220,12 +255,18 @@ export default function StoreHome() {
                 <div key={i} className="text-center">
                   <div
                     className="w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-3"
-                    style={{ backgroundColor: store.primary_color + "15", color: store.primary_color }}
+                    style={{
+                      backgroundColor: store.primary_color + "15",
+                      color: store.primary_color,
+                    }}
                   >
-                    <span className="text-lg">{(feature as Record<string, string>).icon || "✨"}</span>
+                    <span className="text-lg">
+                      {(feature as Record<string, string>).icon || "✨"}
+                    </span>
                   </div>
                   <h3 className="font-semibold text-gray-900 text-sm mb-1">
-                    {(feature as Record<string, string>).title || `ميزة ${i + 1}`}
+                    {(feature as Record<string, string>).title ||
+                      `ميزة ${i + 1}`}
                   </h3>
                   <p className="text-xs text-gray-500">
                     {(feature as Record<string, string>).description || ""}

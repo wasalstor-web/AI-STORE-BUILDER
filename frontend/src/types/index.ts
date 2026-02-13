@@ -1,4 +1,4 @@
-﻿//  API Types 
+﻿//  API Types
 
 export interface User {
   id: string;
@@ -84,7 +84,7 @@ export interface StoreGenerateRequest {
   features?: string[];
 }
 
-//  Product Types 
+//  Product Types
 
 export interface Product {
   id: string;
@@ -124,7 +124,7 @@ export interface ProductListResponse {
   page_size: number;
 }
 
-//  Category Types 
+//  Category Types
 
 export interface Category {
   id: string;
@@ -145,7 +145,7 @@ export interface CategoryListResponse {
   total: number;
 }
 
-//  Order Types 
+//  Order Types
 
 export interface OrderItem {
   id: string;

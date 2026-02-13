@@ -20,7 +20,8 @@ export default function CartPage() {
   const { slug } = useParams<{ slug: string }>();
   const context = useOutletContext<{ store: PublicStore }>();
   const store = context?.store;
-  const { items, updateQuantity, removeItem, subtotal, taxAmount, total } = useCartStore();
+  const { items, updateQuantity, removeItem, subtotal, taxAmount, total } =
+    useCartStore();
 
   if (!store || !slug) return null;
   const primaryColor = store.primary_color || "#7c3aed";
@@ -46,21 +47,31 @@ export default function CartPage() {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-8">
-        سلة التسوق <span className="text-gray-400 text-lg font-normal">({items.length} منتج)</span>
+        سلة التسوق{" "}
+        <span className="text-gray-400 text-lg font-normal">
+          ({items.length} منتج)
+        </span>
       </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* ── Cart Items ── */}
         <div className="lg:col-span-2 space-y-4">
           {items.map((item) => (
-            <div key={item.product.id} className="flex gap-4 p-4 bg-white border border-gray-100 rounded-2xl">
+            <div
+              key={item.product.id}
+              className="flex gap-4 p-4 bg-white border border-gray-100 rounded-2xl"
+            >
               {/* Image */}
               <Link
                 to={`/store/${slug}/product/${item.product.slug}`}
                 className="flex-shrink-0 w-24 h-24 rounded-xl overflow-hidden bg-gray-50"
               >
                 {item.product.image_url ? (
-                  <img src={item.product.image_url} alt={item.product.name} className="w-full h-full object-cover" />
+                  <img
+                    src={item.product.image_url}
+                    alt={item.product.name}
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-300">
                     <ShoppingBag className="w-8 h-8" />
@@ -76,14 +87,17 @@ export default function CartPage() {
                   </h3>
                 </Link>
                 <p className="text-sm text-gray-400 mt-0.5">
-                  {formatPrice(item.product.price, item.product.currency)} للقطعة
+                  {formatPrice(item.product.price, item.product.currency)}{" "}
+                  للقطعة
                 </p>
 
                 <div className="flex items-center justify-between mt-3">
                   {/* Quantity */}
                   <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden">
                     <button
-                      onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                      onClick={() =>
+                        updateQuantity(item.product.id, item.quantity - 1)
+                      }
                       className="p-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors"
                     >
                       <Minus className="w-3.5 h-3.5" />
@@ -92,7 +106,9 @@ export default function CartPage() {
                       {item.quantity}
                     </span>
                     <button
-                      onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                      onClick={() =>
+                        updateQuantity(item.product.id, item.quantity + 1)
+                      }
                       className="p-1.5 text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors"
                     >
                       <Plus className="w-3.5 h-3.5" />
@@ -101,7 +117,10 @@ export default function CartPage() {
 
                   <div className="flex items-center gap-3">
                     <span className="font-bold text-gray-900">
-                      {formatPrice(item.product.price * item.quantity, item.product.currency)}
+                      {formatPrice(
+                        item.product.price * item.quantity,
+                        item.product.currency,
+                      )}
                     </span>
                     <button
                       onClick={() => removeItem(item.product.id)}
@@ -136,8 +155,12 @@ export default function CartPage() {
                 <span className="text-emerald-600 font-medium">مجاني</span>
               </div>
               <div className="border-t border-gray-200 pt-3 flex justify-between">
-                <span className="text-base font-bold text-gray-900">الإجمالي</span>
-                <span className="text-base font-bold text-gray-900">{formatPrice(total())}</span>
+                <span className="text-base font-bold text-gray-900">
+                  الإجمالي
+                </span>
+                <span className="text-base font-bold text-gray-900">
+                  {formatPrice(total())}
+                </span>
               </div>
             </div>
 

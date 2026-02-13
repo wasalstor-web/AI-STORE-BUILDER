@@ -3,8 +3,19 @@
  */
 
 import { useEffect, useState } from "react";
-import { Link, useOutletContext, useParams, useSearchParams } from "react-router-dom";
-import { ShoppingBag, SlidersHorizontal, Search, ChevronDown, Loader2 } from "lucide-react";
+import {
+  Link,
+  useOutletContext,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
+import {
+  ShoppingBag,
+  SlidersHorizontal,
+  Search,
+  ChevronDown,
+  Loader2,
+} from "lucide-react";
 import { storefrontApi } from "../../lib/api";
 import { useCartStore } from "../../stores/cartStore";
 import type { PublicStore, PublicProduct, PublicCategory } from "../../types";
@@ -39,16 +50,26 @@ export default function ProductListing() {
 
   useEffect(() => {
     if (!slug) return;
-    storefrontApi.listCategories(slug).then((res) => {
-      setCategories(res.data.categories || []);
-    }).catch(() => {});
+    storefrontApi
+      .listCategories(slug)
+      .then((res) => {
+        setCategories(res.data.categories || []);
+      })
+      .catch(() => {});
   }, [slug]);
 
   useEffect(() => {
     if (!slug) return;
     setLoading(true);
     storefrontApi
-      .listProducts(slug, { page, page_size: 12, category: category || undefined, search: search || undefined, sort, featured })
+      .listProducts(slug, {
+        page,
+        page_size: 12,
+        category: category || undefined,
+        search: search || undefined,
+        sort,
+        featured,
+      })
       .then((res) => {
         setProducts(res.data.products || []);
         setTotal(res.data.total || 0);
@@ -80,10 +101,10 @@ export default function ProductListing() {
           {category
             ? categories.find((c) => c.slug === category)?.name || "المنتجات"
             : search
-            ? `نتائج البحث: "${search}"`
-            : featured
-            ? "المنتجات المميزة"
-            : "جميع المنتجات"}
+              ? `نتائج البحث: "${search}"`
+              : featured
+                ? "المنتجات المميزة"
+                : "جميع المنتجات"}
         </h1>
         <p className="text-sm text-gray-500">{total} منتج</p>
       </div>
@@ -152,16 +173,29 @@ export default function ProductListing() {
         <div className="text-center py-20">
           <ShoppingBag className="w-12 h-12 mx-auto text-gray-300 mb-4" />
           <p className="text-gray-500 text-lg font-medium">لا توجد منتجات</p>
-          <p className="text-gray-400 text-sm mt-1">جرب تغيير الفلتر أو البحث بكلمة مختلفة</p>
+          <p className="text-gray-400 text-sm mt-1">
+            جرب تغيير الفلتر أو البحث بكلمة مختلفة
+          </p>
         </div>
       ) : (
         <>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
             {products.map((product) => (
-              <div key={product.id} className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-                <Link to={`/store/${slug}/product/${product.slug}`} className="block relative aspect-square overflow-hidden bg-gray-50">
+              <div
+                key={product.id}
+                className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
+              >
+                <Link
+                  to={`/store/${slug}/product/${product.slug}`}
+                  className="block relative aspect-square overflow-hidden bg-gray-50"
+                >
                   {product.image_url ? (
-                    <img src={product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                    <img
+                      src={product.image_url}
+                      alt={product.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                    />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-300">
                       <ShoppingBag className="w-12 h-12" />
@@ -169,18 +203,28 @@ export default function ProductListing() {
                   )}
                   {product.compare_at_price && (
                     <span className="absolute top-3 right-3 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-lg">
-                      -{Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100)}%
+                      -
+                      {Math.round(
+                        ((product.compare_at_price - product.price) /
+                          product.compare_at_price) *
+                          100,
+                      )}
+                      %
                     </span>
                   )}
                   {!product.in_stock && (
                     <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
-                      <span className="bg-gray-900 text-white text-sm font-medium px-4 py-2 rounded-lg">نفذت الكمية</span>
+                      <span className="bg-gray-900 text-white text-sm font-medium px-4 py-2 rounded-lg">
+                        نفذت الكمية
+                      </span>
                     </div>
                   )}
                 </Link>
                 <div className="p-4">
                   {product.category_name && (
-                    <p className="text-xs text-gray-400 mb-1">{product.category_name}</p>
+                    <p className="text-xs text-gray-400 mb-1">
+                      {product.category_name}
+                    </p>
                   )}
                   <Link to={`/store/${slug}/product/${product.slug}`}>
                     <h3 className="font-semibold text-gray-900 text-sm leading-snug mb-2 line-clamp-2 hover:text-gray-600 transition-colors">
@@ -189,9 +233,16 @@ export default function ProductListing() {
                   </Link>
                   <div className="flex items-center justify-between">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-lg font-bold text-gray-900">{formatPrice(product.price, product.currency)}</span>
+                      <span className="text-lg font-bold text-gray-900">
+                        {formatPrice(product.price, product.currency)}
+                      </span>
                       {product.compare_at_price && (
-                        <span className="text-sm text-gray-400 line-through">{formatPrice(product.compare_at_price, product.currency)}</span>
+                        <span className="text-sm text-gray-400 line-through">
+                          {formatPrice(
+                            product.compare_at_price,
+                            product.currency,
+                          )}
+                        </span>
                       )}
                     </div>
                     {product.in_stock && (
@@ -222,7 +273,9 @@ export default function ProductListing() {
                       ? "text-white shadow-sm"
                       : "text-gray-600 bg-white border border-gray-200 hover:border-gray-300"
                   }`}
-                  style={p === page ? { backgroundColor: primaryColor } : undefined}
+                  style={
+                    p === page ? { backgroundColor: primaryColor } : undefined
+                  }
                 >
                   {p}
                 </button>

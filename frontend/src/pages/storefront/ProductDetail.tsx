@@ -5,8 +5,16 @@
 import { useEffect, useState } from "react";
 import { Link, useOutletContext, useParams } from "react-router-dom";
 import {
-  ShoppingBag, Minus, Plus, ChevronRight, Truck, Shield, RotateCcw,
-  Check, Loader2, Heart
+  ShoppingBag,
+  Minus,
+  Plus,
+  ChevronRight,
+  Truck,
+  Shield,
+  RotateCcw,
+  Check,
+  Loader2,
+  Heart,
 } from "lucide-react";
 import { storefrontApi } from "../../lib/api";
 import { useCartStore } from "../../stores/cartStore";
@@ -22,7 +30,10 @@ function formatPrice(price: number, currency = "SAR") {
 }
 
 export default function ProductDetail() {
-  const { slug, productSlug } = useParams<{ slug: string; productSlug: string }>();
+  const { slug, productSlug } = useParams<{
+    slug: string;
+    productSlug: string;
+  }>();
   const context = useOutletContext<{ store: PublicStore }>();
   const store = context?.store;
   const { addItem } = useCartStore();
@@ -55,7 +66,11 @@ export default function ProductDetail() {
     return (
       <div className="text-center py-32">
         <p className="text-gray-500 text-lg">المنتج غير موجود</p>
-        <Link to={`/store/${slug}/products`} className="text-sm mt-2 inline-block hover:underline" style={{ color: store?.primary_color }}>
+        <Link
+          to={`/store/${slug}/products`}
+          className="text-sm mt-2 inline-block hover:underline"
+          style={{ color: store?.primary_color }}
+        >
           العودة للمنتجات
         </Link>
       </div>
@@ -63,9 +78,15 @@ export default function ProductDetail() {
   }
 
   const primaryColor = store.primary_color || "#7c3aed";
-  const images = product.image_url ? [product.image_url, ...(product.images || [])] : product.images || [];
+  const images = product.image_url
+    ? [product.image_url, ...(product.images || [])]
+    : product.images || [];
   const discount = product.compare_at_price
-    ? Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100)
+    ? Math.round(
+        ((product.compare_at_price - product.price) /
+          product.compare_at_price) *
+          100,
+      )
     : 0;
 
   const handleAddToCart = () => {
@@ -78,9 +99,19 @@ export default function ProductDetail() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* ── Breadcrumb ── */}
       <nav className="flex items-center gap-2 text-sm text-gray-400 mb-6">
-        <Link to={`/store/${slug}`} className="hover:text-gray-600 transition-colors">الرئيسية</Link>
+        <Link
+          to={`/store/${slug}`}
+          className="hover:text-gray-600 transition-colors"
+        >
+          الرئيسية
+        </Link>
         <ChevronRight className="w-3 h-3 rotate-180" />
-        <Link to={`/store/${slug}/products`} className="hover:text-gray-600 transition-colors">المنتجات</Link>
+        <Link
+          to={`/store/${slug}/products`}
+          className="hover:text-gray-600 transition-colors"
+        >
+          المنتجات
+        </Link>
         {product.category_name && (
           <>
             <ChevronRight className="w-3 h-3 rotate-180" />
@@ -112,11 +143,17 @@ export default function ProductDetail() {
                   key={i}
                   onClick={() => setSelectedImage(i)}
                   className={`flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
-                    i === selectedImage ? "border-current opacity-100" : "border-transparent opacity-60 hover:opacity-80"
+                    i === selectedImage
+                      ? "border-current opacity-100"
+                      : "border-transparent opacity-60 hover:opacity-80"
                   }`}
                   style={{ color: primaryColor }}
                 >
-                  <img src={img} alt="" className="w-full h-full object-cover" />
+                  <img
+                    src={img}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
                 </button>
               ))}
             </div>
@@ -126,7 +163,10 @@ export default function ProductDetail() {
         {/* ── Product Info ── */}
         <div>
           {product.category_name && (
-            <p className="text-sm font-medium mb-2" style={{ color: primaryColor }}>
+            <p
+              className="text-sm font-medium mb-2"
+              style={{ color: primaryColor }}
+            >
               {product.category_name}
             </p>
           )}
@@ -157,10 +197,14 @@ export default function ProductDetail() {
             {product.in_stock ? (
               <>
                 <Check className="w-4 h-4 text-emerald-500" />
-                <span className="text-sm font-medium text-emerald-600">متوفر في المخزون</span>
+                <span className="text-sm font-medium text-emerald-600">
+                  متوفر في المخزون
+                </span>
               </>
             ) : (
-              <span className="text-sm font-medium text-red-500">غير متوفر حالياً</span>
+              <span className="text-sm font-medium text-red-500">
+                غير متوفر حالياً
+              </span>
             )}
           </div>
 
@@ -231,9 +275,14 @@ export default function ProductDetail() {
               { icon: Shield, label: "دفع آمن", desc: "بيانات مشفرة" },
               { icon: RotateCcw, label: "إرجاع سهل", desc: "خلال 14 يوم" },
             ].map((badge) => (
-              <div key={badge.label} className="text-center p-3 bg-gray-50 rounded-xl">
+              <div
+                key={badge.label}
+                className="text-center p-3 bg-gray-50 rounded-xl"
+              >
                 <badge.icon className="w-5 h-5 mx-auto text-gray-500 mb-1" />
-                <p className="text-xs font-semibold text-gray-700">{badge.label}</p>
+                <p className="text-xs font-semibold text-gray-700">
+                  {badge.label}
+                </p>
                 <p className="text-[10px] text-gray-400">{badge.desc}</p>
               </div>
             ))}
@@ -242,7 +291,9 @@ export default function ProductDetail() {
           {/* Full Description */}
           {product.description && (
             <div className="border-t border-gray-100 pt-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-3">وصف المنتج</h3>
+              <h3 className="text-lg font-bold text-gray-900 mb-3">
+                وصف المنتج
+              </h3>
               <div className="text-gray-600 text-sm leading-relaxed whitespace-pre-line">
                 {product.description}
               </div>
@@ -254,7 +305,9 @@ export default function ProductDetail() {
       {/* ── Related Products ── */}
       {product.related_products && product.related_products.length > 0 && (
         <section className="mt-16">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">منتجات ذات صلة</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-6">
+            منتجات ذات صلة
+          </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
             {product.related_products.map((rel) => (
               <Link
@@ -264,7 +317,12 @@ export default function ProductDetail() {
               >
                 <div className="aspect-square overflow-hidden bg-gray-50">
                   {rel.image_url ? (
-                    <img src={rel.image_url} alt={rel.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                    <img
+                      src={rel.image_url}
+                      alt={rel.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                    />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-300">
                       <ShoppingBag className="w-10 h-10" />
@@ -272,8 +330,12 @@ export default function ProductDetail() {
                   )}
                 </div>
                 <div className="p-4">
-                  <h3 className="font-semibold text-gray-900 text-sm line-clamp-2 mb-2">{rel.name}</h3>
-                  <span className="text-lg font-bold text-gray-900">{formatPrice(rel.price, rel.currency)}</span>
+                  <h3 className="font-semibold text-gray-900 text-sm line-clamp-2 mb-2">
+                    {rel.name}
+                  </h3>
+                  <span className="text-lg font-bold text-gray-900">
+                    {formatPrice(rel.price, rel.currency)}
+                  </span>
                 </div>
               </Link>
             ))}

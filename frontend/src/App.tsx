@@ -24,13 +24,17 @@ const Profile = lazy(() => import("./pages/Profile"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 /* ── Storefront (Customer-facing) ── */
-const StorefrontLayout = lazy(() => import("./components/storefront/StorefrontLayout"));
+const StorefrontLayout = lazy(
+  () => import("./components/storefront/StorefrontLayout"),
+);
 const StoreHome = lazy(() => import("./pages/storefront/StoreHome"));
 const ProductListing = lazy(() => import("./pages/storefront/ProductListing"));
 const ProductDetail = lazy(() => import("./pages/storefront/ProductDetail"));
 const CartPage = lazy(() => import("./pages/storefront/CartPage"));
 const CheckoutPage = lazy(() => import("./pages/storefront/CheckoutPage"));
-const OrderConfirmation = lazy(() => import("./pages/storefront/OrderConfirmation"));
+const OrderConfirmation = lazy(
+  () => import("./pages/storefront/OrderConfirmation"),
+);
 
 /* ── Loading Spinner ── */
 function PageLoader() {

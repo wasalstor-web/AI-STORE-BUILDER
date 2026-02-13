@@ -61,7 +61,11 @@ export default function ForgotPassword() {
                 </div>
               </div>
               <p className="text-white/70">
-                إذا كان بريدك <span className="text-white font-mono" dir="ltr">{email}</span> مسجلاً، سيصلك رمز مكون من 6 أرقام.
+                إذا كان بريدك{" "}
+                <span className="text-white font-mono" dir="ltr">
+                  {email}
+                </span>{" "}
+                مسجلاً، سيصلك رمز مكون من 6 أرقام.
               </p>
               <Link
                 to={`/reset-password?email=${encodeURIComponent(email)}`}
